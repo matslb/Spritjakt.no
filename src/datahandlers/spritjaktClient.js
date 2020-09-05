@@ -15,7 +15,6 @@ class SpritjaktClient {
 
   static async FetchProducts(timeSpan) {
 
-
     if (allowedTimeSpans[timeSpan].getTime() > allTimeEarliestDate.getTime()) {
       timeSpan = allowedTimeSpans[timeSpan];
     } else {
@@ -31,6 +30,15 @@ class SpritjaktClient {
         if (!qs.empty) {
           qs.forEach((p) => {
             p = p.data();
+
+            if (p.Id === "11443601") {
+              let noe;
+            }
+            let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= timeSpan.getTime() && priceDate !== p.LastUpdated));
+
+            p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
+            p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+
             if (p.SortingDiscount && p.SortingDiscount >= 101 || p.SortingDiscount <= 99) {
               products.push(p);
             }

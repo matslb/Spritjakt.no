@@ -10,6 +10,16 @@ class PriceGraph extends React.Component {
   componentDidMount() {
     this.vmpLink.focus();
   }
+
+  washDate = (timeStamp) => {
+    let date = new Date(timeStamp + (2 * 60 * 60 * 1000));
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  }
+
   render() {
     var { p } = this.props;
 
@@ -24,18 +34,14 @@ class PriceGraph extends React.Component {
     var pricesReversed = p.PriceHistorySorted.slice();
     pricesReversed.reverse();
 
-    var oldPrice = p.PriceHistory[pricesReversed[0]];
-
-    var millisecondsPerDay = 24 * 60 * 60 * 1000;
-    let numberOfDays =
-      (today.getTime() - pricesReversed[0]) / millisecondsPerDay;
-
     for (let i = 0; i < pricesReversed.length; i++) {
-      let date = new Date(parseInt(pricesReversed[i]));
+      let date = new Date(this.washDate(parseInt(pricesReversed[i])));
 
-      let mostRecentPrice = p.PriceHistory[date.getTime()];
+      let mostRecentPrice = p.PriceHistory[pricesReversed[i]];
       let datestring = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-      config.data.push({ x: datestring, y: mostRecentPrice });
+      if (config.data[config.data.length - 1] === undefined || (config.data[config.data.length - 1].x !== datestring && p.PriceHistory[pricesReversed[i - 1]] !== mostRecentPrice)) {
+        config.data.push({ x: datestring, y: mostRecentPrice });
+      }
     }
 
     let priceSortedByAmount = SortArray(Object.values(p.PriceHistory), {
@@ -104,7 +110,11 @@ class PriceGraph extends React.Component {
             }}
             lineWidth={3}
             enableArea={true}
-            enablePoints={false}
+            enablePoints={true}
+            pointSize={5}
+            pointColor="#d0b55e"
+            pointBorderColor={{ from: 'serieColor' }}
+            pointBorderWidth={2}
             areaOpacity={0.5}
             crosshairType="x"
             useMesh={true}

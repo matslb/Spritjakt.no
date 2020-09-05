@@ -9,15 +9,16 @@ class ProductComp extends React.Component {
     this.productButton = React.createRef();
   }
   render() {
-    var { product, showDiff, selectedStore = "0" } = this.props;
+    var { product, selectedStore = "0" } = this.props;
     var background = {
       backgroundImage:
         "url(https://bilder.vinmonopolet.no/cache/100x100/" +
         product.Id +
         "-1.jpg)",
     };
+    var showDiff = product.SortingDiscount !== 100 ?? false;
     var priceIsLower = product.LatestPrice < product.ComparingPrice;
-    var lastChangedDate = new Date(product.LastUpdated);
+    var lastChangedDate = new Date(parseInt(product.LastUpdated) + (2 * 60 * 60 * 1000));
     var stock = 0;
     if (product.Stock.Stores.length > 0 && selectedStore !== "0") {
       var store = product.Stock.Stores.find((s) => s.name === selectedStore);
@@ -50,11 +51,11 @@ class ProductComp extends React.Component {
           {product.Name}
         </button>
         <div className="product_img" style={background}></div>
-        {showDiff && product.Discount !== "0.0" && (
+        {showDiff &&
           <span className="percentage_change">
             {(priceIsLower ? "" : "+") + (product.SortingDiscount - 100).toFixed(1)}%
           </span>
-        )}
+        }
         <span className="change_time">
           Endret<br /> {lastChangedDate.toISOString().slice(0, 10)}
         </span>

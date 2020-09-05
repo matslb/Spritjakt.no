@@ -6,7 +6,6 @@ const firebaseAdmin = require("firebase-admin");
 const serviceAccount = require("./configs/serviceAccountKey.json");
 const rp = require("request-promise");
 const SortArray = require("sort-array");
-const { user } = require("firebase-functions/lib/providers/auth");
 
 const allTimeEarliestDate = new Date(1594166400000);
 
@@ -45,7 +44,7 @@ exports.fetchProducts = functions.region("europe-west1").runWith(runtimeOpts).pu
   await FirebaseClient.UpdateProductPrices(await VmpClient.FetchFreshProducts());
 });
 
-exports.fetchStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.fetchStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreStocksToFetch = true;
   let freshStocks = [];
   let tries = 0;

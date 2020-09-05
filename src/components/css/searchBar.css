@@ -9,7 +9,7 @@
 }
 
 .SearchBar .wrapper ul.ProductList {
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   max-width: 1100px;
   padding: 1rem;
   min-height: 50px;
@@ -46,6 +46,11 @@
   border: 1px solid;
   font-size: 1rem;
   text-align: center;
+}
+@media (max-width: 1024px) {
+  .SearchBar .wrapper ul.ProductList {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 @media (max-width: 768px) {
   .SearchBar .wrapper ul.ProductList {

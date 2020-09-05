@@ -30,7 +30,7 @@ class VmpClient {
         });
         var items = [];
 
-        raw.map((p) => items.push(new Product(p)));
+        raw.map((p) => items.push(CreateProduct(p)));
 
         console.info("Fetched products " + items.length + " from Vinmonopolet");
         return items;
@@ -113,23 +113,22 @@ class VmpClient {
   }
 }
 
-class Product {
-  constructor(rawProduct) {
-    let d = new Date();
-    d.setFullYear(d.getFullYear(), d.getMonth(), d.getDate());
-
-    this.LastUpdated = d.getTime();
-    this.Id = rawProduct.basic.productId;
-    this.Name = rawProduct.basic.productLongName;
-    this.Volume = rawProduct.basic.volume;
-    this.Alcohol = rawProduct.basic.alcoholContent;
-    this.Country = rawProduct.origins.origin.country;
-    this.Type = rawProduct.classification.mainProductTypeName;
-    this.SubType = rawProduct.classification.subProductTypeName;
-    this.Description = rawProduct.description;
-    this.CurrentPrice = rawProduct.prices[0].salesPrice;
-    this.SearchWords = rawProduct.basic.productLongName.toLowerCase().split(" ");
-    this.ProductStatusSaleName = rawProduct.basic.productStatusSaleName;
+function CreateProduct(rawProduct) {
+  let d = new Date();
+  d.setFullYear(d.getFullYear(), d.getMonth(), d.getDate());
+  return {
+    LastUpdated: d.getTime(),
+    Id: rawProduct.basic.productId,
+    Name: rawProduct.basic.productLongName,
+    Volume: rawProduct.basic.volume,
+    Alcohol: rawProduct.basic.alcoholContent,
+    Country: rawProduct.origins.origin.country,
+    Type: rawProduct.classification.mainProductTypeName,
+    SubType: rawProduct.classification.subProductTypeName,
+    Description: rawProduct.description,
+    LatestPrice: rawProduct.prices[0].salesPrice,
+    SearchWords: rawProduct.basic.productLongName.toLowerCase().split(" "),
+    ProductStatusSaleName: rawProduct.basic.productStatusSaleName
   }
 }
 

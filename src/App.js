@@ -31,8 +31,7 @@ class App extends React.Component {
             </h1>
           </a>
           <p>
-            Når Vinmonopolets produkter blir satt opp eller ned i pris vil de
-            dukke opp her.
+            Prishistorikk for Vinmonopolets varesortiment
           </p>
         </header>
         <div className="Body">
@@ -41,8 +40,6 @@ class App extends React.Component {
           <ProductList />
         </div>
         <footer>
-          Priser og lagerbeholdning oppdateres daglig ca kl 07:00
-          <br />
           <span>
             Har du tilbakemeldinger eller funnet noe feil? Opprett gjerne et
             issue på

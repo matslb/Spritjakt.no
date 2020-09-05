@@ -42,7 +42,6 @@ module.exports = class EmailClient {
             productItem = productItem.replace(/&Discount&/g, (product.SortingDiscount - 100).toFixed(1));
             productItem = productItem.replace(/&ProductImageLink&/g, "https://bilder.vinmonopolet.no/cache/100x100/" + product.Id + "-1.jpg");
             productItem = productItem.replace(/&ProductLink&/g, "https://www.vinmonopolet.no/p/" + product.Id);
-
             productItem = productItem.replace(/&ProductDescription&/g, product.SubType);
             html += productItem;
         }
@@ -53,12 +52,12 @@ module.exports = class EmailClient {
     async SendEmails() {
 
         await this.recipients.forEach(async recipient => {
-            var mail = this.options;
+            var mail = Object.assign({}, this.options);
             mail.to = recipient;
             let footer = emailFooter;
             mail.html += footer.replace(/&SignOffURL&/g, "https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp?email=" + recipient);
             try {
-                console.log("sending email to: " + recipient)
+                console.log("sending email");
                 await sgMail.send(mail);
             } catch (error) {
                 console.log(error);

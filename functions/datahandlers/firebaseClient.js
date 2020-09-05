@@ -28,53 +28,65 @@ module.exports = class FirebaseClient {
       const productDoc = await productRef.get();
       let sp = productDoc.data();
       if (sp === undefined) {
-        p.PriceHistory = {
-          [today]: p.CurrentPrice,
-        };
-        delete p.CurrentPrice;
-        p.LastUpdated = allTimeEarliestDate.getTime() - 1000;
         sp = p;
 
+        sp.PriceHistory = {
+          [today]: sp.LatestPrice,
+        };
+        sp.LastUpdated = allTimeEarliestDate.getTime() - 1000;
+        sp.ComparingPrice = sp.LatestPrice;
+        sp.SortingDiscount = 100;
+
+        try {
+          await productRef.set(this.PrepProduct(sp));
+        } catch (error) {
+          console.log(error);
+        }
       } else {
         sp.ProductStatusSaleName = p.ProductStatusSaleName;
         sp.SearchWords = p.SearchWords;
         sp.Description = p.Description;
 
-        sp.priceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
+        sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
           order: "desc",
         });
+        let LatestPrice = p.LatestPrice;
+        let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
+        if (ComparingPrice == undefined) {
+          ComparingPrice = LatestPrice;
+        }
 
-        p.LatestPrice = p.CurrentPrice;
-        sp.ComparingPrice = p.PriceHistory[sp.priceHistorySorted[0]];
+        let SortingDiscount = (LatestPrice / ComparingPrice) * 100;
 
-        sp.SortingDiscount = (sp.LatestPrice / sp.ComparingPrice) * 100;
-        sp.PriceHistory[today] = sp.CurrentPrice;
-
-        if (p.SortingDiscount <= 99 || p.SortingDiscount >= 101) {
+        if (SortingDiscount !== 100) {
+          sp.PriceHistory[today] = LatestPrice;
+          sp.LatestPrice = LatestPrice;
+          sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
+            order: "desc",
+          });
           sp.LastUpdated = p.LastUpdated;
         }
-      }
-      try {
-        await productRef.update(this.PrepProduct(sp));
-      } catch (error) {
-        console.log(error);
+
+        try {
+          await productRef.update(this.PrepProduct(sp));
+          console.log(sp.Id);
+        } catch (error) {
+          console.log(error);
+        }
       }
     }
   }
 
   static PrepProduct(p) {
-    if (p.SubType && p.SubType.includes("Brennevin,")) {
-      p.SubType = "Brennevin";
-    }
-    if (p.SubType && p.SubType.includes("Sterkvin, annen")) {
-      p.SubType = "Sterkvin";
-    }
+
     if (p.SubType && p.SubType.includes("Alkoholfri")) {
       p.SubType = "Alkoholfritt";
     }
     if (p.SubType == undefined) {
       p.SubType = p.Type;
     }
+
+    p.SubType = p.SubType.split(",")[0];
 
     if (p.Stock === undefined) {
       p.Stock = {
@@ -128,7 +140,7 @@ module.exports = class FirebaseClient {
 
   static async SetStockUpdateList(Stocks, addOnSaleProductsIfMissing = false) {
     if (addOnSaleProductsIfMissing) {
-      var products = await this.FetchOnSaleProductsFireStore(
+      var products = await this.GetProductsOnSale(
         allTimeEarliestDate.getTime() + 90000000
       );
       products.map((p) => {

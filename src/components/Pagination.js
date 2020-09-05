@@ -16,7 +16,6 @@ class Pagination extends React.Component {
 
   renderPageButtons = () => {
     let list = [];
-    var dummyNotSet = true;
     let pages = Math.ceil(this.props.total / this.props.pageSize);
     for (let i = 1; i <= pages; i++) {
       if (pages < 8 || (i < 4 || i > (pages - 3) || this.props.page === i || this.props.page == i + 1 || this.props.page == i - 1)) {
@@ -42,13 +41,14 @@ class Pagination extends React.Component {
   };
   render() {
     let { pageSize, page, total } = this.props;
-    let productsShowingtext = "";
-    if (page === 1) {
-      productsShowingtext += "1 - " + (pageSize > total ? total : pageSize);
+    let productsShowingtext;
+
+    if (page !== 1 && page > Math.ceil(total / pageSize)) {
+      this.setPage(1);
+    } else if (page === 1) {
+      productsShowingtext = "1 - " + (pageSize > total ? total : pageSize);
     } else {
-      productsShowingtext +=
-        pageSize +
-        1 * (page - 1) +
+      productsShowingtext = 1 + (pageSize * (page - 1)) +
         " - " +
         (pageSize * page > total ? total : pageSize * page);
     }

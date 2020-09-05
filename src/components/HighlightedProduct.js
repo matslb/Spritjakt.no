@@ -45,6 +45,8 @@ class ProductComp extends React.Component {
         "-1.jpg)",
     };
     var priceIsLower = product.LatestPrice < product.ComparingPrice;
+    var showDiff = product.SortingDiscount !== 100 ?? false;
+
     return (
       <div
         id={product.Id}
@@ -54,6 +56,11 @@ class ProductComp extends React.Component {
         }
       >
         <div className="product_img" style={background}></div>
+        {showDiff &&
+          <span className="percentage_change">
+            {(priceIsLower ? "" : "+") + (product.SortingDiscount - 100).toFixed(1)}%
+          </span>
+        }
         <div className="product_details">
           <h2 className="name">{product.Name}</h2>
           <span className="price">Kr. {product.LatestPrice}</span>

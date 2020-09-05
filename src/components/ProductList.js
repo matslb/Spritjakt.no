@@ -368,6 +368,7 @@ class ProductList extends React.Component {
                 id="timespan"
                 value={this.state.timeSpan}
                 onChange={this.changeTimeSpan}>
+                <option value="7days">Siste 7 dager</option>
                 <option value="14days">Siste 14 dager</option>
                 <option value="30days">Siste 30 dager</option>
                 <option value="90days">Siste 90 dager</option>
