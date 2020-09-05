@@ -1,5 +1,5 @@
 .main {
-  padding: 1rem;
+  padding: 2rem 1rem;
   max-width: 1100px;
   margin: auto;
 }
@@ -87,7 +87,7 @@ ul.ProductList {
 
 .nav {
   display: grid;
-  grid-template-areas: "stock stock sto" "fil fil fil" "sor sor tim";
+  grid-template-areas: "dis dis dis" "stock stock sto" "fil fil fil" "sor sor tim";
   grid-gap: 10px;
   align-items: baseline;
   width: 100%;
@@ -101,6 +101,44 @@ ul.ProductList {
   grid-area: tim;
   justify-self: end;
   text-align: right;
+}
+
+.nav .DiscountFilter {
+    grid-area: dis;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    position: relative;
+    border-bottom: 1px solid rgba(0,0,0,.3)
+}
+.nav .DiscountFilter .clickable{
+  width: 100%;
+  padding: 1rem .5rem;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  position: relative;
+  outline:none;  
+  opacity: 1!important;
+  border: 1px solid white;
+  border-bottom: none;
+}
+.nav .DiscountFilter .clickable.active{
+  background: white;
+  border-color:  rgba(0,0,0,.3);
+}
+.nav .DiscountFilter .clickable:focus,
+  .nav .DiscountFilter .clickable:hover{
+  border-color: black;
+}
+.nav .DiscountFilter .clickable.active:after{
+  content:"";
+  height: 1rem;
+  position: absolute;
+  bottom: -1rem;
+  left: 0;
+  right: 0;
+  background: white;
 }
 
 .nav .stores {
@@ -168,11 +206,12 @@ ul.ProductList {
   .before_products {
     flex-direction: column-reverse;
   }
+
   .ProductTypes {
     grid-template-columns: 1fr 1fr;
   }
   .nav {
-    grid-template-areas: "sto sto" "stock stock" "fil il" "sor tim";
+    grid-template-areas: "dis dis" "sto sto" "stock stock" "fil il" "sor tim";
   }
   .filter legend {
     font-size: 1.5rem;

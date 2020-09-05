@@ -8,6 +8,7 @@
   transition: 0.2s 0.05s;
   text-align: left;
   overflow: hidden;
+  background: white;
 }
 .ProductComp:focus-within,
 li.ProductComp:hover {

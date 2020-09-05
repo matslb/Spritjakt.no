@@ -24,7 +24,7 @@ class ProductList extends React.Component {
       stockFilter: "all",
       selectedStores: ["0"],
       loading: true,
-      sort: "SortingDiscount_asc",
+      sort: "LastUpdated_desc",
       productTypes: {},
       showAllresults: true,
       highlightedProduct: false,
@@ -33,6 +33,7 @@ class ProductList extends React.Component {
       productResult: [],
       page: 1,
       pageSize: 24,
+      discountFilter: "lowered",
       filterVisibility: false,
     };
     this.productButtonRef = React.createRef();
@@ -172,7 +173,7 @@ class ProductList extends React.Component {
       const p = this.state.loadedProducts[i];
       if ((productTypes[p.SubType].state || !Object.keys(productTypes).find(pt => productTypes[pt].state)) &&
         (selectedStores.includes("0") || p.Stock.Stores.find((s) => selectedStores.includes(s.name))) &&
-        this.stockFilter(p)) {
+        this.stockFilter(p) && this.filterOnDiscount(p)) {
         productResult.push(p);
         productTypes[p.SubType].products[p.Id] = true;
         if (prevSelectedProductTypes.includes(p.SubType)) {
@@ -214,6 +215,9 @@ class ProductList extends React.Component {
           />
         );
     });
+    SortArray(list, {
+      by: "key"
+    })
     return list;
   };
 
@@ -222,9 +226,13 @@ class ProductList extends React.Component {
     return date.toISOString().slice(0, 10);
   };
 
-  handleStoreUpdate = (storeList) => {
+  handleStoreUpdate = async (storeList) => {
     let productTypes = this.state.productTypes;
     Object.keys(productTypes).map(pt => productTypes[pt].products = {})
+    await this.setState({
+      storeList: storeList,
+      productTypes: productTypes
+    });
     this.filterProducts(storeList, productTypes);
   };
 
@@ -232,25 +240,63 @@ class ProductList extends React.Component {
     let sorting = this.state.sort.split("_");
     if (event !== undefined) {
       sorting = event.target.value.split("_");
-      firebase
-        .analytics()
-        .logEvent("product_sort", { value: event.target.value });
+      firebase.analytics().logEvent("product_sort", { value: event.target.value });
     }
+
+    let sortState;
+    if (sorting[0] === "SortingDiscount") {
+      sorting[1] = this.state.discountFilter === "raised" ? "desc" : "asc";
+      sortState = sorting[0];
+    } else {
+      sortState = sorting[0] + "_" + sorting[1];
+    }
+
     this.setState({
-      sort: sorting[0] + "_" + sorting[1],
+      sort: sortState
     });
     let list = this.state.loadedProducts;
+
     SortArray(list, {
       by: [sorting[0], "Name"],
       order: [sorting[1], "asc"],
     });
-    this.setState({ loadedProducts: list });
+    this.setState({
+      loadedProducts: list
+    });
     this.filterProducts();
   };
 
   handleStockChange = async (event) => {
     await this.setState({ stockFilter: event.target.value });
     this.filterProducts();
+  }
+
+  filterOnDiscount = (p) => {
+    switch (this.state.discountFilter) {
+      case "raised":
+        return p.SortingDiscount > 100
+        break;
+      case "lowered":
+        return p.SortingDiscount < 100
+        break;
+      default:
+        return true;
+        break;
+    }
+  }
+
+  setDiscountFilter = async (event) => {
+    let value = "all";
+    if (event.target.value) {
+      value = event.target.value;
+    }
+    let productTypes = this.state.productTypes;
+    Object.keys(productTypes).map(pt => productTypes[pt].products = {})
+    await this.setState({
+      discountFilter: value,
+      productTypes: productTypes
+    });
+    this.handleSortChange();
   }
 
   stockFilter = (p) => {
@@ -276,9 +322,7 @@ class ProductList extends React.Component {
   changeTimeSpan = (event) => {
     this.setState({ timeSpan: event.target.value, loading: true });
 
-    firebase
-      .analytics()
-      .logEvent("timespan_change", { value: event.target.value });
+    firebase.analytics().logEvent("timespan_change", { value: event.target.value });
 
     this.updateProductResults(event.target.value);
   };
@@ -295,6 +339,23 @@ class ProductList extends React.Component {
       <div key="Productlist" className="main">
         <div className="before_products">
           <div className="nav">
+            <div className="DiscountFilter">
+              <button
+                className={"clickable " + (this.state.discountFilter === "lowered" ? "active" : "")}
+                value="lowered"
+                onClick={this.setDiscountFilter}
+              >Ned i pris</button>
+              <button
+                className={"clickable " + (this.state.discountFilter === "all" ? "active" : "")}
+                value="all"
+                onClick={this.setDiscountFilter}
+              >Alle</button>
+              <button
+                className={"clickable " + (this.state.discountFilter === "raised" ? "active" : "")}
+                value="raised"
+                onClick={this.setDiscountFilter}
+              >Opp i pris</button>
+            </div>
             <div
               className={
                 "filter " +
@@ -339,7 +400,7 @@ class ProductList extends React.Component {
                 value={this.state.sort}
                 onChange={this.handleSortChange}>
                 <option value="LastUpdated_desc">Nyeste</option>
-                <option value="SortingDiscount_asc">Prisendring</option>
+                <option value="SortingDiscount">Prisendring</option>
                 <option value="Name_asc">Navn (A-Å)</option>
                 <option value="Name_desc">Navn (Å-A)</option>
                 <option value="LatestPrice_asc">Pris (lav-høy)</option>
@@ -361,6 +422,7 @@ class ProductList extends React.Component {
             {this.state.stores.length > 0 &&
               <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} stores={this.state.stores} />
             }
+
             <div className="timeSpan">
               <label htmlFor="timespan">Tidsperiode</label>
               <br />
@@ -376,6 +438,7 @@ class ProductList extends React.Component {
             </div>
           </div>
         </div>
+
         <Pagination
           total={productResult.length}
           page={this.state.page}

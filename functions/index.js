@@ -44,7 +44,7 @@ exports.fetchProducts = functions.region("europe-west1").runWith(runtimeOpts).pu
   await FirebaseClient.UpdateProductPrices(await VmpClient.FetchFreshProducts());
 });
 
-exports.fetchStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.fetchStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("59 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreStocksToFetch = true;
   let freshStocks = [];
   let tries = 0;
@@ -192,10 +192,10 @@ exports.registerEmailHttp = functions.region("europe-west1").runWith(runtimeOpts
     return res.status(409).send("Email already exist");
   }
 
-  if (await FirebaseClient.RegisterUser(email)) {
-    return res.status(201).send("Email registered");
+  if (!await FirebaseClient.RegisterUser(email)) {
+    console.error("Could not remove email");
   }
-  return res.status(500).send("Something went wrong");
+  return res.status(201).send("Email registered");
 });
 
 exports.removeEmailHttp = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
@@ -207,11 +207,11 @@ exports.removeEmailHttp = functions.region("europe-west1").runWith(runtimeOpts).
     return res.status(400).send();
   }
 
-  if (await FirebaseClient.RemoveUser(req.query.email)) {
-    return res.send("<h2>Du er nå fjernet fra Spritjakts nyhetsbrev</h2>");
+  if (!await FirebaseClient.RemoveUser(req.query.email)) {
+    console.error("Could not remove email");
   }
 
-  return res.send("Something went wrong");
+  return res.send("<h2>Du er nå fjernet fra Spritjakts nyhetsbrev</h2>");
 });
 
 

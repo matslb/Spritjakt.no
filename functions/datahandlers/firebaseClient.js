@@ -228,23 +228,17 @@ module.exports = class FirebaseClient {
 
   static async RemoveUser(email) {
     var result = true;
-    var id = ""
     await firebase.firestore().collection("Users").where("Email", "==", email)
       .get()
       .then(function (querySnapshot) {
-        querySnapshot.forEach(function (doc) {
-          id = doc.id;
+        querySnapshot.forEach(async function (doc) {
+          await firebase.firestore().collection("Users").doc(doc.id).delete();
         })
       }).catch(error => {
         console.log("Error removing user: ", error);
         result = false;
       });
 
-    await firebase.firestore().collection("Users").doc(id).delete()
-      .catch(error => {
-        console.log("Error removing user: ", error);
-        result = false;
-      });
     return result;
   }
 

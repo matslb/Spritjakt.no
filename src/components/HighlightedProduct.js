@@ -67,7 +67,7 @@ class ProductComp extends React.Component {
           <span className="details">
             {product.SubType}, {product.Country}
             <br />
-            {product.Volume * 100}
+            {(product.Volume * 100).toFixed(1)}
             cl, Alk. {product.Alcohol}%
           </span>
           {product.Description && (

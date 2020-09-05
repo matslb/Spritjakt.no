@@ -67,7 +67,7 @@ class ProductComp extends React.Component {
             <FontAwesomeIcon icon={faBoxes} />
           </span>
           <span className="volume">
-            {product.Volume * 100}
+            {(product.Volume * 100).toFixed(1)}
             cl
           </span>
           <span className="alcohol">Alk. {product.Alcohol}%</span>
