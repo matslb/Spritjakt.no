@@ -223,6 +223,19 @@ exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pu
   d.setMilliseconds(0);
   let products = await FirebaseClient.GetProductsOnSale(d.getTime());
 
+  await products.map(async p => {
+    let date = new Date(p.LastUpdated);
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate < date.getTime()));
+    p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
+    p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+  });
+
+  products = products.filter(p => p.SortingDiscount <= 95);
   if (products === undefined || products.length === 0) {
     return;
   }
@@ -250,5 +263,4 @@ exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pu
   var emails = await FirebaseClient.GetEmails();
   var emailClient = new EmailClient(newsLetterProducts, emails);
   await emailClient.SendEmails();
-
 });
