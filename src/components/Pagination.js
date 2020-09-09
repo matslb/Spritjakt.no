@@ -5,13 +5,9 @@ import PageButton from "./PageButton";
 class Pagination extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      page: 1
-    }
   }
   setPage = (page) => {
     this.props.setPage(page);
-    this.setState({ page: page });
   };
 
   renderPageButtons = () => {

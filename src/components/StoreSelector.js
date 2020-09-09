@@ -7,36 +7,9 @@ class StoreSelector extends React.Component {
   constructor() {
     super();
     this.state = {
-      stores: [],
-      selectedOptions: [],
-      storeOptions: [],
+      selectedOptions: []
     };
     this.ProductFetchTimeout = null;
-  }
-
-  componentDidMount() {
-    let stores = this.props.stores;
-
-    SortArray(stores, {
-      by: ["city", "storeName"],
-      computed: {
-        city: s => s.address.city
-      }
-    });
-
-    let storeOptions = [];
-    stores.map(s => {
-      storeOptions.push({
-        value: s.storeId,
-        label: s.storeName + " (" + (s.count === undefined ? 0 : s.count) + ") ",
-        disabled: s.count === undefined
-      });
-    });
-
-    this.setState({
-      stores: stores,
-      storeOptions: storeOptions,
-    });
   }
   handleStoreUpdate = (storeOptions) => {
     let list = [];
@@ -55,15 +28,38 @@ class StoreSelector extends React.Component {
   }
 
   render() {
+
+    let stores = this.props.stores;
+    let storeOptions = [];
+    let selectedOptions = this.state.selectedOptions ?? [];
+
+    stores.map(s => {
+      let count = 0
+      if (s.count) {
+        count = this.props.discountFilter === "all" ? s.count.raised + s.count.lowered : s.count[this.props.discountFilter] || 0;
+      }
+      let option = {
+        value: s.storeId,
+        label: s.storeName + " (" + count + ")",
+        disabled: count === 0
+      }
+      storeOptions.push(option);
+      let selectedOption = selectedOptions.find(so => so.value === option.value);
+      if (selectedOption) {
+        selectedOptions[selectedOptions.indexOf(selectedOption)].label = option.label;
+      }
+    });
+
+
     return (
-      <div className="stores">
+      <div className="stores" >
         <label>
           <span style={{ display: "block", height: 0, width: 0, overflow: "hidden" }}>Velg butikker</span>
           <Select
             value={this.state.selectedOptions}
             onChange={this.handleStoreUpdate}
             isMulti
-            options={this.state.storeOptions}
+            options={storeOptions}
             isOptionDisabled={o => o.disabled === true}
             noOptionsMessage={() => "Fant niks og nada"}
             placeholder={'Velg butikker'}

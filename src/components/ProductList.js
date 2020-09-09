@@ -48,7 +48,14 @@ class ProductList extends React.Component {
     let stores = this.state.stores;
     if (firstLoad) {
       stores = await SpritjaktClient.FetchStores();
+      SortArray(stores, {
+        by: ["city", "storeName"],
+        computed: {
+          city: s => s.address.city
+        }
+      });
     }
+    stores.map(s => delete s.count);
 
     let products = await SpritjaktClient.FetchProducts(timeSpan);
 
@@ -58,9 +65,7 @@ class ProductList extends React.Component {
     let productTypes = this.state.productTypes;
     Object.keys(productTypes).map(
       (ptkey) =>
-        (productTypes[ptkey].count = {
-          ["0"]: 0,
-        })
+        (productTypes[ptkey].products = {})
     );
 
     //Updating existing product type counts
@@ -70,50 +75,37 @@ class ProductList extends React.Component {
       if (productTypes[p.SubType] === undefined) {
         productTypes[p.SubType] = {
           state: false,
-          count: {
-            ["0"]: 1
-          },
           products: {}
         };
-      } else {
-        productTypes[p.SubType].count["0"]++;
       }
-
+      let priceisLower = this.filterOnDiscount(p);
       for (const i in p.Stock.Stores) {
         const store = p.Stock.Stores[i];
-
         stores.map(s => {
           if (s.storeId === store.name) {
-            s.count = s.count === undefined ? 1 : s.count + 1;
+            if (s.count === undefined) {
+              s.count = {};
+            }
+            if (priceisLower) {
+              s.count.lowered = s.count.lowered === undefined ? 1 : s.count.lowered + 1;
+            } else {
+              s.count.raised = s.count.raised === undefined ? 1 : s.count.raised + 1;
+            }
+
+            return;
           }
         });
-        if (productTypes[p.SubType].count[store.name]) {
-          productTypes[p.SubType].count[store.name]++;
-        } else {
-          productTypes[p.SubType].count[store.name] = 1;
-        }
       }
     });
 
-    //Removing product types that are no longer present
-    let filteredResultCount = 0;
-    Object.keys(productTypes).forEach((ptkey) => {
-      if (productTypes[ptkey].count["0"] === 0) {
-        delete productTypes[ptkey];
-      } else if (productTypes[ptkey].state) {
-        filteredResultCount += productTypes[ptkey].count["0"];
-      }
-    });
     let selectedTypes = Object.keys(productTypes).filter((pt) => {
       return productTypes[pt].state;
     });
-    let showAllresults = selectedTypes.length > 0 ? false : true;
 
-    this.setState({
+    await this.setState({
       stores: stores,
       loadedProducts: loadedProducts,
       productTypes: productTypes,
-      productResultCount: showAllresults ? loadedProducts.length : filteredResultCount,
       showAllresults: selectedTypes.length > 0 ? false : true,
 
     });
@@ -176,6 +168,7 @@ class ProductList extends React.Component {
         this.stockFilter(p) && this.filterOnDiscount(p)) {
         productResult.push(p);
         productTypes[p.SubType].products[p.Id] = true;
+
         if (prevSelectedProductTypes.includes(p.SubType)) {
           productTypes[p.SubType].state = true;
         }
@@ -333,7 +326,7 @@ class ProductList extends React.Component {
   };
   render() {
 
-    let { pageSize, page, productResult } = this.state;
+    let { pageSize, page, productResult, stores } = this.state;
 
     return (
       <div key="Productlist" className="main">
@@ -420,7 +413,7 @@ class ProductList extends React.Component {
               </select>
             </div>
             {this.state.stores.length > 0 &&
-              <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} stores={this.state.stores} />
+              <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} discountFilter={this.state.discountFilter} stores={stores} />
             }
 
             <div className="timeSpan">

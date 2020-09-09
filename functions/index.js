@@ -215,7 +215,7 @@ exports.removeEmailHttp = functions.region("europe-west1").runWith(runtimeOpts).
 });
 
 
-exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 8 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let d = new Date();
   d.setHours(0);
   d.setMinutes(0);
@@ -225,7 +225,8 @@ exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pu
 
   await products.map(async p => {
     let date = new Date(p.LastUpdated);
-    date.setHours(0);
+    date.setDate(date.getDate() - 1);
+    date.setHours(22);
     date.setMinutes(0);
     date.setSeconds(0);
     date.setMilliseconds(0);

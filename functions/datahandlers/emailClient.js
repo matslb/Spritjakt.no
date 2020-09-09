@@ -16,12 +16,10 @@ module.exports = class EmailClient {
 
         this.products = products;
         this.recipients = recipients;
-        var d = new Date();
-        var date = d.toISOString().slice(0, 10);
         this.options = {
             from: "Spritjakt.no<varsel@spritjakt.no",
             to: '**Is set later**',
-            subject: 'Nyhetsbrev ' + date + ' - Ny dag, nye priser',
+            subject: 'Ny dag, nye priser',
             html: this.CreateNewsLetterEmail()
         };
     }
