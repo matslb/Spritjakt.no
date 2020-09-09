@@ -91,7 +91,6 @@ class ProductList extends React.Component {
             } else {
               s.count.raised = s.count.raised === undefined ? 1 : s.count.raised + 1;
             }
-
             return;
           }
         });
@@ -154,19 +153,18 @@ class ProductList extends React.Component {
 
   filterProducts = (selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) => {
     let productResult = [];
-    let prevSelectedProductTypes = Object.keys(productTypes).find(pt => productTypes[pt].state) ?? [];
+    let prevSelectedProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state) ?? [];
     Object.keys(productTypes).map((pt) => {
-      if (Object.keys(productTypes[pt].products).length === 0) {
-        productTypes[pt].state = false;
-      }
+      productTypes[pt].state = false;
     });
 
     for (let i = 0; i < this.state.loadedProducts.length; i++) {
       const p = this.state.loadedProducts[i];
-      if ((productTypes[p.SubType].state || !Object.keys(productTypes).find(pt => productTypes[pt].state)) &&
-        (selectedStores.includes("0") || p.Stock.Stores.find((s) => selectedStores.includes(s.name))) &&
+      if ((selectedStores.includes("0") || p.Stock.Stores.find((s) => selectedStores.includes(s.name))) &&
         this.stockFilter(p) && this.filterOnDiscount(p)) {
-        productResult.push(p);
+        if (prevSelectedProductTypes.includes(p.SubType) || prevSelectedProductTypes.length === 0) {
+          productResult.push(p);
+        }
         productTypes[p.SubType].products[p.Id] = true;
 
         if (prevSelectedProductTypes.includes(p.SubType)) {
@@ -222,7 +220,7 @@ class ProductList extends React.Component {
   handleStoreUpdate = async (storeList) => {
     let productTypes = this.state.productTypes;
     Object.keys(productTypes).map(pt => productTypes[pt].products = {})
-    await this.setState({
+    this.setState({
       storeList: storeList,
       productTypes: productTypes
     });
