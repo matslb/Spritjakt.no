@@ -36,7 +36,7 @@ class StoreSelector extends React.Component {
     stores.map(s => {
       let count = 0
       if (s.count) {
-        count = this.props.discountFilter === "all" ? s.count.raised + s.count.lowered : s.count[this.props.discountFilter] || 0;
+        count = this.props.discountFilter === "all" ? (s.count.raised || 0) + (s.count.lowered || 0) : s.count[this.props.discountFilter] || 0;
       }
       let option = {
         value: s.storeId,

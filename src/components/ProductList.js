@@ -78,7 +78,7 @@ class ProductList extends React.Component {
           products: {}
         };
       }
-      let priceisLower = this.filterOnDiscount(p);
+      let priceisLower = this.filterOnDiscount(p, "lowered");
       for (const i in p.Stock.Stores) {
         const store = p.Stock.Stores[i];
         stores.map(s => {
@@ -262,8 +262,8 @@ class ProductList extends React.Component {
     this.filterProducts();
   }
 
-  filterOnDiscount = (p) => {
-    switch (this.state.discountFilter) {
+  filterOnDiscount = (p, discountFilter = this.state.discountFilter) => {
+    switch (discountFilter) {
       case "raised":
         return p.SortingDiscount > 100
         break;

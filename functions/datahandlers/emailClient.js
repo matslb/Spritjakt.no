@@ -13,21 +13,25 @@ const greetings = ["Halla Balla!", "Hei Sveis!", "Sjallabais sjef!", "God dag ma
 module.exports = class EmailClient {
 
     constructor(products, recipients) {
-
         this.products = products;
         this.recipients = recipients;
+        let { text, html } = this.CreateNewsLetterEmail();
         this.options = {
             from: "Spritjakt.no<varsel@spritjakt.no",
             to: '**Is set later**',
             subject: 'Ny dag, nye priser',
-            html: this.CreateNewsLetterEmail()
+            html: html,
+            text: text,
+            headers: {}
         };
     }
     CreateNewsLetterEmail() {
         var html = emailHeader.replace(/&Header&/g, greetings[Math.floor(Math.random() * greetings.length)]);
         let subheader = "Jeg bare titter innom for å fortelle deg at det er nye varer som har fått redusert pris i dag.";
+        var text = subheader;
         if (this.products.length == 9) {
             subheader += "<br />Her er et utdrag av de beste tilbudene.";
+            text += "\nHer er et utdrag av de beste tilbudene:";
         }
         html = html.replace(/&SubHeader&/g, subheader);
 
@@ -42,9 +46,16 @@ module.exports = class EmailClient {
             productItem = productItem.replace(/&ProductLink&/g, "https://www.vinmonopolet.no/p/" + product.Id);
             productItem = productItem.replace(/&ProductDescription&/g, product.SubType);
             html += productItem;
+
+            text += "\n--------------------------\n"
+                + product.Name + " - " + product.SubType
+                + "\n\nNy pris:" + product.LatestPrice
+                + "\nGammel pris:" + product.ComparingPrice
+                + "\nPrisendring:" + (product.SortingDiscount - 100).toFixed(1)
+            "\n--------------------------\n"
         }
 
-        return html;
+        return { text, html };
     }
 
     async SendEmails() {
@@ -52,8 +63,12 @@ module.exports = class EmailClient {
         await this.recipients.forEach(async recipient => {
             var mail = Object.assign({}, this.options);
             mail.to = recipient;
+            mail.headers = {
+                "List-Unsubscribe": "<https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp?email=" + recipient + ">"
+            }
             let footer = emailFooter;
             mail.html += footer.replace(/&SignOffURL&/g, "https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp?email=" + recipient);
+            mail.text += "\n\nBruk denne linken for å melde deg av nyhetsbrevet: https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp?email=" + recipient;
             try {
                 console.log("sending email");
                 await sgMail.send(mail);
