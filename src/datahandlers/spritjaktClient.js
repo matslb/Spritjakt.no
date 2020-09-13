@@ -13,41 +13,59 @@ const allowedTimeSpans = {
 
 class SpritjaktClient {
 
-  static async FetchProducts(timeSpan) {
+  constructor() {
+    this.usedTimeSpans = [];
+    this.loadedProducts = [];
+  }
 
-    if (allowedTimeSpans[timeSpan].getTime() > allTimeEarliestDate.getTime()) {
-      timeSpan = allowedTimeSpans[timeSpan];
+  async FetchProducts(timeSpanLabel) {
+
+    if (allowedTimeSpans[timeSpanLabel].getTime() > allTimeEarliestDate.getTime()) {
+      var timeSpan = allowedTimeSpans[timeSpanLabel];
     } else {
-      timeSpan = allTimeEarliestDate;
+      var timeSpan = allTimeEarliestDate;
     }
+    if (!this.usedTimeSpans.includes(timeSpanLabel)) {
 
-    let products = [];
-    await firebase.firestore()
-      .collection("Products")
-      .where("LastUpdated", ">=", timeSpan.getTime())
-      .orderBy("LastUpdated")
-      .get().then(function (qs) {
-        if (!qs.empty) {
-          qs.forEach((p) => {
-            p = p.data();
-
-            if (p.Id === "11443601") {
-              let noe;
-            }
-            let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= timeSpan.getTime() && priceDate !== p.LastUpdated));
-
-            p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
-            p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
-
-            if (p.SortingDiscount && p.SortingDiscount >= 101 || p.SortingDiscount <= 99) {
-              products.push(p);
-            }
-          });
+      let endAtPoint = Date.now();
+      Object.keys(allowedTimeSpans).map(ts => {
+        if (allowedTimeSpans[ts] >= allowedTimeSpans[timeSpanLabel]) {
+          if (!this.usedTimeSpans.includes(ts)) {
+            this.usedTimeSpans.push(ts);
+          } else {
+            endAtPoint = allowedTimeSpans[ts].getTime();
+          }
         }
       });
-    return products;
+
+      await firebase.firestore()
+        .collection("Products")
+        .where("LastUpdated", ">=", timeSpan.getTime())
+        .orderBy("LastUpdated")
+        .endAt(endAtPoint)
+        .get()
+        .then((qs) => {
+          if (!qs.empty) {
+            qs.forEach((p) => {
+              p = p.data();
+
+              let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= timeSpan.getTime() && priceDate !== p.LastUpdated));
+
+              p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
+              p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+
+              if (p.SortingDiscount && (p.SortingDiscount >= 101 || p.SortingDiscount <= 99) && !this.loadedProducts.find(lp => lp.Id === p.Id)) {
+                this.loadedProducts.push(p);
+              }
+            });
+          }
+        });
+    }
+
+    return this.loadedProducts.filter(p => p.LastUpdated >= timeSpan.getTime());
   }
-  static async SearchProducts(searchString) {
+
+  async SearchProducts(searchString) {
     let options = {
       uri:
         "https://europe-west1-spritjakt.cloudfunctions.net/productSearchAdvanced",
@@ -65,7 +83,7 @@ class SpritjaktClient {
       });
     return res === undefined ? [] : res;
   }
-  static async FetchStores() {
+  async FetchStores() {
     const storesRef = firebase.firestore().collection("Stores").doc("1");
     let storeObject = storesRef.get();
     storeObject = (await storeObject).data();

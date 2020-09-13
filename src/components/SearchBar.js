@@ -19,6 +19,7 @@ class SearchBar extends React.Component {
       loadedProducts: [],
       highlightedProduct: false,
     };
+    this.SpritjaktClient = new SpritjaktClient();
     this.ProductFetchTimeout = null;
   }
 
@@ -37,7 +38,7 @@ class SearchBar extends React.Component {
   };
 
   async SearchProducts(searchString) {
-    let loadedProducts = await SpritjaktClient.SearchProducts(
+    let loadedProducts = await this.SpritjaktClient.SearchProducts(
       searchString.toLowerCase()
     );
     if (this.state.searchString !== searchString) return;
@@ -120,8 +121,8 @@ class SearchBar extends React.Component {
               {this.state.loading ? (
                 <FontAwesomeIcon icon={faCircleNotch} size="5x" />
               ) : (
-                this.displayProducts()
-              )}
+                  this.displayProducts()
+                )}
             </ul>
           </div>
         )}

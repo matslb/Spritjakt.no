@@ -36,6 +36,7 @@ class ProductList extends React.Component {
       discountFilter: "lowered",
       filterVisibility: false,
     };
+    this.spritjaktClient = new SpritjaktClient();
     this.productButtonRef = React.createRef();
     this.productList = React.createRef();
   }
@@ -47,7 +48,7 @@ class ProductList extends React.Component {
   async updateProductResults(timeSpan, firstLoad = false) {
     let stores = this.state.stores;
     if (firstLoad) {
-      stores = await SpritjaktClient.FetchStores();
+      stores = await this.spritjaktClient.FetchStores();
       SortArray(stores, {
         by: ["city", "storeName"],
         computed: {
@@ -57,7 +58,7 @@ class ProductList extends React.Component {
     }
     stores.map(s => delete s.count);
 
-    let products = await SpritjaktClient.FetchProducts(timeSpan);
+    let products = await this.spritjaktClient.FetchProducts(timeSpan);
 
     this.setState({ loading: false, page: 1 });
 
