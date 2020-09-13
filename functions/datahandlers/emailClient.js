@@ -27,7 +27,7 @@ module.exports = class EmailClient {
     }
     CreateNewsLetterEmail() {
         var html = emailHeader.replace(/&Header&/g, greetings[Math.floor(Math.random() * greetings.length)]);
-        let subheader = "Jeg bare titter innom for å fortelle deg at det er nye varer som har fått redusert pris i dag.";
+        let subheader = "Det er varer som har fått redusert pris i dag, og det er jo artig!";
         var text = subheader;
         if (this.products.length == 9) {
             subheader += "<br />Her er et utdrag av de beste tilbudene.";
@@ -49,9 +49,9 @@ module.exports = class EmailClient {
 
             text += "\n--------------------------\n"
                 + product.Name + " - " + product.SubType
-                + "\n\nNy pris:" + product.LatestPrice
-                + "\nGammel pris:" + product.ComparingPrice
-                + "\nPrisendring:" + (product.SortingDiscount - 100).toFixed(1)
+                + "\n\nNy pris: kr " + product.LatestPrice
+                + "\nGammel pris: kr " + product.ComparingPrice
+                + "\nPrisendring: " + (product.SortingDiscount - 100).toFixed(1) + "%"
             "\n--------------------------\n"
         }
 
