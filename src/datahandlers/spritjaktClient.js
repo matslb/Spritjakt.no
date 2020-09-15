@@ -18,18 +18,17 @@ class SpritjaktClient {
     this.loadedProducts = [];
   }
 
-  async FetchProducts(timeSpanLabel) {
+  async FetchProducts(startPointLabel) {
 
-    if (allowedTimeSpans[timeSpanLabel].getTime() > allTimeEarliestDate.getTime()) {
-      var timeSpan = allowedTimeSpans[timeSpanLabel];
+    if (allowedTimeSpans[startPointLabel].getTime() > allTimeEarliestDate.getTime()) {
+      var startPoint = allowedTimeSpans[startPointLabel].getTime() - (2 * 60 * 60 * 1000);
     } else {
-      var timeSpan = allTimeEarliestDate;
+      var startPoint = allTimeEarliestDate;
     }
-    if (!this.usedTimeSpans.includes(timeSpanLabel)) {
-
+    if (!this.usedTimeSpans.includes(startPointLabel)) {
       let endAtPoint = Date.now();
       Object.keys(allowedTimeSpans).map(ts => {
-        if (allowedTimeSpans[ts] >= allowedTimeSpans[timeSpanLabel]) {
+        if (allowedTimeSpans[ts] >= allowedTimeSpans[startPointLabel]) {
           if (!this.usedTimeSpans.includes(ts)) {
             this.usedTimeSpans.push(ts);
           } else {
@@ -40,16 +39,16 @@ class SpritjaktClient {
 
       await firebase.firestore()
         .collection("Products")
-        .where("LastUpdated", ">=", timeSpan.getTime())
+        .where("LastUpdated", ">=", startPoint)
         .orderBy("LastUpdated")
-        .endAt(endAtPoint)
+        .endBefore(endAtPoint)
         .get()
         .then((qs) => {
           if (!qs.empty) {
             qs.forEach((p) => {
               p = p.data();
 
-              let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= timeSpan.getTime() && priceDate !== p.LastUpdated));
+              let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && priceDate !== p.LastUpdated));
 
               p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
               p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
@@ -62,7 +61,7 @@ class SpritjaktClient {
         });
     }
 
-    return this.loadedProducts.filter(p => p.LastUpdated >= timeSpan.getTime());
+    return this.loadedProducts.filter(p => p.LastUpdated > startPoint);
   }
 
   async SearchProducts(searchString) {
