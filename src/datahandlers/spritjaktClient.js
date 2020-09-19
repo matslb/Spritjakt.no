@@ -23,7 +23,7 @@ class SpritjaktClient {
     if (allowedTimeSpans[startPointLabel].getTime() > allTimeEarliestDate.getTime()) {
       var startPoint = allowedTimeSpans[startPointLabel].getTime() - (2 * 60 * 60 * 1000);
     } else {
-      var startPoint = allTimeEarliestDate;
+      var startPoint = allTimeEarliestDate.getTime();
     }
     if (!this.usedTimeSpans.includes(startPointLabel)) {
       let endAtPoint = Date.now();
