@@ -241,7 +241,6 @@ exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pu
   d.setSeconds(0);
   d.setMilliseconds(0);
   let products = await FirebaseClient.GetProductsOnSale(d.getTime());
-
   await products.map(async p => {
     let date = new Date(p.LastUpdated);
     date.setDate(date.getDate() - 1);
@@ -250,11 +249,13 @@ exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pu
     date.setSeconds(0);
     date.setMilliseconds(0);
 
-    let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate < date.getTime()));
-    p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
-    p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+    p.ComparingPrice = p.PriceHistory[p.PriceHistorySorted[1]];
+    if (p.ComparingPrice) {
+      p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+    } else {
+      p.SortingDiscount = 100;
+    }
   });
-
   products = products.filter(p => p.SortingDiscount <= 95);
   if (products === undefined || products.length === 0) {
     return;
