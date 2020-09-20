@@ -32,7 +32,7 @@ module.exports = class FirebaseClient {
           [today]: sp.LatestPrice,
         };
         sp.PriceHistorySorted = [today];
-        sp.LastUpdated = allTimeEarliestDate.getTime() - 1000;
+        sp.LastUpdated = p.LastUpdated
 
         try {
           await productRef.set(this.PrepProduct(sp));

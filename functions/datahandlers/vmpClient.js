@@ -11,29 +11,32 @@ const vmpOptions = () => {
   };
 };
 class VmpClient {
-  static async FetchFreshProducts() {
+  static async FetchFreshProducts(start) {
     var today = new Date();
     let options = vmpOptions();
     options.uri += "products/v0/details-normal/";
+    options.resolveWithFullResponse = true;
     options.qs = {
       changedSince: today.toISOString().slice(0, 10),
-      maxResults: 30000,
+      start: start,
+      maxResults: 5000,
     };
-    console.info(options);
     return await rp(options)
       .then(function (res) {
-        var raw = res.filter(function (p) {
+        var raw = res.body.filter(function (p) {
           return (
             p.classification.mainProductTypeId !== "8" &&
             p.prices[0] !== undefined
           ); // Gaveartikler og tilbehør
         });
         var items = [];
-
         raw.map((p) => items.push(CreateProduct(p)));
-
         console.info("Fetched products " + items.length + " from Vinmonopolet");
-        return items;
+        return {
+          totalCount: parseInt(res.headers["x-total-count"]),
+          products: items,
+          error: false
+        };
       })
       .catch(function (err) {
         console.error("vmp fetch failed: " + err);

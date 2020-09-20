@@ -41,7 +41,28 @@ function httpCorsOptions(req, res) {
 }
 
 exports.fetchProducts = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 6 * * *").timeZone("Europe/Paris").onRun(async (context) => {
-  await FirebaseClient.UpdateProductPrices(await VmpClient.FetchFreshProducts());
+  let moreProductsToFetch = true;
+  let freshProducts = [];
+  let tries = 0;
+  while (moreProductsToFetch && tries < 20) {
+    let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length);
+
+    freshProducts = freshProducts.concat(products);
+    console.log(totalCount);
+    console.info("freshProducts: " + freshProducts.length);
+
+    if ((totalCount === freshProducts.length || products.length === 0) && !error) {
+      moreProductsToFetch = false;
+    } else if (error) {
+      console.info("Could not fetch Products, waiting 10 seconds until retry");
+      await new Promise(r => setTimeout(r, 10000));
+    }
+    tries++;
+  }
+
+  if (freshProducts.length > 0) {
+    await FirebaseClient.UpdateProductPrices(freshProducts);
+  }
 });
 
 exports.fetchStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("59 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
