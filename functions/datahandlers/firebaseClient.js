@@ -19,8 +19,6 @@ module.exports = class FirebaseClient {
 
     this.UpdateWriteTime(updatedProducts.length);
 
-    var newsLetterProducts = [];
-
     for (let i = 0; i < updatedProducts.length; i++) {
       const p = updatedProducts[i];
 
@@ -33,9 +31,8 @@ module.exports = class FirebaseClient {
         sp.PriceHistory = {
           [today]: sp.LatestPrice,
         };
+        sp.PriceHistorySorted = [today];
         sp.LastUpdated = allTimeEarliestDate.getTime() - 1000;
-        sp.ComparingPrice = sp.LatestPrice;
-        sp.SortingDiscount = 100;
 
         try {
           await productRef.set(this.PrepProduct(sp));
@@ -112,7 +109,6 @@ module.exports = class FirebaseClient {
     if (!snapshot.empty) {
       snapshot.forEach((p) => {
         products.push(p.data());
-        console.log(p.Id);
       });
     }
     return products;

@@ -51,7 +51,6 @@ class SearchBar extends React.Component {
     this.state.loadedProducts.map((p) => {
       list.push(
         <ProductComp
-          showDiff={false}
           key={p.Id}
           product={p}
           setGraph={this.setGraph.bind(this)}

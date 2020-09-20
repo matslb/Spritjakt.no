@@ -129,10 +129,8 @@ exports.productSearchAdvanced = functions.region("europe-west1").runWith(runtime
 
     let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(
       (priceDate) =>
-        priceDate <= allTimeEarliestDate &&
         priceDate !== p.PriceHistorySorted[0]
     );
-
     if (priceHistorySortedAndFiltered.length !== 0) {
       let oldestPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
       p.ComparingPrice = oldestPrice;
