@@ -256,7 +256,7 @@ exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pu
       p.SortingDiscount = 100;
     }
   });
-  products = products.filter(p => p.SortingDiscount <= 95);
+  products = products.filter(p => p.SortingDiscount <= 95 && (p.ProductStatusSaleName == undefined || p.ProductStatusSaleName !== "Utgått"));
   if (products === undefined || products.length === 0) {
     return;
   }
