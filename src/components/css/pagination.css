@@ -32,8 +32,14 @@ nav.Pagination ul {
   }
   nav.Pagination ul{
     margin: 2rem 0 1rem 0;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 2px;
+  }
+  nav.Pagination .pageButton{
+    width: 100%;
   }
   nav.Pagination ul li {
-    margin-bottom: 0.5rem;
+    margin: 0;
   }
 }

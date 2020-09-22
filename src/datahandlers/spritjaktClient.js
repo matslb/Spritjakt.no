@@ -15,17 +15,26 @@ class SpritjaktClient {
 
   constructor() {
     this.usedTimeSpans = [];
+    this.lastFetchGetLowerPrice = false;
     this.loadedProducts = [];
   }
 
-  async FetchProducts(startPointLabel) {
-
-    if (allowedTimeSpans[startPointLabel].getTime() > allTimeEarliestDate.getTime()) {
-      var startPoint = allowedTimeSpans[startPointLabel].getTime() - (2 * 60 * 60 * 1000);
-    } else {
-      var startPoint = allTimeEarliestDate.getTime();
+  async FetchProducts(startPointLabel, getLowerPrice) {
+    let fetchNew = false;
+    if (this.lastFetchGetLowerPrice !== getLowerPrice) {
+      fetchNew = true;
+      this.usedTimeSpans = [];
+      this.loadedProducts = [];
+      this.lastFetchGetLowerPrice = getLowerPrice;
     }
-    if (!this.usedTimeSpans.includes(startPointLabel)) {
+    let startPoint;
+    if (allowedTimeSpans[startPointLabel].getTime() > allTimeEarliestDate.getTime()) {
+      startPoint = allowedTimeSpans[startPointLabel].getTime() - (2 * 60 * 60 * 1000);
+    } else {
+      startPoint = allTimeEarliestDate.getTime();
+    }
+    let returnProducts = [];
+    if (!this.usedTimeSpans.includes(startPointLabel) || fetchNew) {
       let endAtPoint = Date.now();
       Object.keys(allowedTimeSpans).map(ts => {
         if (allowedTimeSpans[ts] >= allowedTimeSpans[startPointLabel]) {
@@ -41,6 +50,7 @@ class SpritjaktClient {
         .collection("Products")
         .where("LastUpdated", ">=", startPoint)
         .orderBy("LastUpdated")
+        .where("PriceIsLowered", "==", getLowerPrice)
         .endBefore(endAtPoint)
         .get()
         .then((qs) => {
@@ -48,7 +58,7 @@ class SpritjaktClient {
             qs.forEach((p) => {
               p = p.data();
 
-              let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && priceDate !== p.LastUpdated));
+              let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && parseInt(priceDate) !== parseInt(p.LastUpdated)));
 
               p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
               p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
@@ -59,9 +69,17 @@ class SpritjaktClient {
             });
           }
         });
+      returnProducts = this.loadedProducts.filter(p => p.LastUpdated > startPoint);
+    } else {
+      returnProducts = this.loadedProducts.filter(p => p.LastUpdated > startPoint);
+      returnProducts.map(p => {
+        let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && priceDate !== p.LastUpdated));
+        p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
+        p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+      });
     }
 
-    return this.loadedProducts.filter(p => p.LastUpdated > startPoint);
+    return returnProducts
   }
 
   async SearchProducts(searchString) {

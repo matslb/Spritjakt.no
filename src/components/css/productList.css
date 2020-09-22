@@ -1,7 +1,11 @@
 .main {
   padding: 2rem 1rem;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  gap: 2rem;
+  border-top: 1px solid;
 }
 .main > p {
   margin: 0 0 1rem;
@@ -21,7 +25,7 @@ ul.ProductList {
   grid-gap: 10px;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   padding: 0;
-  min-height: 150px;
+  min-height: 23rem;
 }
 
 .toggle {
@@ -87,7 +91,9 @@ ul.ProductList {
 
 .nav {
   display: grid;
-  grid-template-areas: "dis dis dis" "stock stock sto" "fil fil fil" "sor sor tim";
+  grid-template-areas:"dis dis dis"
+                      "stock sto sto"
+                      "sor tim tim";
   grid-gap: 10px;
   align-items: baseline;
   width: 100%;
@@ -107,38 +113,28 @@ ul.ProductList {
     grid-area: dis;
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
     position: relative;
-    border-bottom: 1px solid rgba(0,0,0,.3)
 }
 .nav .DiscountFilter .clickable{
   width: 100%;
   padding: 1rem .5rem;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+  font-weight: 100;
   position: relative;
   outline:none;  
-  opacity: 1!important;
-  border: 1px solid white;
-  border-bottom: none;
+  opacity: 1;
+  background: white;
+  border-bottom: 5px solid rgba(0, 0, 0, 0.562);
 }
 .nav .DiscountFilter .clickable.active{
-  background: white;
-  border-color:  rgba(0,0,0,.3);
+  border-bottom: 5px solid #d0b55e;
 }
-.nav .DiscountFilter .clickable:focus,
+.nav .DiscountFilter .clickable:active,
   .nav .DiscountFilter .clickable:hover{
-  border-color: black;
-}
-.nav .DiscountFilter .clickable.active:after{
-  content:"";
-  height: 1rem;
-  position: absolute;
-  bottom: -1rem;
-  left: 0;
-  right: 0;
-  background: white;
+    border-bottom: 5px solid #d0b55e79;
 }
 
 .nav .stores {
@@ -149,17 +145,11 @@ ul.ProductList {
   grid-area: sor;
 }
 .resetFilter {
-  grid-area: pta;
-  margin-right: 3px;
-  background: rgba(97, 160, 85, 0.8);
+  background: rgba(97, 160, 85, 0.7);
   border: none;
-  border-radius: 3px;
   color: white;
   cursor: pointer;
-  padding: 0.2rem 0.5rem;
-  max-height: unset;
-  height: 100%;
-  align-self: normal;
+  padding: 1rem 0.5rem;
 }
 .resetFilter.inactive {
   opacity: 0.3;
@@ -169,23 +159,23 @@ ul.ProductList {
 .ProductTypes {
   grid-area: pts;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-gap: 3px;
+  grid-template-columns: 1fr;
 }
 .filter fieldset {
   display: contents;
 }
 .filter .toggleFilter {
   display: none;
+  outline: none;
 }
 .filter {
-  grid-area: fil;
-  display: grid;
-  grid-template-areas: "leg leg leg leg leg" "pta pts pts pts pts" "pta pts pts pts pts";
-  grid-gap: 5px;
+  display: flex;
+  flex-direction: column;
 }
 .filter legend {
   grid-area: leg;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 .filter_backdrop.inactive {
   display: none;
@@ -196,8 +186,10 @@ ul.ProductList {
   }
 }
 @media (max-width: 768px) {
+  .main{
+    display: block;
+  }
   ul.ProductList {
-    grid-template-columns: 1fr 1fr;
     grid-gap: 5px;
   }
   .info {
@@ -207,27 +199,27 @@ ul.ProductList {
     flex-direction: column-reverse;
   }
 
-  .ProductTypes {
-    grid-template-columns: 1fr 1fr;
-  }
   .nav {
     grid-template-areas: "dis dis" "sto sto" "stock stock" "fil il" "sor tim";
   }
   .filter legend {
     font-size: 1.5rem;
   }
+  .ProductTypes{
+    overflow: scroll;
+  }
 
   .filter {
     position: fixed;
-    width: 78%;
+    width: 46%;
     transition: 0.2s 0.05s ease;
     border-right: 6px solid #92496e;
     background: white;
     box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4);
     padding: 1rem;
     z-index: 5;
-    bottom: 5rem;
-    top: 1rem;
+    bottom: 0;
+    top: 0;
     display: flex;
     flex-direction: column;
     border-top-right-radius: 2px;
@@ -247,7 +239,7 @@ ul.ProductList {
     border-bottom-right-radius: 5px;
     text-align: center;
     cursor: pointer;
-    top: 0;
+    top: 5rem;
     border: none;
     width: 3.6rem;
     font-size: 1rem;
@@ -256,7 +248,7 @@ ul.ProductList {
     right: 100%;
   }
   .filter.active {
-    right: 15%;
+    right: 45%;
   }
   .filter_backdrop.active {
     display: block;
@@ -267,16 +259,15 @@ ul.ProductList {
     right: 0;
     background: rgba(0, 0, 0, 0.2);
   }
-  .resetFilter {
-    margin-bottom: 5px;
-    margin-right: 0;
-    width: unset;
-    height: unset;
-  }
   .nav .stock,
   .nav .stock select,
   .nav .stores,
   .nav .sorting{
     width: 100%;
+  }
+}
+@media (max-width: 540px) {
+  ul.ProductList {
+    grid-template-columns: 1fr 1fr;
   }
 }

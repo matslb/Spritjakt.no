@@ -32,7 +32,7 @@ module.exports = class FirebaseClient {
           [today]: sp.LatestPrice,
         };
         sp.PriceHistorySorted = [today];
-        sp.LastUpdated = p.LastUpdated
+        sp.LastUpdated = today;
 
         try {
           await productRef.set(this.PrepProduct(sp));
@@ -56,12 +56,19 @@ module.exports = class FirebaseClient {
         let SortingDiscount = (LatestPrice / ComparingPrice) * 100;
 
         if (SortingDiscount !== 100) {
+
+          if (SortingDiscount < 99 || SortingDiscount > 101) {
+            sp.PriceIsLowered = SortingDiscount < 100;
+          } else {
+            sp.PriceIsLowered = null;
+          }
+
           sp.PriceHistory[today] = LatestPrice;
+          sp.LastUpdated = today;
           sp.LatestPrice = LatestPrice;
           sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
             order: "desc",
           });
-          sp.LastUpdated = p.LastUpdated;
         }
 
         try {

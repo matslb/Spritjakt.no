@@ -3,9 +3,6 @@ import "./css/pagination.css";
 import PageButton from "./PageButton";
 
 class Pagination extends React.Component {
-  constructor(props) {
-    super(props);
-  }
   setPage = (page) => {
     this.props.setPage(page);
   };
@@ -14,16 +11,16 @@ class Pagination extends React.Component {
     let list = [];
     let pages = Math.ceil(this.props.total / this.props.pageSize);
     for (let i = 1; i <= pages; i++) {
-      if (pages < 8 || (i < 4 || i > (pages - 3) || this.props.page === i || this.props.page == i + 1 || this.props.page == i - 1)) {
+      if (pages < 8 || (i < 3 || i > (pages - 2) || this.props.page === i || this.props.page === i + 1 || this.props.page === i - 1)) {
         list.push(
           <PageButton
             key={"page-" + i}
             page={i}
-            isSelected={this.props.page == i}
+            isSelected={this.props.page === i}
             setPage={this.setPage.bind(this)}
           />
         );
-      } else if (pages >= 8 && i === 4 && this.props.page < 4 || this.props.page == i + 2 || this.props.page == i - 2 || this.props.page == pages && i == this.props.page - 4) {
+      } else if (pages >= 8 && i === 3 && this.props.page < 3 || this.props.page === i + 2 || this.props.page === i - 2 || this.props.page === pages && i === this.props.page - 2) {
         list.push(
           <li>
             <button style={{ pointerEvents: "none" }} className="pageButton clickable inactive">

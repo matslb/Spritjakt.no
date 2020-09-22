@@ -117,10 +117,7 @@ class VmpClient {
 }
 
 function CreateProduct(rawProduct) {
-  let d = new Date();
-  d.setFullYear(d.getFullYear(), d.getMonth(), d.getDate());
   return {
-    LastUpdated: d.getTime(),
     Id: rawProduct.basic.productId,
     Name: rawProduct.basic.productLongName,
     Volume: rawProduct.basic.volume,

@@ -1,6 +1,6 @@
 .ProductType {
-  border-radius: 3px;
   text-align: center;
+  border-radius: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -8,22 +8,44 @@
   font-size: 0.85rem;
   color: #1f2b33;
   cursor: pointer;
-  background: #e3e3e3;
-  padding: 0;
+  padding: 2px 0;
   max-height: unset;
+  border-top: 2px solid rgba(0, 0, 0, 0.562);
+  position: relative;
+}
+
+label.clickable.ProductType:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  background: #d0b55e;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  max-height: .1px;
+  opacity: 0;
+  transition: max-height 0.2s ease, opacity 0.2s 0s;
+}
+label.clickable.ProductType.true:after {
+  max-height: 10rem;
+  opacity: 1;
+  transition: max-height 0.2s ease, opacity 0s 0s;
 }
 
 label.ProductType.true {
-  background: #d0b55e;
-  color: white;
+  color:white;
 }
-label.ProductType:focus-within {
-  outline-color: black;
-  outline-style: auto;
+
+label.ProductType:focus-within,
+label.ProductType:focus-within:after{
+  background: #d0b55e7c;
 }
 
 .ProductType span.name {
   padding: 0.2rem 0.5rem;
+  text-align: left;
+  width: 100%;
 }
 .ProductType span.count {
   margin: 0;

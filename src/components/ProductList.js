@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
 import PriceGraph from "./PriceGraph";
 import * as Scroll from "react-scroll";
-import { isMobile } from "react-device-detect";
+import { isMobileOnly } from "react-device-detect";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import StoreSelector from "./StoreSelector";
@@ -58,7 +58,7 @@ class ProductList extends React.Component {
     }
     stores.map(s => delete s.count);
 
-    let products = await this.spritjaktClient.FetchProducts(timeSpan);
+    let products = await this.spritjaktClient.FetchProducts(timeSpan, this.state.discountFilter === "lowered");
 
     this.setState({ loading: false, page: 1 });
 
@@ -267,13 +267,10 @@ class ProductList extends React.Component {
     switch (discountFilter) {
       case "raised":
         return p.SortingDiscount > 100
-        break;
       case "lowered":
         return p.SortingDiscount < 100
-        break;
       default:
         return true;
-        break;
     }
   }
 
@@ -286,9 +283,10 @@ class ProductList extends React.Component {
     Object.keys(productTypes).map(pt => productTypes[pt].products = {})
     await this.setState({
       discountFilter: value,
-      productTypes: productTypes
+      loading: true,
+      timeSpan: "14days"
     });
-    this.handleSortChange();
+    this.updateProductResults("14days");
   }
 
   stockFilter = (p) => {
@@ -329,160 +327,143 @@ class ProductList extends React.Component {
 
     return (
       <div key="Productlist" className="main">
-        <div className="before_products">
-          <div className="nav">
-            <div className="DiscountFilter">
-              <button
-                className={"clickable " + (this.state.discountFilter === "lowered" ? "active" : "")}
-                value="lowered"
-                onClick={this.setDiscountFilter}
-              >Ned i pris</button>
-              <button
-                className={"clickable " + (this.state.discountFilter === "all" ? "active" : "")}
-                value="all"
-                onClick={this.setDiscountFilter}
-              >Alle</button>
-              <button
-                className={"clickable " + (this.state.discountFilter === "raised" ? "active" : "")}
-                value="raised"
-                onClick={this.setDiscountFilter}
-              >Opp i pris</button>
-            </div>
-            <div
-              className={
-                "filter " +
-                (this.state.filterVisibility ? "active" : "inactive")
-              }
-            >
-              <button
-                className="toggleFilter"
-                onClick={() => {
-                  this.setState({
-                    filterVisibility: !this.state.filterVisibility,
-                  });
-                  firebase.analytics().logEvent("filter_toggle_handheld");
-                }}
-              >
-                {!this.state.filterVisibility ? (
-                  "Filter"
-                ) : (
-                    <FontAwesomeIcon title="Lukk filter" icon={faTimes} />
-                  )}
-              </button>
-              <fieldset disabled={!this.state.filterVisibility && isMobile}>
-                <legend>Filter</legend>
-                <button
-                  disabled={this.state.showAllresults}
-                  className={
-                    "clickable resetFilter show " +
-                    (this.state.showAllresults ? "inactive" : "active")
-                  }
-                  onClick={() => this.selectAllTypes()}
-                >
-                  Nullstill
+        <aside className={"filter " + (this.state.filterVisibility ? "active" : "inactive")}>
+          <button className="toggleFilter"
+            onClick={() => {
+              this.setState({
+                filterVisibility: !this.state.filterVisibility,
+              });
+              firebase.analytics().logEvent("filter_toggle_handheld");
+            }}>
+            {!this.state.filterVisibility ? ("Filter") : (<FontAwesomeIcon title="Lukk filter" icon={faTimes} />)}
+          </button>
+          <fieldset disabled={!this.state.filterVisibility && isMobileOnly}>
+            <legend>Filter</legend>
+            <button disabled={this.state.showAllresults}
+              className={"clickable resetFilter show " + (this.state.showAllresults ? "inactive" : "active")}
+              onClick={() => this.selectAllTypes()}>
+              Nullstill
                 </button>
-                <div className="ProductTypes">{this.displayProductTypes()}</div>
-              </fieldset>
-            </div>
-            <div className="sorting">
-              <label htmlFor="sorting">Sortering</label>
-              <br />
-              <select
-                id="sorting"
-                value={this.state.sort}
-                onChange={this.handleSortChange}>
-                <option value="LastUpdated_desc">Nyeste</option>
-                <option value="SortingDiscount">Prisendring</option>
-                <option value="Name_asc">Navn (A-Å)</option>
-                <option value="Name_desc">Navn (Å-A)</option>
-                <option value="LatestPrice_asc">Pris (lav-høy)</option>
-                <option value="LatestPrice_desc">Pris (høy-lav)</option>
-              </select>
-            </div>
-            <div className="stock">
-              <label htmlFor="stock">Lagerstatus</label>
-              <br />
-              <select
-                id="stock"
-                value={this.state.stockFilter}
-                onChange={this.handleStockChange}>
-                <option value="all">Alle</option>
-                <option value="online">Kan bestilles på nett</option>
-                <option value="instock">På lager i butikk</option>
-              </select>
-            </div>
-            {this.state.stores.length > 0 &&
-              <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} discountFilter={this.state.discountFilter} stores={stores} />
-            }
+            <div className="ProductTypes">{this.displayProductTypes()}</div>
+          </fieldset>
+        </aside>
+        <main>
 
-            <div className="timeSpan">
-              <label htmlFor="timespan">Tidsperiode</label>
-              <br />
-              <select
-                id="timespan"
-                value={this.state.timeSpan}
-                onChange={this.changeTimeSpan}>
-                <option value="7days">Siste 7 dager</option>
-                <option value="14days">Siste 14 dager</option>
-                <option value="30days">Siste 30 dager</option>
-                <option value="90days">Siste 90 dager</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <Pagination
-          total={productResult.length}
-          page={this.state.page}
-          setPage={this.setPage.bind(this)}
-          pageSize={pageSize}
-        />
-        <ul ref={this.productList} className="ProductList">
-          {this.state.loading ? <FontAwesomeIcon icon={faCircleNotch} size="5x" /> : this.displayProducts()}
-          {productResult.length === 0 && this.state.loading === false ? (
-            <p
-              style={{
-                textAlign: "center",
-                position: "absolute",
-                left: 0,
-                right: 0,
-                margin: "auto"
-              }}
-            >Her var det ikke noe, gitt :/</p>) : ("")}
-        </ul>
-        <Pagination
-          total={productResult.length}
-          page={page}
-          setPage={this.setPage.bind(this)}
-          pageSize={pageSize}
-        />
-        <CSSTransition
-          in={this.state.graphIsVisible}
-          timeout={100}
-          className="toggle"
-          onExited={() => this.setGraph(null, null)}
-        >
-          <div>
-            {this.state.highlightedProduct && (
-              <div className="priceGraphWrapper">
-                <PriceGraph p={this.state.highlightedProduct} />
-                <div className="backdrop" onClick={() => this.hideGraph()}>
-                  <label htmlFor="closeGraph">Tilbake</label>
-                  <button name="closeGraph" className="close">
-                    <FontAwesomeIcon icon={faTimes} />
-                  </button>
-                </div>
+          <div className="before_products">
+            <div className="nav">
+              <div className="DiscountFilter">
+                <button
+                  className={"clickable " + (this.state.discountFilter === "lowered" ? "active" : "")}
+                  value="lowered"
+                  onClick={this.setDiscountFilter}
+                >Ned i pris</button>
+                <button
+                  className={"clickable " + (this.state.discountFilter === "raised" ? "active" : "")}
+                  value="raised"
+                  onClick={this.setDiscountFilter}
+                >Opp i pris</button>
               </div>
-            )}
+              <div className="sorting">
+                <label htmlFor="sorting">Sortering</label>
+                <br />
+                <select
+                  id="sorting"
+                  value={this.state.sort}
+                  onChange={this.handleSortChange}>
+                  <option value="LastUpdated_desc">Nyeste</option>
+                  <option value="SortingDiscount">Prisendring</option>
+                  <option value="Name_asc">Navn (A-Å)</option>
+                  <option value="Name_desc">Navn (Å-A)</option>
+                  <option value="LatestPrice_asc">Pris (lav-høy)</option>
+                  <option value="LatestPrice_desc">Pris (høy-lav)</option>
+                </select>
+              </div>
+              <div className="stock">
+                <label htmlFor="stock">Lagerstatus</label>
+                <br />
+                <select
+                  id="stock"
+                  value={this.state.stockFilter}
+                  onChange={this.handleStockChange}>
+                  <option value="all">Alle</option>
+                  <option value="online">Kan bestilles på nett</option>
+                  <option value="instock">På lager i butikk</option>
+                </select>
+              </div>
+              {this.state.stores.length > 0 &&
+                <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} discountFilter={this.state.discountFilter} stores={stores} />
+              }
+
+              <div className="timeSpan">
+                <label htmlFor="timespan">Tidsperiode</label>
+                <br />
+                <select
+                  id="timespan"
+                  value={this.state.timeSpan}
+                  onChange={this.changeTimeSpan}>
+                  <option value="7days">Siste 7 dager</option>
+                  <option value="14days">Siste 14 dager</option>
+                  <option value="30days">Siste 30 dager</option>
+                  <option value="90days">Siste 90 dager</option>
+                </select>
+              </div>
+            </div>
           </div>
-        </CSSTransition>
-        <div
-          className={
-            "filter_backdrop " +
-            (this.state.filterVisibility ? "active" : "inactive")
-          }
-          onClick={() => this.setState({ filterVisibility: false })}
-        ></div>
+
+          <Pagination
+            total={productResult.length}
+            page={this.state.page}
+            setPage={this.setPage.bind(this)}
+            pageSize={pageSize}
+          />
+          <ul ref={this.productList} className="ProductList">
+            {this.state.loading ? <FontAwesomeIcon icon={faCircleNotch} size="5x" /> : this.displayProducts()}
+            {productResult.length === 0 && this.state.loading === false ? (
+              <p
+                style={{
+                  textAlign: "center",
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  margin: "auto"
+                }}
+              >Her var det ikke noe, gitt :/</p>) : ("")}
+          </ul>
+          <Pagination
+            total={productResult.length}
+            page={page}
+            setPage={this.setPage.bind(this)}
+            pageSize={pageSize}
+          />
+          <CSSTransition
+            in={this.state.graphIsVisible}
+            timeout={100}
+            className="toggle"
+            onExited={() => this.setGraph(null, null)}
+          >
+            <div>
+              {this.state.highlightedProduct && (
+                <div className="priceGraphWrapper">
+                  <PriceGraph p={this.state.highlightedProduct} />
+                  <div className="backdrop" onClick={() => this.hideGraph()}>
+                    <label htmlFor="closeGraph">Tilbake</label>
+                    <button name="closeGraph" className="close">
+                      <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CSSTransition>
+          <div
+            className={
+              "filter_backdrop " +
+              (this.state.filterVisibility ? "active" : "inactive")
+            }
+            onClick={() => this.setState({ filterVisibility: false })}
+          ></div>
+        </main>
+
       </div>
     );
   }

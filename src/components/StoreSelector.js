@@ -1,6 +1,5 @@
 import React from "react";
 import "./css/storeSelector.css";
-import SortArray from "sort-array";
 import Select from 'react-select'
 
 class StoreSelector extends React.Component {
@@ -14,9 +13,7 @@ class StoreSelector extends React.Component {
   handleStoreUpdate = (storeOptions) => {
     let list = [];
     if (storeOptions && storeOptions.length > 0) {
-      storeOptions.map(s => {
-        list.push(s.value);
-      });
+      storeOptions.map(s => list.push(s.value));
     } else {
       list.push("0");
     }
@@ -33,7 +30,7 @@ class StoreSelector extends React.Component {
     let storeOptions = [];
     let selectedOptions = this.state.selectedOptions ?? [];
 
-    stores.map(s => {
+    stores.forEach(s => {
       let count = 0
       if (s.count) {
         count = this.props.discountFilter === "all" ? (s.count.raised || 0) + (s.count.lowered || 0) : s.count[this.props.discountFilter] || 0;

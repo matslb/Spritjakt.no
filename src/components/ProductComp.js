@@ -2,6 +2,7 @@ import React from "react";
 import "./css/productComp.css";
 import { faBoxes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import dateFormater from "../dateFormater";
 
 class ProductComp extends React.Component {
   constructor(props) {
@@ -18,7 +19,7 @@ class ProductComp extends React.Component {
     };
     var showDiff = product.SortingDiscount !== 100 ?? false;
     var priceIsLower = product.LatestPrice < product.ComparingPrice;
-    var lastChangedDate = new Date(parseInt(product.LastUpdated) + (2 * 60 * 60 * 1000));
+    var lastChangedDate = dateFormater.format(product.LastUpdated);
     var stock = 0;
     if (product.Stock.Stores.length > 0 && selectedStore !== "0") {
       var store = product.Stock.Stores.find((s) => s.name === selectedStore);

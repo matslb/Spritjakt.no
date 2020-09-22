@@ -5,19 +5,11 @@ import SortArray from "sort-array";
 import HighlightedProduct from "./HighlightedProduct";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import dateFormater from "../dateFormater";
 
 class PriceGraph extends React.Component {
   componentDidMount() {
     this.vmpLink.focus();
-  }
-
-  washDate = (timeStamp) => {
-    let date = new Date(timeStamp + (2 * 60 * 60 * 1000));
-    date.setHours(0);
-    date.setMinutes(0);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
-    return date;
   }
 
   render() {
@@ -35,10 +27,10 @@ class PriceGraph extends React.Component {
     pricesReversed.reverse();
 
     for (let i = 0; i < pricesReversed.length; i++) {
-      let date = new Date(this.washDate(parseInt(pricesReversed[i])));
+      let date = dateFormater.format(pricesReversed[i]);
 
       let mostRecentPrice = p.PriceHistory[pricesReversed[i]];
-      let datestring = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+      let datestring = date.toISOString().slice(0, 10);
       if (config.data[config.data.length - 1] === undefined || (config.data[config.data.length - 1].x !== datestring && p.PriceHistory[pricesReversed[i - 1]] !== mostRecentPrice)) {
         config.data.push({ x: datestring, y: mostRecentPrice });
       }

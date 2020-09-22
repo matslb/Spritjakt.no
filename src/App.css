@@ -59,7 +59,6 @@ footer span {
 }
 .clickable {
   transition: 0.1s 0.05s;
-  border-radius: 3px;
   text-align: center;
   border: none;
   padding: 0.2rem 0.5rem;
