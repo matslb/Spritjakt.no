@@ -42,20 +42,9 @@ class App extends React.Component {
         <footer>
           <span>
             Har du tilbakemeldinger eller funnet noe feil? Opprett gjerne et
-            issue på
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://github.com/matslb/Spritjakt.no"> Github
-            </a>
+            issue på <a target="_blank" rel="noopener noreferrer" href="https://github.com/matslb/Spritjakt.no">Github</a>
           </span>
-          <span data-nosnippet="true">
-            © 2020 <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142"
-            > Mats Løvstrand Berntsen
-            </a>
+          <span data-nosnippet="true">© 2020 <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
           </span>
         </footer>
       </div>

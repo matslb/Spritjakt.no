@@ -91,22 +91,16 @@ ul.ProductList {
 
 .nav {
   display: grid;
-  grid-template-areas:"dis dis dis"
-                      "stock sto sto"
-                      "sor tim tim";
+  grid-template-areas:"dis dis"
+                      "sto sto"
+                      "sor tim";
   grid-gap: 10px;
+  grid-template-columns: 1fr 1fr;
   align-items: baseline;
   width: 100%;
 }
-.nav .stock{
-  grid-area: stock;
-  justify-self: start;
-}
-
 .nav .timeSpan {
   grid-area: tim;
-  justify-self: end;
-  text-align: right;
 }
 
 .nav .DiscountFilter {
@@ -126,6 +120,7 @@ ul.ProductList {
   position: relative;
   outline:none;  
   opacity: 1;
+  font-size: 1rem;
   background: white;
   border-bottom: 5px solid rgba(0, 0, 0, 0.562);
 }
@@ -136,10 +131,17 @@ ul.ProductList {
   .nav .DiscountFilter .clickable:hover{
     border-bottom: 5px solid #d0b55e79;
 }
-
+.nav .stores,
+.nav .sorting,
+.nav .timeSpan{
+  width: 100%;
+  min-width: 16rem;
+}
+.nav .timeSpan{
+  justify-self: end;
+}
 .nav .stores {
   grid-area: sto;
-  align-self: end;
 }
 .nav .sorting {
   grid-area: sor;
@@ -259,11 +261,11 @@ ul.ProductList {
     right: 0;
     background: rgba(0, 0, 0, 0.2);
   }
-  .nav .stock,
-  .nav .stock select,
   .nav .stores,
-  .nav .sorting{
+  .nav .sorting,
+  .nav .timeSpan{
     width: 100%;
+    min-width: unset;
   }
 }
 @media (max-width: 540px) {

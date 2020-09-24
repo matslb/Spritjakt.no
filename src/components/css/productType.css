@@ -10,7 +10,7 @@
   cursor: pointer;
   padding: 2px 0;
   max-height: unset;
-  border-top: 2px solid rgba(0, 0, 0, 0.562);
+  border-top: 1.5px solid rgba(0, 0, 0, 0.4);
   position: relative;
 }
 
@@ -37,9 +37,10 @@ label.ProductType.true {
   color:white;
 }
 
-label.ProductType:focus-within,
-label.ProductType:focus-within:after{
+label.ProductType:hover,
+label.ProductType:focus-within{
   background: #d0b55e7c;
+  max-height: 10rem;
 }
 
 .ProductType span.name {

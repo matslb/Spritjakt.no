@@ -45,7 +45,7 @@ class PriceGraph extends React.Component {
       <div className="expandedProduct">
         <HighlightedProduct product={p} isGraph={false} />
         <a
-          rel="noreferrer"
+          rel="noopener noreferrer"
           ref={(link) => {
             this.vmpLink = link;
           }}

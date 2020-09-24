@@ -75,3 +75,37 @@ button:focus,
 select:focus {
   outline-style: auto;
 }
+
+.select__control
+.select__value-container
+.select__multi-value,
+.select__multi-value__label{
+    background: #d0b55e;
+    color: white!important;
+    font-weight: 400;
+}
+.select__menu
+.select__menu-list
+.select__option.select__option--is-focused:not(.select__option--is-selected ){
+  background-color:white;
+}
+.select__menu .select__menu-list .select__option.select__option--is-focused:hover,
+.select__menu .select__menu-list .select__option.select__option--is-focused:focus{
+  background-color:#d0b55e7c;
+}
+
+
+.noinput.select__indicators {
+  width: 100%;
+  position: absolute;
+}
+.noinput.select__indicator.select__dropdown-indicator{
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  text-align: right;
+}
+span.noinput.select__indicator-separator,
+.noinput.select__value-container  .noinput.select__input > input{
+  display: none;
+}

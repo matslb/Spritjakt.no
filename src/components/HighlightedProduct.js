@@ -1,7 +1,5 @@
 import React from "react";
 import "./css/highlightedProduct.css";
-import { faBoxes } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
 
 class ProductComp extends React.Component {

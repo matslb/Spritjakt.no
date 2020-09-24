@@ -63,14 +63,14 @@ class NewsLetterSignup extends React.Component {
             <div className={"NewsLetterWrapper " + (this.state.isActive ? " active " : "")} >
                 <div className={"NewsLetterSignup " + (this.state.isActive ? " active " : "") + (isMobile ? " handheld" : " desktop")}>
                     <FontAwesomeIcon icon={faEnvelope} size="2x" />
-                    <h4>Få varsel på epost når varer blir satt ned i pris!</h4>
+                    <p>Få varsel på epost når varer blir satt ned i pris!</p>
                     {this.state.resultMessage !== "" &&
                         <div className="resultMessage">{this.state.resultMessage}</div>
                     }
                     <form onSubmit={this.EmailSubmit}>
                         <label>
                             Meld deg på Spritjakts helt nye nyhetsbrev<br />
-                            <input value={this.state.email} onChange={e => this.setState({ email: e.target.value })} placeholder="Din epostadresse" name="email" type="email" />
+                            <input disabled={!this.state.isActive} value={this.state.email} onChange={e => this.setState({ email: e.target.value })} placeholder="Din epostadresse" name="email" type="email" />
                         </label>
                         <button disabled={this.state.email === ""} className="clickable submitEmail">
                             {this.state.requestIsActive ?
@@ -82,7 +82,7 @@ class NewsLetterSignup extends React.Component {
                     </form>
 
                     <label className="unassign">
-                        <input type="checkbox" value={this.state.actionIsRegister} onChange={e => this.setState({ actionIsRegister: !this.state.actionIsRegister })} checked={!this.state.actionIsRegister} />
+                        <input disabled={!this.state.isActive} type="checkbox" value={this.state.actionIsRegister} onChange={e => this.setState({ actionIsRegister: !this.state.actionIsRegister })} checked={!this.state.actionIsRegister} />
                         Allerede påmeldt, og vil ikke mer?
                     </label>
                     <p style={{ fontSize: "0.75rem" }}>
@@ -90,7 +90,7 @@ class NewsLetterSignup extends React.Component {
                         Kors på halsen, ti kniver i hjertet, mor og far i døden!
                     </p>
                 </div>
-                <button className="activateNL" onClick={this.toggleSection} >
+                <button className="activateNL" aria-label="Åpne seksjon for nyhetsbrev" onClick={this.toggleSection} >
                     {this.state.isActive ?
                         <FontAwesomeIcon icon={faMinusCircle} size="2x" />
                         :

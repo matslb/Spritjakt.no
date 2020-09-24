@@ -48,7 +48,7 @@ class SearchBar extends React.Component {
 
   displayProducts = () => {
     let list = [];
-    this.state.loadedProducts.map((p) => {
+    this.state.loadedProducts.forEach((p) => {
       list.push(
         <ProductComp
           key={p.Id}

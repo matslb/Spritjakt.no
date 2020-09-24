@@ -20,7 +20,11 @@ class Pagination extends React.Component {
             setPage={this.setPage.bind(this)}
           />
         );
-      } else if (pages >= 8 && i === 3 && this.props.page < 3 || this.props.page === i + 2 || this.props.page === i - 2 || this.props.page === pages && i === this.props.page - 2) {
+      } else if (
+        (pages >= 8 && i === 3 && this.props.page < 3)
+        || (this.props.page === i + 2)
+        || (this.props.page === i - 2)
+        || (this.props.page === pages && i === this.props.page - 2)) {
         list.push(
           <li>
             <button style={{ pointerEvents: "none" }} className="pageButton clickable inactive">

@@ -1,5 +1,4 @@
 import React from "react";
-import "./css/storeSelector.css";
 import Select from 'react-select'
 
 class StoreSelector extends React.Component {
@@ -27,7 +26,7 @@ class StoreSelector extends React.Component {
   render() {
 
     let stores = this.props.stores;
-    let storeOptions = [];
+    let storeOptions = [{ label: "Vinmonopolet.no", value: "online" }];
     let selectedOptions = this.state.selectedOptions ?? [];
 
     stores.forEach(s => {
@@ -51,7 +50,7 @@ class StoreSelector extends React.Component {
     return (
       <div className="stores" >
         <label>
-          <span style={{ display: "block", height: 0, width: 0, overflow: "hidden" }}>Velg butikker</span>
+          <span>Butikker</span>
           <Select
             value={this.state.selectedOptions}
             onChange={this.handleStoreUpdate}
@@ -60,11 +59,12 @@ class StoreSelector extends React.Component {
             isOptionDisabled={o => o.disabled === true}
             noOptionsMessage={() => "Fant niks og nada"}
             placeholder={'Velg butikker'}
+            classNamePrefix="select"
             theme={theme => ({
               ...theme,
               colors: {
                 ...theme.colors,
-                primary: 'black',
+                primary: '#d0b55e',
               },
             })}
           />

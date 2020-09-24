@@ -2,14 +2,16 @@ import rp from "request-promise";
 import firebase from "firebase/app";
 import "firebase/firestore";
 
-const allTimeEarliestDate = new Date(1594166400000);
-const td = new Date();
-const allowedTimeSpans = {
-  "7days": new Date(td.getFullYear(), td.getMonth(), td.getDate() - 7),
-  "14days": new Date(td.getFullYear(), td.getMonth(), td.getDate() - 14),
-  "30days": new Date(td.getFullYear(), td.getMonth(), td.getDate() - 30),
-  "90days": new Date(td.getFullYear(), td.getMonth(), td.getDate() - 90),
-};
+const allTimeEarliestDate = 1594166400000;
+
+const allowedTimeSpans = [7, 14, 30, 90];
+
+const getTimeFromNow = (n) => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.getTime();
+}
+
 
 class SpritjaktClient {
 
@@ -19,29 +21,31 @@ class SpritjaktClient {
     this.loadedProducts = [];
   }
 
-  async FetchProducts(startPointLabel, getLowerPrice) {
+  async FetchProducts(timeSpan, getLowerPrice) {
+    let startPoint = getTimeFromNow(timeSpan);
+
     let fetchNew = false;
+
     if (this.lastFetchGetLowerPrice !== getLowerPrice) {
       fetchNew = true;
       this.usedTimeSpans = [];
       this.loadedProducts = [];
       this.lastFetchGetLowerPrice = getLowerPrice;
     }
-    let startPoint;
-    if (allowedTimeSpans[startPointLabel].getTime() > allTimeEarliestDate.getTime()) {
-      startPoint = allowedTimeSpans[startPointLabel].getTime() - (2 * 60 * 60 * 1000);
+    if (startPoint > allTimeEarliestDate) {
+      startPoint = startPoint - (2 * 60 * 60 * 1000);
     } else {
-      startPoint = allTimeEarliestDate.getTime();
+      startPoint = allTimeEarliestDate;
     }
     let returnProducts = [];
-    if (!this.usedTimeSpans.includes(startPointLabel) || fetchNew) {
+    if (!this.usedTimeSpans.includes(timeSpan) || fetchNew) {
       let endAtPoint = Date.now();
-      Object.keys(allowedTimeSpans).map(ts => {
-        if (allowedTimeSpans[ts] >= allowedTimeSpans[startPointLabel]) {
+      allowedTimeSpans.forEach(ts => {
+        if (ts <= timeSpan) {
           if (!this.usedTimeSpans.includes(ts)) {
             this.usedTimeSpans.push(ts);
           } else {
-            endAtPoint = allowedTimeSpans[ts].getTime();
+            endAtPoint = getTimeFromNow(ts);
           }
         }
       });
@@ -69,15 +73,14 @@ class SpritjaktClient {
             });
           }
         });
-      returnProducts = this.loadedProducts.filter(p => p.LastUpdated > startPoint);
     } else {
-      returnProducts = this.loadedProducts.filter(p => p.LastUpdated > startPoint);
-      returnProducts.map(p => {
+      returnProducts.forEach(p => {
         let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && priceDate !== p.LastUpdated));
         p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
         p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
       });
     }
+    returnProducts = this.loadedProducts.filter(p => p.LastUpdated > startPoint);
 
     return returnProducts
   }
