@@ -26,7 +26,7 @@ class Pagination extends React.Component {
         || (this.props.page === i - 2)
         || (this.props.page === pages && i === this.props.page - 2)) {
         list.push(
-          <li>
+          <li key={"page" + i}>
             <button style={{ pointerEvents: "none" }} className="pageButton clickable inactive">
               ...
             </button>

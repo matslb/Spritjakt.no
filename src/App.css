@@ -106,6 +106,6 @@ select:focus {
   text-align: right;
 }
 span.noinput.select__indicator-separator,
-.noinput.select__value-container  .noinput.select__input > input{
-  display: none;
+.noinput.select__value-container .noinput.select__input > input{
+   display: none;
 }

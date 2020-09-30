@@ -277,7 +277,7 @@ class ProductList extends React.Component {
     await this.setState({
       discountFilter: value,
       loading: true,
-      timeSpan: "14days"
+      timeSpan: { label: "Siste 14 dager", value: 14 }
     });
     this.updateProductResults(14);
   }

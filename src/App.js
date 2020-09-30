@@ -1,21 +1,24 @@
 import React from "react";
 import "./App.css";
-import ProductList from "./components/ProductList";
 import { ReactComponent as ReactLogo } from "./assets/logo.svg";
 import firebase from "firebase/app";
 import "firebase/analytics";
-import SearchBar from "./components/SearchBar";
-import NewsLetterSignup from "./components/NewsLetterSignup";
+import Homepage from "./components/Homepage";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 const firebaseConfig = require("./config.json");
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
-
 class App extends React.Component {
   render() {
     return (
-      <div className="App">
+      <Router className="App">
         <header className="App-header">
           <a href="">
             <h1>
@@ -35,9 +38,10 @@ class App extends React.Component {
           </p>
         </header>
         <div className="Body">
-          <NewsLetterSignup />
-          <SearchBar />
-          <ProductList />
+          <Switch>
+            <Route exact path="/" component={Homepage}>
+            </Route>
+          </Switch>
         </div>
         <footer>
           <span>
@@ -47,7 +51,7 @@ class App extends React.Component {
           <span data-nosnippet="true">© 2020 <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
           </span>
         </footer>
-      </div>
+      </Router>
     );
   }
 }
