@@ -64,11 +64,11 @@ module.exports = class EmailClient {
             var mail = Object.assign({}, this.options);
             mail.to = recipient;
             mail.headers = {
-                "List-Unsubscribe": "<https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp?email=" + recipient + ">"
+                "List-Unsubscribe": "<https://europe-west1-spritjakt.cloudfunctions.net/removeEmail?email=" + recipient + ">"
             }
             let footer = emailFooter;
-            mail.html += footer.replace(/&SignOffURL&/g, "https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp?email=" + recipient);
-            mail.text += "\n\nBruk denne linken for å melde deg av nyhetsbrevet: https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp?email=" + recipient;
+            mail.html += footer.replace(/&SignOffURL&/g, "https://europe-west1-spritjakt.cloudfunctions.net/removeEmail?email=" + recipient);
+            mail.text += "\n\nBruk denne linken for å melde deg av nyhetsbrevet: https://europe-west1-spritjakt.cloudfunctions.net/removeEmail?email=" + recipient;
             try {
                 console.log("sending email");
                 await sgMail.send(mail);

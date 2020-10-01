@@ -88,7 +88,7 @@ class SpritjaktClient {
   async SearchProducts(searchString) {
     let options = {
       uri:
-        "https://europe-west1-spritjakt.cloudfunctions.net/productSearchAdvanced",
+        "https://europe-west1-spritjakt.cloudfunctions.net/productSearch",
       qs: {
         searchString: searchString,
       },
@@ -112,7 +112,7 @@ class SpritjaktClient {
 
   static async registerEmail(email) {
     let options = {
-      uri: "https://europe-west1-spritjakt.cloudfunctions.net/registerEmailHttp",
+      uri: "https://europe-west1-spritjakt.cloudfunctions.net/registerEmail",
       qs: {
         email: email
       },
@@ -129,7 +129,7 @@ class SpritjaktClient {
   }
   static async removeEmail(email) {
     let options = {
-      uri: "https://europe-west1-spritjakt.cloudfunctions.net/removeEmailHttp",
+      uri: "https://europe-west1-spritjakt.cloudfunctions.net/removeEmail",
       qs: {
         email: email
       },

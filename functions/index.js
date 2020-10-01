@@ -40,7 +40,7 @@ function httpCorsOptions(req, res) {
   return { res, exit };
 }
 
-exports.fetchProducts = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 6 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 6 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreProductsToFetch = true;
   let freshProducts = [];
   let tries = 0;
@@ -65,7 +65,7 @@ exports.fetchProducts = functions.region("europe-west1").runWith(runtimeOpts).pu
   }
 });
 
-exports.fetchStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("59 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("59 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreStocksToFetch = true;
   let freshStocks = [];
   let tries = 0;
@@ -89,7 +89,7 @@ exports.fetchStocks = functions.region("europe-west1").runWith(runtimeOpts).pubs
   }
 });
 
-exports.productSearchAdvanced = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
+exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
   let { res, exit } = httpCorsOptions(req, oldRes);
   if (exit) {
     return;
@@ -166,7 +166,7 @@ exports.productSearchAdvanced = functions.region("europe-west1").runWith(runtime
   return res.send(matchingProducts.splice(0, 20));
 });
 
-exports.stockUpdateListener = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
+exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
   // Exit when the data is deleted.
   if (!change.after.exists()) {
     return null;
@@ -194,7 +194,7 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
-exports.registerEmailHttp = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
+exports.registerEmail = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
   let { res, exit } = httpCorsOptions(req, oldRes);
   if (exit) {
     return;
@@ -217,7 +217,7 @@ exports.registerEmailHttp = functions.region("europe-west1").runWith(runtimeOpts
   return res.status(201).send("Email registered");
 });
 
-exports.removeEmailHttp = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
+exports.removeEmail = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
   let { res, exit } = httpCorsOptions(req, oldRes);
   if (exit) {
     return;
@@ -234,7 +234,7 @@ exports.removeEmailHttp = functions.region("europe-west1").runWith(runtimeOpts).
 });
 
 
-exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.sendEmails = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let d = new Date();
   d.setHours(0);
   d.setMinutes(0);

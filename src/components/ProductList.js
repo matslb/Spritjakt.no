@@ -23,7 +23,6 @@ class ProductList extends React.Component {
     this.state = {
       loadedProducts: [],
       stores: [],
-      stockFilter: { label: "Alle", value: "all" },
       selectedStores: ["0"],
       loading: true,
       sort: "LastUpdated_desc",
@@ -58,7 +57,7 @@ class ProductList extends React.Component {
   }
 
   async componentDidMount() {
-    this.updateProductResults(this.state.timeSpan.value, true);
+    this.updateProductResults(this.state.timeSpan, true);
   }
 
   async updateProductResults(timeSpan, firstLoad = false) {
@@ -296,7 +295,7 @@ class ProductList extends React.Component {
     await this.setState({
       discountFilter: value,
       loading: true,
-      timeSpan: { label: "Siste 14 dager", value: 14 }
+      timeSpan: 14,
     });
     this.updateProductResults(14);
   }

@@ -10,7 +10,7 @@ import {
   Route
 } from "react-router-dom";
 const firebaseConfig = require("./config.json");
-
+let date = new Date();
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
@@ -47,7 +47,7 @@ class App extends React.Component {
             Har du tilbakemeldinger eller funnet noe feil? Opprett gjerne et
             issue på <a target="_blank" rel="noopener noreferrer" href="https://github.com/matslb/Spritjakt.no">Github</a>
           </span>
-          <span data-nosnippet="true">© 2020 <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
+          <span data-nosnippet="true">© {date.getFullYear()} <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
           </span>
         </footer>
       </Router>

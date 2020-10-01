@@ -95,19 +95,30 @@ select:focus {
 
 .main .select__control {
   border-radius: 0;
-  border-bottom: 1px solid black;
-  border-top: none;
-  border-left: none;
-  border-right: none;
+  border: none;
   box-shadow: none!important;
 }
 .main .select__control:focus-within {
   background-color:  rgba(0, 0, 0, 0.05);
+}
+.main .select__control:focus-within:before {
+  background-color:  rgba(0, 0, 0, 0.05);
   border-bottom: 2px solid #d0b55e!important;
 }
-.main .select__control:hover {
+.main .select__control:before {
+  content:"";
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.87);
+}
+.main .select__control:hover:before {
   border-bottom: 2px solid rgba(0, 0, 0, 0.87);
-
+}
+.main .select__control .select__placeholder{
+  font-size: .85rem;
+  color: black;
+  margin: 0;
 }
 
 .noinput.select__indicators {
