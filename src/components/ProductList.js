@@ -14,7 +14,7 @@ import { isMobileOnly } from "react-device-detect";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import StoreSelector from "./StoreSelector";
-import Select from 'react-select'
+import { Select } from '@material-ui/core';
 
 
 class ProductList extends React.Component {
@@ -26,18 +26,32 @@ class ProductList extends React.Component {
       stockFilter: { label: "Alle", value: "all" },
       selectedStores: ["0"],
       loading: true,
-      sort: { label: "Nyeste", value: "LastUpdated_desc" },
+      sort: "LastUpdated_desc",
       productTypes: {},
       showAllresults: true,
       highlightedProduct: false,
       graphIsVisible: false,
-      timeSpan: { label: "Siste 14 dager", value: 14 },
+      timeSpan: 14,
       productResult: [],
       page: 1,
       pageSize: 24,
       discountFilter: "lowered",
       filterVisibility: false,
     };
+    this.sortOptions = [
+      { label: "Nyeste", value: "LastUpdated_desc" },
+      { label: "Prisendring", value: "SortingDiscount" },
+      { label: "Navn (A-Å)", value: "Name_asc" },
+      { label: "Navn (Å-A)", value: "Name_desc" },
+      { label: "Pris (lav-høy)", value: "LatestPrice_asc" },
+      { label: "Pris (høy-lav)", value: "LatestPrice_desc" }
+    ];
+    this.timeSpanOptions = [
+      { label: "Siste 7 dager", value: 7 },
+      { label: "Siste 14 dager", value: 14 },
+      { label: "Siste 30 dager", value: 30 },
+      { label: "Siste 90 dager", value: 90 }
+    ];
     this.spritjaktClient = new SpritjaktClient();
     this.productButtonRef = React.createRef();
     this.productList = React.createRef();
@@ -228,9 +242,14 @@ class ProductList extends React.Component {
     this.filterProducts(storeList, productTypes);
   };
 
-  handleSortChange = (option = this.state.sort) => {
-    firebase.analytics().logEvent("product_sort", { value: option.value });
-    let sortingCriteria = option.value.split("_");
+  handleSortChange = (event) => {
+
+    let option = this.state.sort;
+    if (event && event.target) {
+      option = event.target.value;
+    }
+    firebase.analytics().logEvent("product_sort", { value: option });
+    let sortingCriteria = option.split("_");
     let sortField = sortingCriteria[0];
     let sortOrder = sortingCriteria[1];
 
@@ -296,10 +315,13 @@ class ProductList extends React.Component {
     return false;
   }
 
-  changeTimeSpan = (option) => {
+  changeTimeSpan = (event) => {
+    if (!event) return;
+    let option = event.target.value;
+
     this.setState({ timeSpan: option, loading: true });
-    firebase.analytics().logEvent("timespan_change", { value: option.value });
-    this.updateProductResults(option.value);
+    firebase.analytics().logEvent("timespan_change", { value: option });
+    this.updateProductResults(option);
   };
 
   setPage = (page) => {
@@ -350,57 +372,37 @@ class ProductList extends React.Component {
                 <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} discountFilter={this.state.discountFilter} stores={stores} />
               }
               <div className="sorting">
-
                 <label htmlFor="sorting">Sortering
                 <Select
+                    native
                     value={this.state.sort}
-                    className="select"
                     onChange={this.handleSortChange}
-                    options={[
-                      { label: "Nyeste", value: "LastUpdated_desc" },
-                      { label: "Prisendring", value: "SortingDiscount" },
-                      { label: "Navn (A-Å)", value: "Name_asc" },
-                      { label: "Navn (Å-A)", value: "Name_desc" },
-                      { label: "Pris (lav-høy)", value: "LatestPrice_asc" },
-                      { label: "Pris (høy-lav)", value: "LatestPrice_desc" }
-                    ]}
-                    noOptionsMessage={() => ""}
-                    placeholder={'Sortering'}
-                    autosize={true}
-                    classNamePrefix="noinput select"
-                    components={null}
-                    theme={theme => ({
-                      ...theme,
-                      colors: {
-                        ...theme.colors,
-                        primary: '#d0b55e',
-                      },
-                    })}
-                  />
+                    inputProps={{
+                      name: 'sorting',
+                      id: 'sorting',
+                    }}
+                  >
+                    {this.sortOptions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </Select>
                 </label>
               </div>
               <div className="timeSpan">
                 <label htmlFor="timespan">Tidsperiode
                 <Select
+                    native
                     value={this.state.timeSpan}
                     onChange={this.changeTimeSpan}
-                    options={[
-                      { label: "Siste 7 dager", value: 7 },
-                      { label: "Siste 14 dager", value: 14 },
-                      { label: "Siste 30 dager", value: 30 },
-                      { label: "Siste 90 dager", value: 90 }
-                    ]}
-                    noOptionsMessage={() => ""}
-                    placeholder={'Tidsperiode'}
-                    classNamePrefix="noinput select"
-                    theme={theme => ({
-                      ...theme,
-                      colors: {
-                        ...theme.colors,
-                        primary: '#d0b55e',
-                      },
-                    })}
-                  />
+                    inputProps={{
+                      name: 'timeSpan',
+                      id: 'timeSpan',
+                    }}
+                  >
+                    {this.timeSpanOptions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </Select>
                 </label>
               </div>
             </div>
@@ -460,7 +462,7 @@ class ProductList extends React.Component {
           ></div>
         </main>
 
-      </div>
+      </div >
     );
   }
 }

@@ -240,14 +240,9 @@ exports.prepareEmails = functions.region("europe-west1").runWith(runtimeOpts).pu
   d.setMinutes(0);
   d.setSeconds(0);
   d.setMilliseconds(0);
-  let products = await FirebaseClient.GetProductsOnSale(d.getTime());
-  await products.map(async p => {
+  let products = await FirebaseClient.GetProductsOnSale(d.getTime() - (2 * 60 * 60 * 1000));
+  products.map(async p => {
     let date = new Date(p.LastUpdated);
-    date.setDate(date.getDate() - 1);
-    date.setHours(22);
-    date.setMinutes(0);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
 
     p.ComparingPrice = p.PriceHistory[p.PriceHistorySorted[1]];
     if (p.ComparingPrice) {

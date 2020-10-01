@@ -65,7 +65,6 @@ footer span {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: 400;
   font-size: 0.85rem;
   cursor: pointer;
   max-height: 1.2rem;
@@ -94,6 +93,22 @@ select:focus {
   background-color:#d0b55e7c;
 }
 
+.main .select__control {
+  border-radius: 0;
+  border-bottom: 1px solid black;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  box-shadow: none!important;
+}
+.main .select__control:focus-within {
+  background-color:  rgba(0, 0, 0, 0.05);
+  border-bottom: 2px solid #d0b55e!important;
+}
+.main .select__control:hover {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.87);
+
+}
 
 .noinput.select__indicators {
   width: 100%;
@@ -105,7 +120,39 @@ select:focus {
   justify-content: flex-end;
   text-align: right;
 }
-span.noinput.select__indicator-separator,
-.noinput.select__value-container .noinput.select__input > input{
-   display: none;
+
+.MuiInputBase-root {
+  display: block!important;
+}
+.MuiSelect-select.MuiSelect-select {
+  padding-right: 0!important;
+  padding-left: 8px;
+  width: calc(100% - 8px);
+  height: 1.1rem;
+  line-height: 1.1rem;
+}
+.MuiInput-underline:after{
+  border-bottom: 2px solid #d0b55e!important;
+}
+.select__indicator.select__dropdown-indicator svg,
+.select__indicators .select__indicator-separator {
+  display: none;
+}
+.select__indicator.select__dropdown-indicator{
+  position: relative;
+}
+.select__indicator.select__dropdown-indicator:after {
+  position: absolute;
+  content: "";
+  width: 0px;
+  height: 0px;
+  border-top: 5px solid rgba(0, 0, 0, 0.54);
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid transparent;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: 7px 7px auto auto;
 }

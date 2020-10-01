@@ -4,13 +4,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 400;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #1f2b33;
   cursor: pointer;
   padding: 2px 0;
   max-height: unset;
-  border-top: 1.5px solid rgba(0, 0, 0, 0.4);
+  border-top: 1px solid rgba(0, 0, 0, 0.42);
   position: relative;
 }
 

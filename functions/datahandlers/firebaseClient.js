@@ -16,8 +16,12 @@ module.exports = class FirebaseClient {
     var today = d.getTime();
 
     console.log("Products to update: " + updatedProducts.length);
-
-    this.UpdateWriteTime(updatedProducts.length);
+    let statusReport = {
+      time: d.toLocaleString(),
+      total: updatedProducts.length,
+      priceChanged: 0,
+      created: 0
+    }
 
     for (let i = 0; i < updatedProducts.length; i++) {
       const p = updatedProducts[i];
@@ -36,6 +40,7 @@ module.exports = class FirebaseClient {
 
         try {
           await productRef.set(this.PrepProduct(sp));
+          statusReport.created++;
         } catch (error) {
           console.log(error);
         }
@@ -59,6 +64,7 @@ module.exports = class FirebaseClient {
 
           if (SortingDiscount < 99 || SortingDiscount > 101) {
             sp.PriceIsLowered = SortingDiscount < 100;
+            statusReport.priceChanged++;
           } else {
             sp.PriceIsLowered = null;
           }
@@ -79,6 +85,8 @@ module.exports = class FirebaseClient {
         }
       }
     }
+    this.productUpdateReport(statusReport);
+
   }
 
   static PrepProduct(p) {
@@ -131,14 +139,9 @@ module.exports = class FirebaseClient {
       });
   }
 
-  static async UpdateWriteTime(numberOfProducts) {
-    let now = new Date();
-    var lastWriteTime = {
-      UpdateFetchTime: now.toLocaleString(),
-      ProductsUpdated: numberOfProducts,
-    };
-    let timeRef = firebase.database().ref("/lastProductWriteTime");
-    timeRef.set(lastWriteTime);
+  static async productUpdateReport(report) {
+    let reportRef = firebase.database().ref("/productUpdateReport");
+    reportRef.set(report);
   }
 
   static async SetStockUpdateList(Stocks, addOnSaleProductsIfMissing = false) {

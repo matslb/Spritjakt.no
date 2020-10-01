@@ -7,16 +7,19 @@ import firebase from "firebase/app";
 import "firebase/analytics";
 
 class Homepage extends React.Component {
-    constructor() {
-        super();
-    }
+
     componentDidMount() {
+        this.registerSource();
+    }
+
+    registerSource = () => {
         let parsed = queryString.parse(window.location.search);
         if (parsed?.source === "sticker") {
-            firebase.analytics().logEvent("sticker_ref");
-            window.location.href = window.location.pathname;
+            firebase.analytics().logEvent("sticker_referral");
+            window.history.pushState('', '', '/');
         }
     }
+
     render() {
 
         return (

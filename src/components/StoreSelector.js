@@ -26,7 +26,7 @@ class StoreSelector extends React.Component {
   render() {
 
     let stores = this.props.stores;
-    let storeOptions = [{ label: "Vinmonopolet.no", value: "online" }];
+    let storeOptions = [{ label: "vinmonopolet.no", value: "online" }];
     let selectedOptions = this.state.selectedOptions ?? [];
 
     stores.forEach(s => {

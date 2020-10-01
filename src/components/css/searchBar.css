@@ -45,13 +45,13 @@
   font-size: 1rem;
   outline: none;
   text-align: center;
-  border-bottom: 5px solid rgba(0, 0, 0, 0.562);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.562);
   background: rgba(0,0,0,.03);
   padding: .5rem .2rem;
 }
 .searchbox:active,
 .searchbox:focus{
-  border-bottom: 5px solid #d0b55e79;
+  border-bottom: 2px solid #d0b55e79;
 }
 
 @media (max-width: 1024px) {

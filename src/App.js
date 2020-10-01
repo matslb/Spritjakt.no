@@ -7,8 +7,7 @@ import Homepage from "./components/Homepage";
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 const firebaseConfig = require("./config.json");
 
@@ -20,7 +19,7 @@ class App extends React.Component {
     return (
       <Router className="App">
         <header className="App-header">
-          <a href="">
+          <a href="/">
             <h1>
               <ReactLogo />
               <span
@@ -39,7 +38,7 @@ class App extends React.Component {
         </header>
         <div className="Body">
           <Switch>
-            <Route exact path="/" component={Homepage}>
+            <Route path="/" component={Homepage}>
             </Route>
           </Switch>
         </div>
