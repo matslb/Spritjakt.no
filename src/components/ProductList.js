@@ -30,7 +30,7 @@ class ProductList extends React.Component {
       showAllresults: true,
       highlightedProduct: false,
       graphIsVisible: false,
-      timeSpan: 14,
+      timeSpan: 7,
       productResult: [],
       page: 1,
       pageSize: 24,
@@ -57,25 +57,35 @@ class ProductList extends React.Component {
   }
 
   async componentDidMount() {
+    let stores = await this.spritjaktClient.FetchStores();
+    SortArray(stores, {
+      by: ["city", "storeName"],
+      computed: {
+        city: s => s.address.city
+      }
+    });
+    this.setState({stores: stores});
     this.updateProductResults(this.state.timeSpan, true);
   }
 
   async updateProductResults(timeSpan, firstLoad = false) {
     let stores = this.state.stores;
+    let products = [];
     if (firstLoad) {
-      stores = await this.spritjaktClient.FetchStores();
-      SortArray(stores, {
-        by: ["city", "storeName"],
-        computed: {
-          city: s => s.address.city
-        }
-      });
+
+      let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === timeSpan));
+      while (timespanIndex < this.timeSpanOptions.length && products.length === 0){
+        products = await this.spritjaktClient.FetchProducts(this.timeSpanOptions[timespanIndex].value, this.state.discountFilter === "lowered");
+        timespanIndex++;
+      }
+      timeSpan = this.timeSpanOptions[timespanIndex-1].value;
+    }else{
+      products = await this.spritjaktClient.FetchProducts(timeSpan, this.state.discountFilter === "lowered");
     }
+
     stores.map(s => delete s.count);
 
-    let products = await this.spritjaktClient.FetchProducts(timeSpan, this.state.discountFilter === "lowered");
-
-    this.setState({ loading: false, page: 1 });
+    this.setState({ loading: false, page: 1, timeSpan: timeSpan });
 
     let loadedProducts = [];
     let productTypes = this.state.productTypes;
@@ -295,9 +305,9 @@ class ProductList extends React.Component {
     await this.setState({
       discountFilter: value,
       loading: true,
-      timeSpan: 14,
+      timeSpan: 7,
     });
-    this.updateProductResults(14);
+    this.updateProductResults(7, true);
   }
 
   stockFilter = (p, selectedStores) => {
