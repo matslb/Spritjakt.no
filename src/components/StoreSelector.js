@@ -24,35 +24,30 @@ class StoreSelector extends React.Component {
   }
 
   render() {
-
-    let stores = this.props.stores;
+    const {stores, selectedStores} = this.props;
     let storeOptions = [{ label: "vinmonopolet.no", value: "online" }];
     let selectedOptions = this.state.selectedOptions ?? [];
-
     stores.forEach(s => {
-      let count = 0
-      if (s.count) {
-        count = this.props.discountFilter === "all" ? (s.count.raised || 0) + (s.count.lowered || 0) : s.count[this.props.discountFilter] || 0;
-      }
       let option = {
         value: s.storeId,
-        label: s.storeName + " (" + count + ")",
-        disabled: count === 0
+        label: s.storeName + " (" + (s.count ? s.count : 0 ) + ")",
+        disabled: s.count == undefined
       }
       storeOptions.push(option);
-      let selectedOption = selectedOptions.find(so => so.value === option.value);
-      if (selectedOption) {
-        selectedOptions[selectedOptions.indexOf(selectedOption)].label = option.label;
+      if (selectedStores.includes(option.value) && !selectedOptions.find(so => so.value == option.value)) {
+        selectedOptions.push(option);
       }
     });
-
+    if (selectedStores.includes("online") && !selectedOptions.find(so => so.value == "online")) {
+      selectedOptions.push(storeOptions[0]);
+    }
 
     return (
       <div className="stores" >
         <label>
           <span>Butikker</span>
           <Select
-            value={this.state.selectedOptions}
+            value={selectedOptions}
             onChange={this.handleStoreUpdate}
             isMulti
             options={storeOptions}

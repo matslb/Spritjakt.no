@@ -4,11 +4,6 @@ import { ReactComponent as ReactLogo } from "./assets/logo.svg";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import Homepage from "./components/Homepage";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route
-} from "react-router-dom";
 const firebaseConfig = require("./config.json");
 let date = new Date();
 // Initialize Firebase
@@ -17,7 +12,7 @@ firebase.analytics();
 class App extends React.Component {
   render() {
     return (
-      <Router className="App">
+      <div className="App">
         <header className="App-header">
           <a href="/">
             <h1>
@@ -32,15 +27,12 @@ class App extends React.Component {
               </span>
             </h1>
           </a>
-          <p>
-            Prishistorikk for Vinmonopolets varesortiment
-          </p>
+          <h2 style={{fontSize:"1.1rem", fontWeight:400}}>
+            Se når polet har tilbud!
+          </h2>
         </header>
         <div className="Body">
-          <Switch>
-            <Route path="/" component={Homepage}>
-            </Route>
-          </Switch>
+          <Homepage />
         </div>
         <footer>
           <span>
@@ -50,7 +42,7 @@ class App extends React.Component {
           <span data-nosnippet="true">© {date.getFullYear()} <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
           </span>
         </footer>
-      </Router>
+      </div>
     );
   }
 }

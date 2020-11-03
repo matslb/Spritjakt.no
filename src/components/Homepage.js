@@ -14,8 +14,8 @@ class Homepage extends React.Component {
 
     registerSource = () => {
         let parsed = queryString.parse(window.location.search);
-        if (parsed?.source === "sticker") {
-            firebase.analytics().logEvent("sticker_referral");
+        if (parsed?.source) {
+            firebase.analytics().logEvent(parsed.source + "_referral");
             window.history.pushState('', '', '/');
         }
     }
