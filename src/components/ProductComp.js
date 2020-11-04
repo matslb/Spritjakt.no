@@ -58,7 +58,7 @@ class ProductComp extends React.Component {
           </span>
         }
         <span className="change_time">
-          {lastChangedDate.toISOString().slice(0, 10)}
+          {lastChangedDate}
         </span>
         <div className="product_details">
           <h2 className="name">{product.Name}</h2>

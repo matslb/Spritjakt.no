@@ -27,10 +27,9 @@ class PriceGraph extends React.Component {
     pricesReversed.reverse();
 
     for (let i = 0; i < pricesReversed.length; i++) {
-      let date = dateFormater.format(pricesReversed[i]);
+      let datestring = dateFormater.format(pricesReversed[i]);
 
       let mostRecentPrice = p.PriceHistory[pricesReversed[i]];
-      let datestring = date.toISOString().slice(0, 10);
       if (config.data[config.data.length - 1] === undefined || (config.data[config.data.length - 1].x !== datestring && p.PriceHistory[pricesReversed[i - 1]] !== mostRecentPrice)) {
         config.data.push({ x: datestring, y: mostRecentPrice });
       }
@@ -81,18 +80,17 @@ class PriceGraph extends React.Component {
             }}
             xScale={{
               type: "time",
-              format: "%Y-%m-%d",
+              format: "%d-%m-%Y",
               precision: "day",
             }}
-            xFormat="time:%Y-%m-%d"
+            xFormat="time:%d-%m-%Y"
             axisBottom={{
-              orient: "left",
+              orient: "right",
               format: "%d %b",
               legendOffset: 0,
-              tickRotation: -25,
+              tickRotation: 50,
               tickSize: 5,
-              tickPadding: 5,
-              tickValues: "every 14 days",
+              tickPadding: 2,
               legendPosition: "middle",
             }}
             areaBaselineValue={minPrice}
