@@ -7,7 +7,7 @@ export default {
         date.setMinutes(0);
         date.setSeconds(0);
         date.setMilliseconds(0);
-        return addZero(date.getDate()) + "-" + addZero(date.getMonth()) + "-" + date.getFullYear();
+        return addZero(date.getDate()) + "-" + addZero(date.getMonth()+1) + "-" + date.getFullYear();
     }
 }
 
