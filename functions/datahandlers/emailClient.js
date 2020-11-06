@@ -1,14 +1,17 @@
-const emailAuth = require("../configs/emailAuth.json");
+const emailConfig = require("../configs/emailAuth.json");
 const fs = require('fs');
 const path = require('path');
 const emailHeader = fs.readFileSync(path.resolve(__dirname, "./templates/header.txt"), 'utf8');
 const emailFooter = fs.readFileSync(path.resolve(__dirname, "./templates/footer.txt"), 'utf8');
 const emailProductItem = fs.readFileSync(path.resolve(__dirname, "./templates/productItem.txt"), 'utf8');
 
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(emailAuth.sendgridToken);
+const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport(emailConfig.smtp_mail);
 
-const greetings = ["Halla Balla!", "Hei Sveis!", "Sjallabais sjef!", "God dag mann, økseskaft!", "Hallo i luken!", "Heisann Sveisann!", "G'day mate!", "Tittei, her er jeg!"];
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(emailConfig.sendgrid.sendgridToken);
+
+const greetings = ["Tørst?", "Halla Balla!", "Hei Sveis!", "Sjallabais sjef!", "God dag mann, økseskaft!", "Hallo i luken!", "Heisann Sveisann!", "G'day mate!", "Tittei, her er jeg!"];
 
 module.exports = class EmailClient {
 
@@ -17,7 +20,7 @@ module.exports = class EmailClient {
         this.recipients = recipients;
         let { text, html } = this.CreateNewsLetterEmail();
         this.options = {
-            from: "Spritjakt.no<varsel@spritjakt.no",
+            from: "Spritjakt.no<varsel@spritjakt.no>",
             to: '**Is set later**',
             subject: 'Ny dag, nye priser',
             html: html,
@@ -70,8 +73,10 @@ module.exports = class EmailClient {
             mail.html += footer.replace(/&SignOffURL&/g, "https://europe-west1-spritjakt.cloudfunctions.net/removeEmail?email=" + recipient);
             mail.text += "\n\nBruk denne linken for å melde deg av nyhetsbrevet: https://europe-west1-spritjakt.cloudfunctions.net/removeEmail?email=" + recipient;
             try {
-                console.log("sending email");
-                await sgMail.send(mail);
+                console.log("Sending smtp email");
+                let result = await transporter.sendMail(mail);
+                console.log(result);
+            
             } catch (error) {
                 console.log(error);
             }

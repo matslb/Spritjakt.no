@@ -85,7 +85,7 @@ module.exports = class FirebaseClient {
         }
       }
     }
-    this.productUpdateReport(statusReport);
+    this.writeRealtimeDataSection(statusReport), "/productUpdateReport";
 
   }
 
@@ -139,9 +139,9 @@ module.exports = class FirebaseClient {
       });
   }
 
-  static async productUpdateReport(report) {
-    let reportRef = firebase.database().ref("/productUpdateReport");
-    reportRef.set(report);
+  static async writeRealtimeDataSection(data, section) {
+    let sectionRef = firebase.database().ref(section);
+    sectionRef.set(data);
   }
 
   static async SetStockUpdateList(Stocks, addOnSaleProductsIfMissing = false) {
@@ -229,6 +229,8 @@ module.exports = class FirebaseClient {
       .catch(function (error) {
         console.error("could not add email: ", error);
       });
+    let emails = await this.GetEmails();
+    this.writeRealtimeDataSection({subscribers: emails.length}, "/NewsletterStats");
     return result;
   }
 
@@ -244,7 +246,8 @@ module.exports = class FirebaseClient {
         console.log("Error removing user: ", error);
         result = false;
       });
-
+    let emails = await this.GetEmails();
+    this.writeRealtimeDataSection({subscribers: emails.length}, "/NewsletterStats");
     return result;
   }
 
