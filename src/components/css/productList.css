@@ -43,18 +43,21 @@ ul.ProductList {
 
 .priceGraphWrapper {
   position: fixed;
-  left: 0;
-  right: 0;
   margin: auto;
   top: 0;
   bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
+  max-width: 30rem;
+  width: 100%;
+  left: 0;
+  right: 0;
 }
 
-.priceGraphWrapper .backdrop label {
+.backdrop label {
   text-align: center;
   display: block;
   z-index: 999999;
@@ -65,29 +68,33 @@ ul.ProductList {
   right: 0;
   font-size: 0.8rem;
 }
-
-.priceGraphWrapper .close {
-  right: 0;
-  text-align: center;
-  margin: auto;
-  z-index: 99999;
-  position: fixed;
-  border-radius: 100%;
-  top: 20px;
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  border: none;
-  height: 1.5rem;
-  width: 1.5rem;
-  left: 0;
-}
-.priceGraphWrapper .backdrop {
+ .backdrop {
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  height: 100%;
+  height: 100vh;
+  position: fixed;
+}
+
+.productNavigation {
+  margin: auto;
+  z-index: 99999;
+  width: 100%;
+  max-width: 27rem;
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  border-top: .5px solid white;
+  border-bottom: .5px solid white;
+}
+.productNavigation .productNav{
+  background: none;
+    color: white;
+    box-shadow: none;
+    border: none;
+    font-size: 1.5rem;
 }
 
 .nav {
@@ -268,6 +275,14 @@ ul.ProductList {
     width: 100%;
     min-width: unset;
   }
+.priceGraphWrapper{
+  margin: 0;
+}
+.productNavigation{
+  background: #49908d;
+  border: none;
+}
+
 }
 @media (max-width: 540px) {
   ul.ProductList {

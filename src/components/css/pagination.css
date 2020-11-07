@@ -35,6 +35,7 @@ nav.Pagination ul {
     display: grid;
     grid-template-columns: repeat(9, 1fr);
     gap: 2px;
+    width: 100%;
   }
   nav.Pagination .pageButton{
     width: 100%;

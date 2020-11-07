@@ -5,7 +5,7 @@ import ProductType from "./ProductType";
 import Pagination from "./Pagination";
 import "./css/productList.css";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
-import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faTimes, faTimesCircle, faArrowCircleRight, faArrowCircleLeft  } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
 import PriceGraph from "./PriceGraph";
@@ -201,10 +201,21 @@ class ProductList extends React.Component {
     this.filterProducts();
   }
 
+  nextProduct = (change) => {
+    let highlightedProductIndex = this.state.productResult.indexOf(this.state.highlightedProduct);
+    let newHighlightedProduct = this.state.productResult[highlightedProductIndex + change] ?? null;
+    this.hideGraph();
+    if(newHighlightedProduct){
+      this.setGraph(newHighlightedProduct.Id);
+    }
+  
+  }
+
   hideGraph = () => {
     this.setState({ graphIsVisible: false });
     this.onbackPress();
   };
+  
   setGraph = (productId, productButton) => {
     if (productId === null || productId === this.state.highlightedProduct.Id) {
       this.setState({ highlightedProduct: false, graphIsVisible: false });
@@ -492,7 +503,7 @@ class ProductList extends React.Component {
                   right: 0,
                   margin: "auto"
                 }}
-              >Her var det ikke noe, gitt :/</p>) : ("")}
+              >Her var det ikke noe, gitt...</p>) : ("")}
           </ul>
           <Pagination
             total={productResult.length}
@@ -508,14 +519,23 @@ class ProductList extends React.Component {
           >
             <div>
               {this.state.highlightedProduct && (
+                <div>
+                  <div className="backdrop" onClick={() => this.hideGraph()} >
+                  </div>
                 <div className="priceGraphWrapper">
                   <PriceGraph p={this.state.highlightedProduct} />
-                  <div className="backdrop" onClick={() => this.hideGraph()}>
-                    <label htmlFor="closeGraph">Tilbake</label>
-                    <button name="closeGraph" className="close">
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
+                    <nav className="productNavigation">
+                        <button aria-label="Forrige produkt" onClick={() => this.nextProduct(-1)} className="productNav prev">
+                          <FontAwesomeIcon  size="lg" icon={faArrowCircleLeft} />
+                        </button>
+                        <button aria-label="Tilbake" name="closeGraph"  onClick={() => this.hideGraph()} className="productNav close">
+                          <FontAwesomeIcon size="lg" icon={faTimesCircle} />
+                        </button>
+                        <button aria-label="Neste produkt" onClick={() => this.nextProduct(1)} className="productNav next">
+                          <FontAwesomeIcon  size="lg" icon={faArrowCircleRight} />
+                        </button>
+                    </nav>
+                </div>
                 </div>
               )}
             </div>

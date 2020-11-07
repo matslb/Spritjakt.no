@@ -17,7 +17,7 @@ module.exports = class FirebaseClient {
 
     console.log("Products to update: " + updatedProducts.length);
     let statusReport = {
-      time: d.toLocaleString(),
+      time: new Date(),
       total: updatedProducts.length,
       priceChanged: 0,
       created: 0
@@ -85,7 +85,7 @@ module.exports = class FirebaseClient {
         }
       }
     }
-    this.writeRealtimeDataSection(statusReport), "/productUpdateReport";
+    this.writeRealtimeDataSection(statusReport, "/productUpdateReport");
 
   }
 
@@ -230,7 +230,7 @@ module.exports = class FirebaseClient {
         console.error("could not add email: ", error);
       });
     let emails = await this.GetEmails();
-    this.writeRealtimeDataSection({subscribers: emails.length}, "/NewsletterStats");
+    this.writeRealtimeDataSection(emails.length, "/NewsletterStats");
     return result;
   }
 
@@ -247,7 +247,7 @@ module.exports = class FirebaseClient {
         result = false;
       });
     let emails = await this.GetEmails();
-    this.writeRealtimeDataSection({subscribers: emails.length}, "/NewsletterStats");
+    this.writeRealtimeDataSection(emails.length, "/NewsletterStats");
     return result;
   }
 
