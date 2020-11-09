@@ -4,11 +4,15 @@ import { ReactComponent as ReactLogo } from "./assets/logo.svg";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import Homepage from "./components/Homepage";
+import LoginPage from "./components/LoginPage";
+
 const firebaseConfig = require("./config.json");
 let date = new Date();
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
+
 class App extends React.Component {
   render() {
     return (
@@ -31,8 +35,9 @@ class App extends React.Component {
             Se når polet har tilbud!
           </h2>
         </header>
+          <LoginPage /> 
         <div className="Body">
-          <Homepage />
+          <Homepage />       
         </div>
         <footer>
           <span>
@@ -42,6 +47,7 @@ class App extends React.Component {
           <span data-nosnippet="true">© {date.getFullYear()} <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
           </span>
         </footer>
+        
       </div>
     );
   }

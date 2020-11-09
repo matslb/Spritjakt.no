@@ -1,0 +1,19 @@
+.loginForm {
+    max-width: 30rem;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    margin-top: 1rem;
+} 
+.loginForm input{
+    margin: 1rem;
+}
+
+h2 {
+    text-align: center;
+}
+.statusMessage{
+    text-align: center;
+}

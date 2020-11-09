@@ -1,14 +1,33 @@
 import React from "react";
 import "./css/productComp.css";
-import { faBoxes } from "@fortawesome/free-solid-svg-icons";
+import { faBoxes, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartRegular  } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
-
+import SpritjaktClient from "../datahandlers/spritjaktClient";
 class ProductComp extends React.Component {
   constructor(props) {
     super(props);
     this.productButton = React.createRef();
+    this.state = {};
+    this.spritjaktClient = new SpritjaktClient();
   }
+  
+  async componentDidMount(){
+    let userProducts = await this.spritjaktClient.GetUserProducts();
+    this.setState({IsSelectedByUser: userProducts.includes(this.props.product.Id)});
+  }
+
+  toggleProdctWatch = () => {
+    
+    if(this.state.IsSelectedByUser){
+      this.spritjaktClient.RemoveProductFromUser(this.props.product.Id)
+    }else{
+      this.spritjaktClient.AddProductToUser(this.props.product.Id)
+    }
+    this.setState({IsSelectedByUser: !this.state.IsSelectedByUser});
+  }
+
   render() {
     var { product, selectedStore = "0" } = this.props;
     var background = {
@@ -38,9 +57,7 @@ class ProductComp extends React.Component {
         id={product.Id}
         className={
           "ProductComp " + (priceIsLower ? "price_lowered" : "price_raised")
-        }
-        onClick={() => this.props.setGraph(product.Id, this.productButton)}
-      >
+        }>
         <button
           style={{
             padding: 0,
@@ -51,16 +68,22 @@ class ProductComp extends React.Component {
         >
           {product.Name}
         </button>
-        <div className="product_img" style={background}></div>
+        <div onClick={() => this.props.setGraph(product.Id, this.productButton)} className="product_img" style={background}></div>
         {showDiff &&
           <span className="percentage_change">
             {(priceIsLower ? "" : "+") + (product.SortingDiscount - 100).toFixed(1)}%
           </span>
         }
-        <span className="change_time">
-          {lastChangedDate}
+        <span className="productWatchBtns">
+          {/*lastChangedDate*/}
+          {this.state.IsSelectedByUser && 
+            <a className="watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></a>
+          }
+          {!this.state.IsSelectedByUser && 
+            <a className="watch" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></a>
+          }
         </span>
-        <div className="product_details">
+        <div onClick={() => this.props.setGraph(product.Id, this.productButton)}  className="product_details">
           <h2 className="name">{product.Name}</h2>
           <span className="type">{product.SubType}</span>
           <span className="stock" title="Lagerstatus">

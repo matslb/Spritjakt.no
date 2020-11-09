@@ -424,7 +424,7 @@ class ProductList extends React.Component {
           </button>
           <fieldset disabled={!this.state.filterVisibility && isMobileOnly}>
             <button disabled={this.state.showAllresults}
-              className={"clickable resetFilter show " + (this.state.showAllresults ? "inactive" : "active")}
+              className={"clickable bigGreenBtn resetFilter show " + (this.state.showAllresults ? "inactive" : "active")}
               onClick={() => this.selectAllTypes()}>
               Nullstill
               </button>

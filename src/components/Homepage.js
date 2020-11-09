@@ -1,10 +1,10 @@
 import React from "react";
 import ProductList from "./ProductList";
 import SearchBar from "./SearchBar";
-import NewsLetterSignup from "./NewsLetterSignup";
 import queryString from "query-string";
 import firebase from "firebase/app";
 import "firebase/analytics";
+import NotificationSettings from "./NotificationSettings";
 
 class Homepage extends React.Component {
 
@@ -24,7 +24,7 @@ class Homepage extends React.Component {
 
         return (
             <div className="homepage">
-                <NewsLetterSignup />
+                <NotificationSettings />
                 <SearchBar />
                 <ProductList />
             </div>

@@ -69,6 +69,8 @@ footer span {
   cursor: pointer;
   max-height: 1.2rem;
 }
+
+
 .clickable:focus,
 button:focus,
 select:focus {
@@ -166,4 +168,30 @@ select:focus {
   right: 0;
   left: 0;
   margin: 7px 7px auto auto;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.562);
+  background: rgba(230,230,230,.85);
+  padding: .5rem .2rem;
+  width: 100%;
+  max-width: 13rem;
+}
+input[type="text"]:active,
+input[type="email"]:active,
+input[type="password"]:active {
+  border-bottom: 2px solid #d0b55e79;
+}
+
+.bigGreenBtn{
+    background: rgba(97, 160, 85, 0.7);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 1rem;
 }

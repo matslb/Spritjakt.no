@@ -6,7 +6,9 @@
   margin: 1rem auto 0;
   padding: 8rem 0 1rem;
 }
-
+.searchbox{
+  text-align: center;
+}
 .SearchBar .wrapper ul.ProductList {
   grid-template-columns: 1fr 1fr 1fr 1fr;
   max-width: 1100px;
@@ -39,19 +41,6 @@
 }
 .SearchBar .wrapper {
   width: 100%;
-}
-.SearchBar .searchbox {
-  border: none;
-  font-size: 1rem;
-  outline: none;
-  text-align: center;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.562);
-  background: rgba(0,0,0,.03);
-  padding: .5rem .2rem;
-}
-.searchbox:active,
-.searchbox:focus{
-  border-bottom: 2px solid #d0b55e79;
 }
 
 @media (max-width: 1024px) {

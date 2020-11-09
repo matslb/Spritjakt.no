@@ -154,13 +154,6 @@ ul.ProductList {
 .nav .sorting {
   grid-area: sor;
 }
-.resetFilter {
-  background: rgba(97, 160, 85, 0.7);
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 1rem 0.5rem;
-}
 .resetFilter.inactive {
   opacity: 0.3;
   cursor: default;

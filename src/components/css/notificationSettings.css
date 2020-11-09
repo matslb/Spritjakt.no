@@ -7,7 +7,7 @@
     margin-top: -1rem;
 }
 
-.NewsLetterSignup {
+.NotificationSettings {
     text-align: center;
     background: #90495d;
     color: white;
@@ -18,17 +18,17 @@
     max-height: 6rem;
 }
 
-.NewsLetterSignup.active{
+.NotificationSettings.active{
     padding: 1rem 0.5rem;
     max-height: 20rem;
     box-shadow: 1px 3px 8px rgba(0,0,0,.5);
 }
 
-.NewsLetterSignup .fa-envelope {
+.NotificationSettings .fa-envelope {
     margin-top: 1rem;
     transform: scale(.8);
 }
-.NewsLetterSignup p {
+.NotificationSettings p {
     margin: 0 0 2rem;
     font-size: 1rem;
     font-weight: 400;
@@ -68,16 +68,16 @@ button.activateNL {
 button.activateNL:focus,button.activateNL:hover {
     border: 4px solid #d0b55e;
 }
-.NewsLetterSignup form {
+.NotificationSettings form {
     max-width: 350px;
     margin: auto;
 }
-.NewsLetterSignup .unassign{
+.NotificationSettings .unassign{
     margin-top: 1rem;
     margin-bottom: 1rem;
     display: block;
 }
-.NewsLetterSignup .submitEmail {
+.NotificationSettings .submitEmail {
     margin: 1rem auto 0;
     font-size: 1rem;
     padding: 1rem;
@@ -89,7 +89,7 @@ button.activateNL:focus,button.activateNL:hover {
     min-width: 9rem;
 }
 
-.NewsLetterSignup input[type="email"] {
+.NotificationSettings input[type="email"] {
     font-size: 1rem;
     border-radius: 3px;
     margin-top: 1rem;

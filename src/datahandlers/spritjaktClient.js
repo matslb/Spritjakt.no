@@ -145,6 +145,44 @@ class SpritjaktClient {
     return res;
   }
 
+  async CreateUserDoc() {
+    const user = firebase.auth().currentUser;
+    if(!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.set({
+      registrationDate: new Date()
+    });
+  }
+
+  async GetUserProducts() {
+    const user = firebase.auth().currentUser;
+    if(!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    const doc = await usersRef.get();
+      if (!doc.exists) {
+        return [];
+      } 
+      let userData = doc.data();
+      return userData.products;
+  }
+
+  async AddProductToUser(productId) {
+    const user = firebase.auth().currentUser;
+    if(!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      products: firebase.firestore.FieldValue.arrayUnion(productId)
+    });
+  }
+
+  async RemoveProductFromUser(productId) {
+    const user = firebase.auth().currentUser;
+    if(!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      products: firebase.firestore.FieldValue.arrayRemove(productId)
+    });
+  }
 }
 
 export default SpritjaktClient;

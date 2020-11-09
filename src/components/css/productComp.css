@@ -43,6 +43,18 @@ span.change_time {
   right: 5px;
   text-align: right;
 }
+.productWatchBtns{
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  text-align: right;
+}
+.productWatchBtns .unwatched{
+  color: #555555;
+}
+.productWatchBtns .watched{
+  color: #90495d;
+}
 .ProductComp .alcohol {
   grid-area: alk;
   text-align: right;
