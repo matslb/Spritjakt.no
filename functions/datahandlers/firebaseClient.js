@@ -48,6 +48,8 @@ module.exports = class FirebaseClient {
         sp.ProductStatusSaleName = p.ProductStatusSaleName;
         sp.SearchWords = p.SearchWords;
         sp.Description = p.Description;
+        sp.ManufacturerId = p.ManufacturerId;
+        sp.ManufacturerName = p.ManufacturerName;
 
         sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
           order: "desc",
@@ -146,9 +148,14 @@ module.exports = class FirebaseClient {
 
   static async SetStockUpdateList(Stocks, addOnSaleProductsIfMissing = false) {
     if (addOnSaleProductsIfMissing) {
-      var products = await this.GetProductsOnSale(
-        allTimeEarliestDate.getTime() + 90000000
-      );
+      let d = new Date();
+      if(d.getMonth() === 0){
+        d.setFullYear(d.getFullYear()-1);
+        d.setMonth(11);
+      }else{
+        d.setMonth(d.getMonth() - 1);
+      }
+      var products = await this.GetProductsOnSale(d.getTime());
       products.map((p) => {
         if (!Stocks.find((s) => s.productId === p.Id)) {
           Stocks.unshift({ productId: p.Id });
@@ -199,6 +206,18 @@ module.exports = class FirebaseClient {
     let storeObject = storesRef.get();
     storeObject = (await storeObject).data();
     return storeObject.StoreList;
+  }
+
+  static async UpdateConstants(data, type) {
+    const typeRef = firebase.firestore().collection("Constants").doc(type);
+    typeRef.set({ [type]: data });
+  }
+
+  static async getConstant(type) {
+    const typeRef = firebase.firestore().collection("Constants").doc(type);
+    let dataObject = typeRef.get();
+    dataObject = (await dataObject).data();
+    return dataObject[type];
   }
 
   static async GetEmails() {

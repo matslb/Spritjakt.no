@@ -1,0 +1,21 @@
+.MiniProduct{
+    border-bottom: 1px solid grey;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    margin: 1rem 2px;
+}
+.MiniProduct .product_img {
+    height: 50px;
+    width: 50px;
+    margin: 6px;
+    border-radius: 100%;
+    background-color: white;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.MiniProduct p{
+    margin: 0;
+}

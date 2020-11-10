@@ -11,7 +11,7 @@
     margin: 1rem;
 }
 
-h2 {
+.loginForm h2 {
     text-align: center;
 }
 .statusMessage{

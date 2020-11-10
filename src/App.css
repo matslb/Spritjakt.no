@@ -43,7 +43,6 @@
 }
 .Body {
   min-height: 70vh;
-  position: relative;
 }
 footer {
   margin: 0 auto;
@@ -188,6 +187,21 @@ input[type="password"]:active {
   border-bottom: 2px solid #d0b55e79;
 }
 
+.bigRedBtn{
+  background:#90495d;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 1rem;
+}
+.bigGoldBtn{
+  background:#d0b55e;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 1rem;
+  opacity: 1;
+}
 .bigGreenBtn{
     background: rgba(97, 160, 85, 0.7);
     border: none;

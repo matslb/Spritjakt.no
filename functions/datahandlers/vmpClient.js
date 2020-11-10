@@ -125,6 +125,7 @@ function CreateProduct(rawProduct) {
     Country: rawProduct.origins.origin.country,
     Type: rawProduct.classification.mainProductTypeName,
     SubType: rawProduct.classification.subProductTypeName,
+    ManufacturerName: rawProduct.logistics.manufacturerName,
     Description: rawProduct.description,
     LatestPrice: rawProduct.prices[0].salesPrice,
     SearchWords: rawProduct.basic.productLongName.toLowerCase().split(" "),

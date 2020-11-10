@@ -1,10 +1,12 @@
 .main {
-  padding: 2rem 1rem;
-  max-width: 1200px;
-  margin: auto;
   display: grid;
   grid-template-columns: 1fr 5fr;
   gap: 2rem;
+}
+.Productlist{
+  padding: 1rem;
+  max-width: 1200px;
+  margin: auto;
   border-top: 1px solid;
 }
 .main > p {
@@ -183,6 +185,22 @@ ul.ProductList {
 .filter_backdrop.inactive {
   display: none;
 }
+
+.filterSaverWrapper {
+  height: 70px;
+}
+
+.filterSaver{
+  background: #90495d;
+  display: flex;
+  padding: 1rem;
+  color: white;
+  align-items: center;
+}
+.filterSaver span{
+  margin-left: 2rem;
+} 
+
 @media (max-width: 1024px) {
   ul.ProductList {
     grid-template-columns: 1fr 1fr 1fr;
@@ -275,6 +293,7 @@ ul.ProductList {
   background: #49908d;
   border: none;
 }
+
 
 }
 @media (max-width: 540px) {

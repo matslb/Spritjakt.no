@@ -1,58 +1,18 @@
-
-.NewsLetterWrapper{
-    position: absolute;
-    left: 0;
-    right: 0;
-    z-index: 1;
-    margin-top: -1rem;
-}
-
 .NotificationSettings {
-    text-align: center;
     background: #90495d;
-    color: white;
-    padding: 0rem 0.5rem;
-    border-bottom: 3px solid #1f2b33;
-    overflow: hidden;
-    transition: max-height 0.5s 0.1s ease-in-out, padding 0.2s 0.3s ease-in-out;
-    max-height: 6rem;
-}
-
-.NotificationSettings.active{
-    padding: 1rem 0.5rem;
-    max-height: 20rem;
-    box-shadow: 1px 3px 8px rgba(0,0,0,.5);
-}
-
-.NotificationSettings .fa-envelope {
-    margin-top: 1rem;
-    transform: scale(.8);
-}
-.NotificationSettings p {
-    margin: 0 0 2rem;
-    font-size: 1rem;
-    font-weight: 400;
-
-}
-button.activateNL {
-    cursor: pointer;
-    position: absolute;
-    left: 0;
-    right: 0;
+    max-width: 50rem;
+    padding: 1rem;
     margin: auto;
-    border: none;
-    padding: .25rem .5rem;
     color: white;
-    bottom: -1rem;
-    border-radius: 100%;
-    height: 2rem;
-    width: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: black;
-    outline:none;
+    transition: max-height 0.5s 0.1s ease-in-out, padding 0.2s 0.3s ease-in-out;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
 }
+
 .resultMessage {
     background: rgba(97, 160, 85, .93);
     padding: .2rem .5rem;
@@ -64,54 +24,10 @@ button.activateNL {
     top: 5.5rem;
     margin: auto;
     width: 13rem;
-}
-button.activateNL:focus,button.activateNL:hover {
-    border: 4px solid #d0b55e;
-}
-.NotificationSettings form {
-    max-width: 350px;
-    margin: auto;
-}
-.NotificationSettings .unassign{
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    display: block;
-}
-.NotificationSettings .submitEmail {
-    margin: 1rem auto 0;
-    font-size: 1rem;
-    padding: 1rem;
-    background-color: #d0b55e;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 9rem;
-}
+} 
 
-.NotificationSettings input[type="email"] {
-    font-size: 1rem;
-    border-radius: 3px;
-    margin-top: 1rem;
-    border: none;
-    padding: .25rem 0.5rem;
-    text-align: center;
-}
-
-.NewsLetterWrapper .overlay {
-    position: fixed;
-    background: black;
-    z-index: -1;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.4s 0.1s ease;
-}
-.NewsLetterWrapper.active .overlay {
-    opacity: 0.4;
-    pointer-events: all;
+.list{
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }

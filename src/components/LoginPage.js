@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import LoginForm from "./LoginForm";
 import "./css/loginPage.css";
-const firebase = require('firebase');
+import firebase from "firebase/app";
 
 class LoginPage extends React.Component {
 
@@ -59,9 +59,9 @@ class LoginPage extends React.Component {
                             <LoginForm justLogin={this.state.justLogin} heading="Logg inn" />
                         }
                         {!this.state.justLogin ? 
-                            <p>Allerede registrert deg? <span onClick={() => this.setState({justLogin: true})}>Logg inn</span></p>
+                            <p>Allerede registrert deg?<br /><a onClick={() => this.setState({justLogin: true})}>Logg inn</a></p>
                             :
-                            <p>Har du ikke bruker? <span onClick={ () => this.setState({justLogin: false})}>Registrer deg</span></p>
+                            <p>Har du ikke bruker?<br /><a onClick={ () => this.setState({justLogin: false})}>Registrer deg</a></p>
                         }
                     </div>
                     }

@@ -150,20 +150,51 @@ class SpritjaktClient {
     if(!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.set({
-      registrationDate: new Date()
+      DayOfConsent: new Date()
     });
   }
 
-  async GetUserProducts() {
+  async FetchProductsById(productIds){
+    let products = [];
+    for (let i = 0; i < productIds.length; i++) {
+      const id = productIds[i];
+      const productRef = firebase.firestore().collection("Products").doc(id);
+      const productDoc = await productRef.get();
+      let p = productDoc.data();
+      if (p !== undefined) {
+        products.push(p);
+      }
+    }
+    return products;
+  }
+
+  async GetUser() {
     const user = firebase.auth().currentUser;
     if(!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     const doc = await usersRef.get();
       if (!doc.exists) {
-        return [];
+        return null;
       } 
       let userData = doc.data();
-      return userData.products;
+
+      if(userData.products === undefined){
+        userData.products = [];
+      }
+      if(userData.filters === undefined){
+        userData.filters = [];
+      }
+
+      return userData;
+  }
+
+  async saveUserFilter(filter){
+    const user = firebase.auth().currentUser;
+    if(!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      filters: firebase.firestore.FieldValue.arrayUnion(filter)
+    });
   }
 
   async AddProductToUser(productId) {

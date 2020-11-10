@@ -43,3 +43,9 @@
     border: 3px solid #1f2b33;
     border-radius: 3px;
 }
+.loginPage a{
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 0.2rem;
+    font-size: 1.1rem;
+}

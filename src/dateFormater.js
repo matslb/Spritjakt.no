@@ -1,5 +1,3 @@
-import { database } from "firebase";
-
 export default {
     format: (timeStamp) => {
         let date = new Date(parseInt(timeStamp));

@@ -37,6 +37,7 @@ class ProductList extends React.Component {
       pageSize: 24,
       change: "lowered",
       filterVisibility: false,
+      user: null,
     };
     this.urlParameters = {
     }
@@ -129,6 +130,60 @@ class ProductList extends React.Component {
     this.urlParameters = queryString.parse(window.location.search, {arrayFormat: 'comma'});
     await this.updateProductResults(this.state.timeSpan, true);
     this.applyUrlParams();
+
+    firebase.auth().onAuthStateChanged(async(user) => {
+      if (user) {
+          this.setState({user: await this.spritjaktClient.GetUser()});
+          this.createFilter();
+      } else {
+          this.setState({user: null});
+      }
+    });
+
+  }
+
+   async saveUserFilter() {
+    this.spritjaktClient.saveUserFilter(this.state.filter);
+    this.setState({user: await this.spritjaktClient.GetUser()});
+    this.createFilter();
+  }
+  
+   createFilter(){
+    if(!this.state.user){
+      return;
+    }
+    let productTypesInFilter = [];
+    Object.keys(this.state.productTypes).forEach(pt => {
+      if(this.state.productTypes[pt].state){
+        productTypesInFilter.push(pt);
+      }
+    })
+
+    let selectedStores = this.state.selectedStores.filter(s => s != "0");
+    let newFilter = {
+      productTypes: productTypesInFilter,
+      stores: selectedStores
+    }
+  
+    let filterExists = false;
+
+    if(this.state.user.filters.find( f => this.arraysAreEqual(f.stores, newFilter.stores) && this.arraysAreEqual(f.productTypes, newFilter.productTypes)) ){
+      filterExists = true;
+    }
+    
+     this.setState({currentFilterExists: filterExists, filter: newFilter});
+  }
+
+  arraysAreEqual(arr1, arr2){
+    if(arr1?.length != arr2?.length){
+      return false;
+    }
+    for (const x of arr1) {
+      if (!arr2.includes(x)) {
+        return false        
+      }
+    }
+    return true;
   }
 
   async updateProductResults(timeSpan, firstLoad = false) {
@@ -253,12 +308,11 @@ class ProductList extends React.Component {
     productTypes[name].state = isSelected;
     let activeProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state);
     this.setUrlParams("filter", activeProductTypes);
-
     firebase.analytics().logEvent("filter_click", { value: productTypes[name] });
     this.filterProducts(this.state.selectedStores, productTypes);
   };
 
-  filterProducts = (selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) => {
+  filterProducts (selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
     let productResult = [];
     let prevSelectedProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state) ?? [];
   
@@ -280,6 +334,7 @@ class ProductList extends React.Component {
       selectedStores: selectedStores,
       showAllresults: Object.keys(productTypes).find(pt => productTypes[pt].state) ? false : true
     });
+    this.createFilter();
   }
 
   displayProducts = () => {
@@ -320,10 +375,11 @@ class ProductList extends React.Component {
   handleStoreUpdate = async (storeList) => {
     let productTypes = this.state.productTypes;
     Object.keys(productTypes).map(pt => productTypes[pt].products = {})
-    this.setState({
+    await this.setState({
       storeList: storeList,
       productTypes: productTypes
     });
+    this.createFilter();
     this.setUrlParams("stores", storeList);
     this.filterProducts(storeList, productTypes);
   };
@@ -408,10 +464,21 @@ class ProductList extends React.Component {
   };
   render() {
 
-    let { pageSize, page, productResult, stores, selectedStores } = this.state;
+    let { currentFilterExists, user, pageSize, page, productResult, stores, selectedStores, filter } = this.state;
 
     return (
-      <div key="Productlist" className="main">
+      <div key="Productlist" className="Productlist" >
+
+        <div className="filterSaverWrapper">
+        {(user && !currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
+            <div className="filterSaver">
+              <button className="bigGoldBtn clickable" onClick={() => {this.saveUserFilter()}}>Overvåk dette søket</button>
+              <span>Få varsel på epost når produkter som matcher dette søket kommer på tilbud.</span>
+            </div>
+        }
+        </div>
+
+      <div className="main">
         <aside className={"filter " + (this.state.filterVisibility ? "active" : "inactive")}>
           <button className="toggleFilter"
             onClick={() => {
@@ -548,6 +615,7 @@ class ProductList extends React.Component {
             onClick={() => this.setState({ filterVisibility: false })}
           ></div>
         </main>
+        </div>
 
       </div >
     );

@@ -5,17 +5,34 @@ import { faHeart as faHeartRegular  } from "@fortawesome/free-regular-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
+import firebase from "firebase/app";
+
 class ProductComp extends React.Component {
   constructor(props) {
     super(props);
     this.productButton = React.createRef();
-    this.state = {};
+    this.state = {
+      IsSelectedByUser: null
+    };
     this.spritjaktClient = new SpritjaktClient();
   }
   
-  async componentDidMount(){
-    let userProducts = await this.spritjaktClient.GetUserProducts();
-    this.setState({IsSelectedByUser: userProducts.includes(this.props.product.Id)});
+  async componentDidMount() {
+    this.updateWatchState();
+    firebase.auth().onAuthStateChanged((user) => {
+      if(user){
+        this.updateWatchState();
+      }else{
+        this.setState({IsSelectedByUser: null});
+      }
+    });
+  }
+
+  async updateWatchState() {
+    let userData = await this.spritjaktClient.GetUser();
+    if(userData != null){
+      this.setState({IsSelectedByUser: userData.products.includes(this.props.product.Id)});
+    }
   }
 
   toggleProdctWatch = () => {
@@ -79,7 +96,7 @@ class ProductComp extends React.Component {
           {this.state.IsSelectedByUser && 
             <a className="watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></a>
           }
-          {!this.state.IsSelectedByUser && 
+          {this.state.IsSelectedByUser == false && 
             <a className="watch" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></a>
           }
         </span>

@@ -1,6 +1,6 @@
 import React from "react";
 import "./css/loginForm.css";
-import firebase from "firebase/app";
+import firebase from "firebase";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
 
 class LoginForm extends React.Component {
@@ -70,12 +70,17 @@ class LoginForm extends React.Component {
                     <br/>
                     <input required name="pass" type="password" />
                 </label>
-                { !this.props.justLogin && 
-                    <label>
-                        Bekreft passord
+                { !this.props.justLogin &&
+                    <div>
+                        <label>
+                            Bekreft passord
+                            <br/><input required name="pass2" type="password" />
+                        </label><br />
+                        <label>Jeg ønsker å motta varsel på epost når det kommer nye prisendringer.
                         <br/>
-                        <input required name="pass2" type="password" />
-                    </label>
+                        <input required name="email_consent"  type="checkbox" />
+                        </label>
+                    </div> 
                 }
                 <br />
                 {this.state.status != null &&

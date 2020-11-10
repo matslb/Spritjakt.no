@@ -1,57 +1,37 @@
 import React from "react";
 import "./css/notificationSettings.css";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
+import MiniProduct from "./MiniProduct";
 import { faEnvelope, faCircleNotch, faPlusCircle, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { isMobile } from "react-device-detect";
 import * as Scroll from "react-scroll";
 import firebase from "firebase/app";
 import "firebase/analytics";
-import LoginPage from "./LoginPage";
 
 class NotificationSettings extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: "",
             isActive: false,
-            actionIsRegister: true,
-            requestIsActive: false,
-            resultMessage: ""
+            resultMessage: "",
+            user: null
         }
+        this.spritjaktClient = new SpritjaktClient();
     }
-
-    EmailSubmit = async (e) => {
-        e.preventDefault();
-
-        if (this.state.requestIsActive || this.state.email === "") {
-            return;
-        }
-
-        let resultMessage;
-        await this.setState({ requestIsActive: true });
-        if (this.state.actionIsRegister) {
-
-            firebase.analytics().logEvent("newsletter_signon");
-            await SpritjaktClient.registerEmail(this.state.email);
-            resultMessage = "Supert! Nå er du påmeldt";
-
-        } else {
-            firebase.analytics().logEvent("newsletter_signoff");
-            await SpritjaktClient.removeEmail(this.state.email);
-            resultMessage = "Den er god, eposten din er fjernet fra listen";
-        }
-        await this.setState({
-            requestIsActive: false,
-            resultMessage: resultMessage,
-            email: ""
+    async componentDidMount() {
+        firebase.auth().onAuthStateChanged((user) => {
+            this.setState({user: user});
+            if(user){
+                firebase.firestore().collection("Users").doc(user.uid)
+                .onSnapshot(async (doc) => {
+                    let userData = doc.data();
+                    let products = await this.spritjaktClient.FetchProductsById(userData.products);
+                    this.setState({userData: userData, products: products});
+                });
+            }
         });
-        setTimeout(() => {
-            this.setState({
-                resultMessage: ""
-            })
-        }, 5000);
-    }
+      }
     toggleSection = (e) => {
         if (!this.state.isActive) {
             Scroll.animateScroll.scrollTo(0);
@@ -59,25 +39,37 @@ class NotificationSettings extends React.Component {
         this.setState({ isActive: !this.state.isActive });
     }
 
+    renderProducts(){
+        let items = [];
+        for (const product of this.state.products) {
+            items.push(<MiniProduct product={product} /> );
+        }
+        return items;
+    }
+
     render() {
+        let {user, userData, products} = this.state;
+        
         return (
-            <div className={"NewsLetterWrapper " + (this.state.isActive ? " active " : "")} >
-                <div className={"NotificationSettings " + (this.state.isActive ? " active " : "") + (isMobile ? " handheld" : " desktop")}>
-                    <FontAwesomeIcon icon={faEnvelope} size="2x" />
-                    <p>Varselinstillinger</p>
-                    {this.state.resultMessage !== "" &&
-                        <div className="resultMessage">{this.state.resultMessage}</div>
+            <div>
+                {user && userData &&
+                <div className={"NotificationSettings " + (this.state.isActive ? " active " : "")} >
+                    <div className="heading">
+                        <h3>Innstillinger</h3>
+                        <p>Her kan du kontrollere når og hvor du skal få varsler</p>
+                    </div>
+                    
+                    {products.length > 0 &&
+                        <div className="favorites">
+                            <h4>Favoritter</h4>
+                            <ul class="list miniproducts">{this.renderProducts()}</ul>
+                        </div>
+
                     }
-                </div>
-                <button className="activateNL" aria-label="Åpne seksjon for nyhetsbrev" onClick={this.toggleSection} >
-                    {this.state.isActive ?
-                        <FontAwesomeIcon icon={faMinusCircle} size="2x" />
-                        :
-                        <FontAwesomeIcon icon={faPlusCircle} size="2x" />
-                    }
-                </button>
-                <div className="overlay" onClick={this.toggleSection} ></div>
-            </div >
+
+                </div >
+                }
+            </div>
         );
     }
 }
