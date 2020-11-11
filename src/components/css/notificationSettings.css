@@ -30,4 +30,27 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    background: white;
+    padding: 0.5rem;
+}
+.list li{
+    color: black;
+    padding: 0.5rem;
+    border-bottom: 1px solid grey;
+}
+.list li:last-of-type{
+    border-bottom: none;
+}
+.list .filter{
+    display: flex;
+    flex-direction: row;
+    display: grid;
+    grid-template-columns: 3fr 3fr 1fr ;
+    height: 1.5rem;
+    list-style: none;
+}
+.list .filter .stores{
+}
+.list .filter .operations svg{
+    margin-left: 10px;
 }

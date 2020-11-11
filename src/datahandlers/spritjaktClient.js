@@ -197,6 +197,16 @@ class SpritjaktClient {
     });
   }
 
+  async removeUserFilter(filter){
+    const user = firebase.auth().currentUser;
+    if(!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      filters: firebase.firestore.FieldValue.arrayRemove(filter)
+    });
+  }
+
+
   async AddProductToUser(productId) {
     const user = firebase.auth().currentUser;
     if(!user) return;

@@ -1,10 +1,7 @@
 .MiniProduct{
-    border-bottom: 1px solid grey;
     list-style: none;
     display: flex;
     align-items: center;
-    padding: 3px;
-    margin: 1rem 2px;
 }
 .MiniProduct .product_img {
     height: 50px;

@@ -2,7 +2,7 @@ import React from "react";
 import "./css/notificationSettings.css";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
 import MiniProduct from "./MiniProduct";
-import { faEnvelope, faCircleNotch, faPlusCircle, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faCircleNotch, faPlusCircle, faMinusCircle, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { isMobile } from "react-device-detect";
 import * as Scroll from "react-scroll";
@@ -15,7 +15,8 @@ class NotificationSettings extends React.Component {
         this.state = {
             isActive: false,
             resultMessage: "",
-            user: null
+            user: null,
+            stores: null
         }
         this.spritjaktClient = new SpritjaktClient();
     }
@@ -27,7 +28,8 @@ class NotificationSettings extends React.Component {
                 .onSnapshot(async (doc) => {
                     let userData = doc.data();
                     let products = await this.spritjaktClient.FetchProductsById(userData.products);
-                    this.setState({userData: userData, products: products});
+                    let stores = await this.spritjaktClient.FetchStores();
+                    this.setState({userData: userData, products: products, stores: stores});
                 });
             }
         });
@@ -46,6 +48,25 @@ class NotificationSettings extends React.Component {
         }
         return items;
     }
+    renderFilters(){
+        let items = [];
+        for (const filter of this.state.userData.filters) {
+
+            let storeNames = [];
+            filter.stores.forEach(id =>{
+                storeNames.push(this.state.stores.find(s => s.storeId == id).storeName);
+            });
+
+            items.push(<li className="filter">
+                <div className="stores">{storeNames.join()}</div>
+                <div className="productTypes">{filter.productTypes.join()}</div>
+                <div className="operations">
+                    <FontAwesomeIcon icon={faTrash} onClick={() => {this.spritjaktClient.removeUserFilter(filter)}} />
+                </div>
+            </li> );
+        }
+        return items;
+    }
 
     render() {
         let {user, userData, products} = this.state;
@@ -59,6 +80,12 @@ class NotificationSettings extends React.Component {
                         <p>Her kan du kontrollere når og hvor du skal få varsler</p>
                     </div>
                     
+                    {userData.filters.length > 0 &&
+                        <div className="filters">
+                            <h4>Lagrede søk</h4>
+                            <ul class="list filters">{this.renderFilters()}</ul>
+                        </div>
+                    }
                     {products.length > 0 &&
                         <div className="favorites">
                             <h4>Favoritter</h4>
