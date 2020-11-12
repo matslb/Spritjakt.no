@@ -5,94 +5,97 @@ import SpritjaktClient from "../datahandlers/spritjaktClient";
 
 class LoginForm extends React.Component {
 
-    constructor(){
+    constructor() {
         super();
-        this.state = { status: null, message:""}
+        this.state = { status: null, message: "" }
         this.spritjaktClient = new SpritjaktClient();
     }
     register = (event) => {
         event.preventDefault();
-        const email =  event.target[0].value;
-        const pass =  event.target[1].value;
-        const pass2 =  event.target[2].value;
+        const name = event.target[0].value;
+        const email = event.target[1].value;
+        const pass = event.target[2].value;
+        const pass2 = event.target[3].value;
 
-        if(email === ""){
-            this.setState({status: false, message: "Passordet må være på minst 6 tegn"});
+        if (email === "") {
+            this.setState({ status: false, message: "Passordet må være på minst 6 tegn" });
             return;
         }
-        if(pass.length <= 5){
-            this.setState({status: false, message: "Passordet må være på minst 6 tegn"});
+        if (pass.length <= 5) {
+            this.setState({ status: false, message: "Passordet må være på minst 6 tegn" });
             return;
         }
-        if(pass !== pass2){
-            this.setState({status: false, message: "Passordene er ikke like"});
+        if (pass !== pass2) {
+            this.setState({ status: false, message: "Passordene er ikke like" });
             return;
         }
 
-        firebase.auth().createUserWithEmailAndPassword(email, pass)
-        .then(async () => {
-            
-            await this.spritjaktClient.CreateUserDoc();
+        firebase.auth().createUserWithEmailAndPassword(name, email, pass)
+            .then(async () => {
 
-            this.setState({status: true, message: "Registrering vellykket"});
-        })    
-        .catch((error) => {
-            this.setState({status: false, message: error.message});
-        });
+                await this.spritjaktClient.CreateUserDoc();
+
+                this.setState({ status: true, message: "Registrering vellykket" });
+            })
+            .catch((error) => {
+                this.setState({ status: false, message: error.message });
+            });
     }
+
     login = (event) => {
         event.preventDefault();
 
-        const email =  event.target[0].value;
-        const pass =  event.target[1].value;
-        
+        const email = event.target[0].value;
+        const pass = event.target[1].value;
+
         firebase.auth().signInWithEmailAndPassword(email, pass)
-        .then(() => {
-            this.setState({status: true, message: "Innlogging vellykket"});
-        })    
-        .catch((error) => {
-            this.setState({status: false, message: error.message});
-        });
+            .then(() => {
+                this.setState({ status: true, message: "Innlogging vellykket" });
+            })
+            .catch((error) => {
+                this.setState({ status: false, message: error.message });
+            });
     }
 
-  render() {
-    return (
-        <div>
-            <h2>{this.props.heading}</h2>
-            <form className="loginForm" onSubmit={ this.props.justLogin ? this.login : this.register}>
-                <label>
-                    Epost
-                    <br/>
-                    <input required placeholder="Din epostadresse" name="email" type="email" />
-                </label>
-                <label>
-                    Passord
-                    <br/>
-                    <input required name="pass" type="password" />
-                </label>
-                { !this.props.justLogin &&
-                    <div>
+    render() {
+        return (
+            <div>
+                <h2>{this.props.heading}</h2>
+                <form className="loginForm" onSubmit={this.props.justLogin ? this.login : this.register}>
+                    {!this.props.justLogin &&
+                        <label>
+                            Navn
+                    <br />
+                            <input required placeholder="Navnet ditt" name="name" type="text" />
+                        </label>
+                    }
+                    <label>
+                        Epost
+                    <br />
+                        <input required placeholder="Din epostadresse" name="email" type="email" />
+                    </label>
+                    <label>
+                        Passord
+                    <br />
+                        <input required name="pass" type="password" />
+                    </label>
+                    {!this.props.justLogin &&
                         <label>
                             Bekreft passord
-                            <br/><input required name="pass2" type="password" />
-                        </label><br />
-                        <label>Jeg ønsker å motta varsel på epost når det kommer nye prisendringer.
-                        <br/>
-                        <input required name="email_consent"  type="checkbox" />
+                            <br /><input required name="pass2" type="password" />
                         </label>
-                    </div> 
-                }
-                <br />
-                {this.state.status != null &&
-                    <div className={"statusMessage" + this.state.status ? " success" : " error"}>
-                        {this.state.message}
-                    </div>
-                }
-                <input className="bigGreenBtn" type="submit" value={this.props.heading} />
-            </form>
-        </div>
-    );
-  }
+                    }
+                    <br />
+                    {this.state.status != null &&
+                        <div className={"statusMessage" + this.state.status ? " success" : " error"}>
+                            {this.state.message}
+                        </div>
+                    }
+                    <input className="bigGreenBtn" type="submit" value={this.props.heading} />
+                </form>
+            </div>
+        );
+    }
 }
 
 export default LoginForm;

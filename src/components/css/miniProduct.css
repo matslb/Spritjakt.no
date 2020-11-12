@@ -2,8 +2,24 @@
     list-style: none;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 2fr 10fr 1fr 2fr;
 }
-.MiniProduct .product_img {
+.MiniProduct .img,
+.MiniProduct .name {
+    cursor: pointer;
+}
+
+.MiniProduct .name {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.MiniProduct .img {
     height: 50px;
     width: 50px;
     margin: 6px;
@@ -12,6 +28,7 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    border: .5px solid;
 }
 .MiniProduct p{
     margin: 0;

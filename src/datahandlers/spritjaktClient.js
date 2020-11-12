@@ -1,6 +1,7 @@
 import rp from "request-promise";
 import firebase from "firebase/app";
 import "firebase/firestore";
+import dateFormater from "../dateFormater";
 
 const allTimeEarliestDate = 1594166400000;
 
@@ -62,10 +63,7 @@ class SpritjaktClient {
             qs.forEach((p) => {
               p = p.data();
 
-              let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && parseInt(priceDate) !== parseInt(p.LastUpdated)));
-
-              p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
-              p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+              p = this.CalculateProductDiscount(p, startPoint);
 
               if (p.SortingDiscount && (p.SortingDiscount >= 101 || p.SortingDiscount <= 99) && !this.loadedProducts.find(lp => lp.Id === p.Id)) {
                 this.loadedProducts.push(p);
@@ -75,14 +73,23 @@ class SpritjaktClient {
         });
     } else {
       returnProducts.forEach(p => {
-        let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && priceDate !== p.LastUpdated));
-        p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
-        p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+        p = this.CalculateProductDiscount(p, startPoint);
       });
     }
     returnProducts = this.loadedProducts.filter(p => p.LastUpdated > startPoint);
 
     return returnProducts
+  }
+
+  CalculateProductDiscount(p, startPoint = Date.now()) {
+    let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && parseInt(priceDate) !== parseInt(p.LastUpdated)));
+    p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
+    p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+    if (p.ComparingPrice == undefined) {
+      p.SortingDiscount = 100;
+    }
+
+    return p
   }
 
   async SearchProducts(searchString) {
@@ -108,6 +115,19 @@ class SpritjaktClient {
     let storeObject = storesRef.get();
     storeObject = (await storeObject).data();
     return storeObject.StoreList;
+  }
+  async FetchProductTypes() {
+    const ref = firebase.firestore().collection("Constants").doc("ProductTypes");
+    let object = ref.get();
+    let data = (await object).data();
+    let productTypes = {};
+    data.ProductTypes.forEach(pt => {
+      productTypes[pt] = {
+        products: 0,
+        state: false
+      }
+    });
+    return productTypes;
   }
 
   static async registerEmail(email) {
@@ -145,16 +165,16 @@ class SpritjaktClient {
     return res;
   }
 
-  async CreateUserDoc() {
+  async CreateUserDoc(name) {
     const user = firebase.auth().currentUser;
-    if(!user) return;
+    if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.set({
-      DayOfConsent: new Date()
+      name: name
     });
   }
 
-  async FetchProductsById(productIds){
+  async FetchProductsById(productIds) {
     let products = [];
     for (let i = 0; i < productIds.length; i++) {
       const id = productIds[i];
@@ -162,7 +182,7 @@ class SpritjaktClient {
       const productDoc = await productRef.get();
       let p = productDoc.data();
       if (p !== undefined) {
-        products.push(p);
+        products.push(this.CalculateProductDiscount(p));
       }
     }
     return products;
@@ -170,36 +190,36 @@ class SpritjaktClient {
 
   async GetUser() {
     const user = firebase.auth().currentUser;
-    if(!user) return;
+    if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     const doc = await usersRef.get();
-      if (!doc.exists) {
-        return null;
-      } 
-      let userData = doc.data();
+    if (!doc.exists) {
+      return null;
+    }
+    let userData = doc.data();
 
-      if(userData.products === undefined){
-        userData.products = [];
-      }
-      if(userData.filters === undefined){
-        userData.filters = [];
-      }
+    if (userData.products === undefined) {
+      userData.products = [];
+    }
+    if (userData.filters === undefined) {
+      userData.filters = [];
+    }
 
-      return userData;
+    return userData;
   }
 
-  async saveUserFilter(filter){
+  async saveUserFilter(filter) {
     const user = firebase.auth().currentUser;
-    if(!user) return;
+    if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       filters: firebase.firestore.FieldValue.arrayUnion(filter)
     });
   }
 
-  async removeUserFilter(filter){
+  async removeUserFilter(filter) {
     const user = firebase.auth().currentUser;
-    if(!user) return;
+    if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       filters: firebase.firestore.FieldValue.arrayRemove(filter)
@@ -209,7 +229,7 @@ class SpritjaktClient {
 
   async AddProductToUser(productId) {
     const user = firebase.auth().currentUser;
-    if(!user) return;
+    if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       products: firebase.firestore.FieldValue.arrayUnion(productId)
@@ -218,7 +238,7 @@ class SpritjaktClient {
 
   async RemoveProductFromUser(productId) {
     const user = firebase.auth().currentUser;
-    if(!user) return;
+    if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       products: firebase.firestore.FieldValue.arrayRemove(productId)

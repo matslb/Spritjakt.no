@@ -4,6 +4,7 @@
   position: relative;
   transition: 0.2s 0.05s;
   display: flex;
+  color: black;
   flex-wrap: wrap;
 }
 
@@ -80,18 +81,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  color: white;
-  padding: 0.2rem 0.5rem;
-  font-weight: 400;
-  border-bottom-right-radius: 3px;
-  opacity: 0.8;
 }
 
-.HighlightedProduct.price_raised .percentage_change {
-  background: rgba(184, 91, 87, 0.8);
-}
-
-.HighlightedProduct.price_lowered .percentage_change {
-  background: rgba(97, 160, 85, 0.8);
-}
 

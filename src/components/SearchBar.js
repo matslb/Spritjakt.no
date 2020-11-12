@@ -2,9 +2,9 @@ import React from "react";
 import "./css/searchBar.css";
 import ProductComp from "./ProductComp";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
-import PriceGraph from "./PriceGraph";
+import ProductPopUp from "./ProductPopUp";
 import { CSSTransition } from "react-transition-group";
-import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faArrowCircleLeft, faArrowCircleRight, faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import firebase from "firebase/app";
 import "firebase/analytics";
@@ -16,7 +16,7 @@ class SearchBar extends React.Component {
       loading: false,
       searchString: "",
       lastFetch: Date.now(),
-      loadedProducts: [],
+      productResult: [],
       highlightedProduct: false,
     };
     this.SpritjaktClient = new SpritjaktClient();
@@ -38,17 +38,17 @@ class SearchBar extends React.Component {
   };
 
   async SearchProducts(searchString) {
-    let loadedProducts = await this.SpritjaktClient.SearchProducts(
+    let productResult = await this.SpritjaktClient.SearchProducts(
       searchString.toLowerCase()
     );
     if (this.state.searchString !== searchString) return;
-    this.setState({ loading: false, loadedProducts: loadedProducts });
+    this.setState({ loading: false, productResult: productResult });
     firebase.analytics().logEvent("product_search", { value: searchString });
   }
 
   displayProducts = () => {
     let list = [];
-    this.state.loadedProducts.forEach((p) => {
+    this.state.productResult.forEach((p) => {
       list.push(
         <ProductComp
           key={p.Id}
@@ -75,16 +75,19 @@ class SearchBar extends React.Component {
     return list;
   };
 
-  hideGraph = () => {
-    this.setState({ graphIsVisible: false });
-  };
-  setGraph = (productId, productButton) => {
+  nextProduct = (change) => {
+    let highlightedProductIndex = this.state.productResult.indexOf(this.state.highlightedProduct);
+    let newHighlightedProduct = this.state.productResult[highlightedProductIndex + change] ?? null;
+    this.setGraph(null, null);
+    if(newHighlightedProduct){
+      this.setGraph(newHighlightedProduct.Id);
+    }
+  }
+  setGraph = (productId) => {
     if (productId === null || productId === this.state.highlightedProduct.Id) {
       this.setState({ highlightedProduct: false, graphIsVisible: false });
-      this.productButtonRef.current.focus();
     } else {
-      this.productButtonRef = productButton;
-      let product = this.state.loadedProducts.find((p) => p.Id === productId);
+      let product = this.state.productResult.find((p) => p.Id === productId);
       this.setState({ highlightedProduct: product, graphIsVisible: true });
 
       firebase.analytics().logEvent("select_item", {
@@ -125,26 +128,7 @@ class SearchBar extends React.Component {
             </ul>
           </div>
         )}
-        <CSSTransition
-          in={this.state.graphIsVisible}
-          timeout={100}
-          className="toggle"
-          onExited={() => this.setGraph(null, null)}
-        >
-          <div>
-            {this.state.highlightedProduct && (
-              <div className="priceGraphWrapper">
-                <PriceGraph p={this.state.highlightedProduct} />
-                <div className="backdrop" onClick={() => this.hideGraph()}>
-                  <label htmlFor="closeGraph">Tilbake</label>
-                  <button name="closeGraph" className="close">
-                    <FontAwesomeIcon icon={faTimes} />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </CSSTransition>
+        <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)}  setGraph={this.setGraph.bind(this)}   />
       </div>
     );
   }

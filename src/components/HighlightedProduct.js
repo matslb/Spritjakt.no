@@ -37,13 +37,10 @@ class ProductComp extends React.Component {
   render() {
     var { product } = this.props;
     var background = {
-      backgroundImage:
-        "url(https://bilder.vinmonopolet.no/cache/100x100/" +
-        product.Id +
-        "-1.jpg)",
+      backgroundImage: "url(https://bilder.vinmonopolet.no/cache/100x100/" + product.Id + "-1.jpg)",
     };
     var priceIsLower = product.LatestPrice < product.ComparingPrice;
-    var showDiff = product.SortingDiscount !== 100 ?? false;
+    var showDiff = product.SortingDiscount !== 100;
 
     return (
       <div

@@ -7,6 +7,10 @@ import "firebase/analytics";
 import NotificationSettings from "./NotificationSettings";
 
 class Homepage extends React.Component {
+    constructor(props){
+        super(props);
+        this.ProductList = React.createRef();
+    }
 
     componentDidMount() {
         this.registerSource();
@@ -20,13 +24,17 @@ class Homepage extends React.Component {
         }
     }
 
+    applyUserFilter = () => {
+        this.ProductList.current.updateUrlParams();
+    }
+
     render() {
 
         return (
             <div className="homepage">
-                <NotificationSettings />
+                <NotificationSettings applyUserFilter={this.applyUserFilter.bind(this)} />
                 <SearchBar />
-                <ProductList />
+                <ProductList ref={this.ProductList}   />
             </div>
         );
     }

@@ -8,9 +8,11 @@
     margin-top: 1rem;
 } 
 .loginForm input{
-    margin: 1rem;
+    margin: .5rem 0;
 }
-
+.loginForm label{
+    text-align: left;
+}
 .loginForm h2 {
     text-align: center;
 }

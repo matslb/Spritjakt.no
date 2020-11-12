@@ -1,12 +1,4 @@
-.profileStatusBar{
-    padding: .25rem .5rem;
-    color: white;
-    text-align: right; 
-}
-.profileStatusBar a{
-    cursor: pointer;
-    padding: 0 0.5rem;
-}
+
 .loginPage {
     position: absolute;
     z-index: 10;
@@ -30,11 +22,10 @@
   }
 .loginSection{
     max-width: 40rem;
-    max-height: 80vh;
     min-height: 30rem;
     margin: auto;
     position: absolute;
-    background: #49908d;
+    background: #90495d;
     top: 10vh; 
     left: 0;
     right: 0;
@@ -46,6 +37,6 @@
 .loginPage a{
     text-decoration: underline;
     cursor: pointer;
-    margin-top: 0.2rem;
+    margin-top: 0.5rem;
     font-size: 1.1rem;
 }

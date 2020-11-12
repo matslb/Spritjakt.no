@@ -1,18 +1,25 @@
 .NotificationSettings {
     background: #90495d;
     max-width: 50rem;
-    padding: 1rem;
+    padding: 1rem 2rem;
     margin: auto;
     color: white;
-    transition: max-height 0.5s 0.1s ease-in-out, padding 0.2s 0.3s ease-in-out;
+    transition:  0.5s 0.1s ease-in-out;
     position: fixed;
-    right: 0;
+    right: -60rem;
     top: 0;
     bottom: 0;
     z-index: 999;
+    max-height: 100%;
+    overflow: auto;
+    width: 100%;
+    max-width: 40rem;
+    box-sizing: border-box;
     box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
 }
-
+.NotificationSettings.active {
+    right: 0;
+}
 .resultMessage {
     background: rgba(97, 160, 85, .93);
     padding: .2rem .5rem;
@@ -29,28 +36,68 @@
 .list{
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0.5rem 0;
     background: white;
-    padding: 0.5rem;
+    border-radius: 3px;
+    max-height: 30rem;
+    overflow: auto;
 }
 .list li{
     color: black;
     padding: 0.5rem;
-    border-bottom: 1px solid grey;
 }
-.list li:last-of-type{
-    border-bottom: none;
+.list li:last-child{
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+.list li:nth-of-type(even){
+    background: #e8edf1;
 }
 .list .filter{
-    display: flex;
-    flex-direction: row;
-    display: grid;
-    grid-template-columns: 3fr 3fr 1fr ;
-    height: 1.5rem;
     list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    display: grid;
+    gap: 1rem;
+    min-height: 1.5rem;
+    max-height: 5rem;
+    grid-template-columns: 5fr 5fr 1fr;
+    overflow: auto;
+    cursor: pointer;
 }
-.list .filter .stores{
+.list .filter:active{
+    opacity: 0.8;
 }
-.list .filter .operations svg{
-    margin-left: 10px;
+
+.list .listHeaders{
+    font-weight: bold;
+    border-bottom: 3px solid grey;
+}
+.list .operations{
+    text-align: center;
+}
+.sectionHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.profileStatusBar{
+    top: 0;
+    right: 0;
+    position: fixed;
+    color: white;
+    text-align: right;
+    z-index: 10;
+    display: flex;
+    width: 7rem;
+    justify-content: space-between;
+    padding: .5rem 1rem;
+    background: #4f5e65b0;
+    border-bottom-left-radius: 3px;
+}
+.profileStatusBar a{
+    cursor: pointer;
+    padding: 0 0.5rem;
 }

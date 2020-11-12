@@ -5,10 +5,10 @@ import ProductType from "./ProductType";
 import Pagination from "./Pagination";
 import "./css/productList.css";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
-import { faCircleNotch, faTimes, faTimesCircle, faArrowCircleRight, faArrowCircleLeft  } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faTimes, faTimesCircle, faArrowCircleRight, faArrowCircleLeft, faGrinTongueSquint } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
-import PriceGraph from "./PriceGraph";
+import ProductPopUp from "./ProductPopUp";
 import * as Scroll from "react-scroll";
 import { isMobileOnly } from "react-device-detect";
 import firebase from "firebase/app";
@@ -38,9 +38,9 @@ class ProductList extends React.Component {
       change: "lowered",
       filterVisibility: false,
       user: null,
+      urlParameters: {}
     };
-    this.urlParameters = {
-    }
+
     this.sortOptions = [
       { label: "Nyeste", value: "LastUpdated_desc" },
       { label: "Prisendring", value: "SortingDiscount" },
@@ -56,66 +56,75 @@ class ProductList extends React.Component {
       { label: "Siste 90 dager", value: 90 }
     ];
     this.spritjaktClient = new SpritjaktClient();
-    this.productButtonRef = React.createRef();
     this.productList = React.createRef();
   }
 
   onbackPress = (e) => {
-    if(this.state.highlightedProduct){
-      this.setState({highlightedProduct: false, showGraph: false});
+    if (this.state.highlightedProduct) {
+      this.setState({ highlightedProduct: false, showGraph: false });
       this.setUrlParams("product");
     }
   }
-  resetUrlParams = () =>{
-    this.urlParameters = {};
+  resetUrlParams = () => {
+    this.setState({ urlParameters: {} });
     window.history.replaceState('', '', '?');
   }
   setUrlParams = (field, value = null) => {
-    this.urlParameters[field] = value;
+    let urlParameters = this.state.urlParameters;
+    urlParameters[field] = value;
 
-    if(value === null){
-      delete this.urlParameters[field];
+    if (value === null) {
+      delete urlParameters[field];
     }
 
-    let query = queryString.stringify(this.urlParameters, {arrayFormat: 'comma'});
-    if(field == "product" && value != null){
-      window.history.pushState('', '', '?'+ query);  
+    let query = queryString.stringify(urlParameters, { arrayFormat: 'comma' });
+    if (field == "product" && value != null) {
+      window.history.pushState('', '', '?' + query);
     }
-    window.history.replaceState('', '', '?'+ query);
+    window.history.replaceState('', '', '?' + query);
   }
 
-  applyUrlParams = () =>{
-      Object.keys(this.urlParameters).forEach( field =>{
-        const param = this.urlParameters[field];
-        switch (field) {
-          case "product":
-            this.setGraph(param);
-            break;
-          case "filter":
-            if(Array.isArray(param)){ 
-            param.forEach( pt => {
-              if(this.state.productTypes && this.state.productTypes[pt]){
+  applyUrlParams = () => {
+    Object.keys(this.state.urlParameters).forEach(field => {
+      const param = this.state.urlParameters[field];
+      switch (field) {
+        case "product":
+          this.setGraph(param);
+          break;
+        case "filter":
+          if (Array.isArray(param)) {
+            param.forEach(pt => {
+              if (this.state.productTypes && this.state.productTypes[pt]) {
                 this.handleFilterClick(true, pt)
               }
-            })}else{
-              if(this.state.productTypes && this.state.productTypes[param]){
-                this.handleFilterClick(true, param);
-              };
-            }
-            break;
-          case "page":
-            this.setPage(parseInt(param));
-            break;
-          case "stores":
-            Array.isArray(param) ? 
-            this.handleStoreUpdate(param):
+            })
+          } else {
+            if (this.state.productTypes && this.state.productTypes[param]) {
+              this.handleFilterClick(true, param);
+            };
+          }
+          break;
+        case "page":
+          this.setPage(parseInt(param));
+          break;
+        case "stores":
+          if (Array.isArray(param)) {
+            this.handleStoreUpdate(param);
+          } else {
             this.handleStoreUpdate([param]);
-            break;
-          default:
-            break;
-        }
-      });
-    }
+          }
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  async updateUrlParams() {
+    this.selectAllTypes(false);
+    await this.setState({ urlParameters: queryString.parse(window.location.search, { arrayFormat: 'comma' }) });
+    this.applyUrlParams();
+  }
 
   async componentDidMount() {
     window.onpopstate = (e) => this.onbackPress(e);
@@ -126,35 +135,33 @@ class ProductList extends React.Component {
         city: s => s.address.city
       }
     });
-    this.setState({stores: stores});
-    this.urlParameters = queryString.parse(window.location.search, {arrayFormat: 'comma'});
+    this.setState({ stores: stores, urlParameters: queryString.parse(window.location.search, { arrayFormat: 'comma' }) });
     await this.updateProductResults(this.state.timeSpan, true);
     this.applyUrlParams();
 
-    firebase.auth().onAuthStateChanged(async(user) => {
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
-          this.setState({user: await this.spritjaktClient.GetUser()});
-          this.createFilter();
+        this.setState({ user: await this.spritjaktClient.GetUser() });
+        this.createFilter();
       } else {
-          this.setState({user: null});
+        this.setState({ user: null });
       }
     });
-
   }
 
-   async saveUserFilter() {
+  async saveUserFilter() {
     this.spritjaktClient.saveUserFilter(this.state.filter);
-    this.setState({user: await this.spritjaktClient.GetUser()});
+    this.setState({ user: await this.spritjaktClient.GetUser() });
     this.createFilter();
   }
-  
-   createFilter(){
-    if(!this.state.user){
+
+  createFilter() {
+    if (!this.state.user) {
       return;
     }
     let productTypesInFilter = [];
     Object.keys(this.state.productTypes).forEach(pt => {
-      if(this.state.productTypes[pt].state){
+      if (this.state.productTypes[pt].state) {
         productTypesInFilter.push(pt);
       }
     })
@@ -164,23 +171,23 @@ class ProductList extends React.Component {
       productTypes: productTypesInFilter,
       stores: selectedStores
     }
-  
+
     let filterExists = false;
 
-    if(this.state.user.filters.find( f => this.arraysAreEqual(f.stores, newFilter.stores) && this.arraysAreEqual(f.productTypes, newFilter.productTypes)) ){
+    if (this.state.user.filters.find(f => this.arraysAreEqual(f.stores, newFilter.stores) && this.arraysAreEqual(f.productTypes, newFilter.productTypes))) {
       filterExists = true;
     }
-    
-     this.setState({currentFilterExists: filterExists, filter: newFilter});
+
+    this.setState({ currentFilterExists: filterExists, filter: newFilter });
   }
 
-  arraysAreEqual(arr1, arr2){
-    if(arr1?.length != arr2?.length){
+  arraysAreEqual(arr1, arr2) {
+    if (arr1?.length != arr2?.length) {
       return false;
     }
     for (const x of arr1) {
       if (!arr2.includes(x)) {
-        return false        
+        return false
       }
     }
     return true;
@@ -189,21 +196,23 @@ class ProductList extends React.Component {
   async updateProductResults(timeSpan, firstLoad = false) {
     let stores = this.state.stores;
     let products = [];
-    const change = this.urlParameters.change ? this.urlParameters.change : this.state.change;
+    const change = this.state.urlParameters.change ? this.state.urlParameters.change : this.state.change;
+    let productTypes = this.state.productTypes;
 
     if (firstLoad) {
-      if(!this.urlParameters.timespan){
+      productTypes = await this.spritjaktClient.FetchProductTypes();
+      if (!this.state.urlParameters.timespan) {
         let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === timeSpan));
-        while (timespanIndex < this.timeSpanOptions.length && products.length === 0){
+        while (timespanIndex < this.timeSpanOptions.length && products.length < this.state.pageSize) {
           products = await this.spritjaktClient.FetchProducts(this.timeSpanOptions[timespanIndex].value, change === "lowered");
           timespanIndex++;
         }
-        timeSpan = this.timeSpanOptions[timespanIndex-1].value;
-      }else{
+        timeSpan = this.timeSpanOptions[timespanIndex - 1].value;
+      } else {
         timeSpan = parseInt(this.urlParameters.timespan);
         products = await this.spritjaktClient.FetchProducts(timeSpan, change === "lowered");
       }
-    }else{
+    } else {
       products = await this.spritjaktClient.FetchProducts(timeSpan, change === "lowered");
     }
 
@@ -212,7 +221,6 @@ class ProductList extends React.Component {
     this.setState({ loading: false, page: 1, change: change, timeSpan: timeSpan });
 
     let loadedProducts = [];
-    let productTypes = this.state.productTypes;
     Object.keys(productTypes).map(
       (ptkey) =>
         (productTypes[ptkey].products = {})
@@ -246,7 +254,7 @@ class ProductList extends React.Component {
     });
 
     await this.setState({
-      sort: this.urlParameters.sort ? this.urlParameters.sort : this.state.sort,
+      sort: this.state.urlParameters.sort ? this.state.urlParameters.sort : this.state.sort,
       stores: stores,
       loadedProducts: loadedProducts,
       productTypes: productTypes,
@@ -259,38 +267,25 @@ class ProductList extends React.Component {
   nextProduct = (change) => {
     let highlightedProductIndex = this.state.productResult.indexOf(this.state.highlightedProduct);
     let newHighlightedProduct = this.state.productResult[highlightedProductIndex + change] ?? null;
-    this.hideGraph();
-    if(newHighlightedProduct){
+    this.setGraph(null, null);
+    if (newHighlightedProduct) {
       this.setGraph(newHighlightedProduct.Id);
     }
-  
   }
 
-  hideGraph = () => {
-    this.setState({ graphIsVisible: false });
-    this.onbackPress();
-  };
-  
-  setGraph = (productId, productButton) => {
+  setGraph = (productId) => {
     if (productId === null || productId === this.state.highlightedProduct.Id) {
       this.setState({ highlightedProduct: false, graphIsVisible: false });
-      if(productButton){
-        this.productButtonRef.current.focus();
-      }
+      this.onbackPress();
     } else {
       this.setUrlParams("product", productId);
-      this.productButtonRef = productButton;
       let product = this.state.loadedProducts.find((p) => p.Id === productId);
       this.setState({ highlightedProduct: product, graphIsVisible: true });
-      firebase.analytics().logEvent("select_item", {
-        items: [product],
-        item_list_name: "Main Products list",
-        item_list_id: 1,
-      });
+      firebase.analytics().logEvent("select_item");
     }
   };
 
-  selectAllTypes = () => {
+  selectAllTypes = (resetUrlParams = true) => {
     let productTypes = this.state.productTypes;
     Object.keys(this.state.productTypes).map(
       (pt) => (productTypes[pt].state = false)
@@ -299,7 +294,9 @@ class ProductList extends React.Component {
       productTypes: productTypes,
       showAllresults: true,
     });
-    this.setUrlParams("filter", null);
+    if (resetUrlParams) {
+      this.setUrlParams("filter", null);
+    }
     this.filterProducts();
   };
 
@@ -312,14 +309,14 @@ class ProductList extends React.Component {
     this.filterProducts(this.state.selectedStores, productTypes);
   };
 
-  filterProducts (selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
+  filterProducts(selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
     let productResult = [];
     let prevSelectedProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state) ?? [];
-  
+
 
     for (let i = 0; i < this.state.loadedProducts.length; i++) {
       const p = this.state.loadedProducts[i];
-   
+
       if (this.stockFilter(p, selectedStores)) {
         if (prevSelectedProductTypes.includes(p.SubType) || prevSelectedProductTypes.length === 0) {
           productResult.push(p);
@@ -356,10 +353,10 @@ class ProductList extends React.Component {
     let list = [];
     let productTypes = this.state.productTypes;
     Object.keys(productTypes).forEach((ptKey) => {
-        list.push(
-          <ProductType key={ptKey} store={this.state.selectedStores} handleFilterClick={this.handleFilterClick.bind(this)} name={ptKey} productType={productTypes[ptKey]}
-          />
-        );
+      list.push(
+        <ProductType key={ptKey} store={this.state.selectedStores} handleFilterClick={this.handleFilterClick.bind(this)} name={ptKey} productType={productTypes[ptKey]}
+        />
+      );
     });
     SortArray(list, {
       by: "key"
@@ -372,10 +369,10 @@ class ProductList extends React.Component {
     return date.toISOString().slice(0, 10);
   };
 
-  handleStoreUpdate = async (storeList) => {
+  async handleStoreUpdate(storeList) {
     let productTypes = this.state.productTypes;
-    Object.keys(productTypes).map(pt => productTypes[pt].products = {})
-    await this.setState({
+    Object.keys(productTypes).map(pt => productTypes[pt].products = {});
+    this.setState({
       storeList: storeList,
       productTypes: productTypes
     });
@@ -421,7 +418,7 @@ class ProductList extends React.Component {
     let productTypes = this.state.productTypes;
     Object.keys(productTypes).forEach(pt => {
       productTypes[pt].products = {};
-      productTypes[pt].state = false; 
+      productTypes[pt].state = false;
     });
     await this.setState({
       change: value,
@@ -470,153 +467,124 @@ class ProductList extends React.Component {
       <div key="Productlist" className="Productlist" >
 
         <div className="filterSaverWrapper">
-        {(user && !currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
+          {(user && !currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
             <div className="filterSaver">
-              <button className="bigGoldBtn clickable" onClick={() => {this.saveUserFilter()}}>Overvåk dette søket</button>
-              <span>Få varsel på epost når produkter som matcher dette søket kommer på tilbud.</span>
+              <button className="bigGoldBtn clickable" onClick={() => { this.saveUserFilter() }}>Overvåk dette søket</button>
+              <span>Få varsel når produkter som matcher dette søket kommer på tilbud.</span>
             </div>
-        }
+          }
         </div>
 
-      <div className="main">
-        <aside className={"filter " + (this.state.filterVisibility ? "active" : "inactive")}>
-          <button className="toggleFilter"
-            onClick={() => {
-              this.setState({
-                filterVisibility: !this.state.filterVisibility,
-              });
-              firebase.analytics().logEvent("filter_toggle_handheld");
-            }}>
-            {!this.state.filterVisibility ? ("Filter") : (<FontAwesomeIcon title="Lukk filter" icon={faTimes} />)}
-          </button>
-          <fieldset disabled={!this.state.filterVisibility && isMobileOnly}>
-            <button disabled={this.state.showAllresults}
-              className={"clickable bigGreenBtn resetFilter show " + (this.state.showAllresults ? "inactive" : "active")}
-              onClick={() => this.selectAllTypes()}>
-              Nullstill
+        <div className="main">
+          <aside className={"filter " + (this.state.filterVisibility ? "active" : "inactive")}>
+            <button className="toggleFilter"
+              onClick={() => {
+                this.setState({
+                  filterVisibility: !this.state.filterVisibility,
+                });
+                firebase.analytics().logEvent("filter_toggle_handheld");
+              }}>
+              {!this.state.filterVisibility ? ("Filter") : (<FontAwesomeIcon title="Lukk filter" icon={faTimes} />)}
+            </button>
+            <fieldset disabled={!this.state.filterVisibility && isMobileOnly}>
+              <button disabled={this.state.showAllresults}
+                className={"clickable bigGreenBtn resetFilter show " + (this.state.showAllresults ? "inactive" : "active")}
+                onClick={() => this.selectAllTypes()}>
+                Nullstill
               </button>
-            <div className="ProductTypes">{this.displayProductTypes()}</div>
-          </fieldset>
-        </aside>
-        <main>
-          <div className="before_products">
-            <div className="nav">
-              <div className="DiscountFilter">
-                <button
-                  className={"clickable " + (this.state.change === "lowered" ? "active" : "")}
-                  value="lowered"
-                  onClick={this.setDiscountFilter}
-                >Ned i pris</button>
-                <button
-                  className={"clickable " + (this.state.change === "raised" ? "active" : "")}
-                  value="raised"
-                  onClick={this.setDiscountFilter}
-                >Opp i pris</button>
+              <div className="ProductTypes">{this.displayProductTypes()}</div>
+            </fieldset>
+          </aside>
+          <main>
+            <div className="before_products">
+              <div className="nav">
+                <div className="DiscountFilter">
+                  <button
+                    className={"clickable " + (this.state.change === "lowered" ? "active" : "")}
+                    value="lowered"
+                    onClick={this.setDiscountFilter}
+                  >Ned i pris</button>
+                  <button
+                    className={"clickable " + (this.state.change === "raised" ? "active" : "")}
+                    value="raised"
+                    onClick={this.setDiscountFilter}
+                  >Opp i pris</button>
+                </div>
+                {this.state.stores.length > 0 &&
+                  <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} change={this.state.change} selectedStores={selectedStores} stores={stores} />
+                }
+                <div className="sorting">
+                  <label htmlFor="sorting">Sortering
+                <Select
+                      native
+                      value={this.state.sort}
+                      onChange={this.handleSortChange}
+                      inputProps={{
+                        name: 'sorting',
+                        id: 'sorting',
+                      }}
+                    >
+                      {this.sortOptions.map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </Select>
+                  </label>
+                </div>
+                <div className="timeSpan">
+                  <label htmlFor="timespan">Tidsperiode
+                <Select
+                      native
+                      value={this.state.timeSpan}
+                      onChange={this.changeTimeSpan}
+                      inputProps={{
+                        name: 'timeSpan',
+                        id: 'timeSpan',
+                      }}
+                    >
+                      {this.timeSpanOptions.map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </Select>
+                  </label>
+                </div>
               </div>
-              {this.state.stores.length > 0 &&
-                <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} change={this.state.change} selectedStores={selectedStores} stores={stores} />
+            </div>
+
+            <Pagination
+              total={productResult.length}
+              page={this.state.page}
+              setPage={this.setPage.bind(this)}
+              pageSize={pageSize}
+            />
+            <ul ref={this.productList} className="ProductList">
+              {this.state.loading ? <FontAwesomeIcon icon={faCircleNotch} size="5x" /> : this.displayProducts()}
+              {productResult.length === 0 && this.state.loading === false ? (
+                <p
+                  style={{
+                    textAlign: "center",
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    margin: "auto"
+                  }}
+                >Her var det ikke noe, gitt...</p>) : ("")}
+            </ul>
+            <Pagination
+              total={productResult.length}
+              page={page}
+              setPage={this.setPage.bind(this)}
+              pageSize={pageSize}
+            />
+            <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
+            <div
+              className={
+                "filter_backdrop " +
+                (this.state.filterVisibility ? "active" : "inactive")
               }
-              <div className="sorting">
-                <label htmlFor="sorting">Sortering
-                <Select
-                    native
-                    value={this.state.sort}
-                    onChange={this.handleSortChange}
-                    inputProps={{
-                      name: 'sorting',
-                      id: 'sorting',
-                    }}
-                  >
-                    {this.sortOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </Select>
-                </label>
-              </div>
-              <div className="timeSpan">
-                <label htmlFor="timespan">Tidsperiode
-                <Select
-                    native
-                    value={this.state.timeSpan}
-                    onChange={this.changeTimeSpan}
-                    inputProps={{
-                      name: 'timeSpan',
-                      id: 'timeSpan',
-                    }}
-                  >
-                    {this.timeSpanOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </Select>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <Pagination
-            total={productResult.length}
-            page={this.state.page}
-            setPage={this.setPage.bind(this)}
-            pageSize={pageSize}
-          />
-          <ul ref={this.productList} className="ProductList">
-            {this.state.loading ? <FontAwesomeIcon icon={faCircleNotch} size="5x" /> : this.displayProducts()}
-            {productResult.length === 0 && this.state.loading === false ? (
-              <p
-                style={{
-                  textAlign: "center",
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  margin: "auto"
-                }}
-              >Her var det ikke noe, gitt...</p>) : ("")}
-          </ul>
-          <Pagination
-            total={productResult.length}
-            page={page}
-            setPage={this.setPage.bind(this)}
-            pageSize={pageSize}
-          />
-          <CSSTransition
-            in={this.state.graphIsVisible}
-            timeout={100}
-            className="toggle"
-            onExited={() => this.setGraph(null, null)}
-          >
-            <div>
-              {this.state.highlightedProduct && (
-                <div>
-                  <div className="backdrop" onClick={() => this.hideGraph()} >
-                  </div>
-                <div className="priceGraphWrapper">
-                  <PriceGraph p={this.state.highlightedProduct} />
-                    <nav className="productNavigation">
-                        <button aria-label="Forrige produkt" onClick={() => this.nextProduct(-1)} className="productNav prev">
-                          <FontAwesomeIcon  size="lg" icon={faArrowCircleLeft} />
-                        </button>
-                        <button aria-label="Tilbake" name="closeGraph"  onClick={() => this.hideGraph()} className="productNav close">
-                          <FontAwesomeIcon size="lg" icon={faTimesCircle} />
-                        </button>
-                        <button aria-label="Neste produkt" onClick={() => this.nextProduct(1)} className="productNav next">
-                          <FontAwesomeIcon  size="lg" icon={faArrowCircleRight} />
-                        </button>
-                    </nav>
-                </div>
-                </div>
-              )}
-            </div>
-          </CSSTransition>
-          <div
-            className={
-              "filter_backdrop " +
-              (this.state.filterVisibility ? "active" : "inactive")
-            }
-            onClick={() => this.setState({ filterVisibility: false })}
-          ></div>
-        </main>
+              onClick={() => this.setState({ filterVisibility: false })}
+            ></div>
+          </main>
         </div>
-
       </div >
     );
   }

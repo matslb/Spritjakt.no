@@ -209,3 +209,44 @@ input[type="password"]:active {
     cursor: pointer;
     padding: 1rem;
 }
+
+.iconBtn{
+  background: none;
+  color: white;
+  box-shadow: none;
+  border: none;
+  filter:drop-shadow( 0px 0px 1px rgba(0,0,0,0.1));
+  transition: filter 0.2s;
+  outline: none!important;
+  cursor: pointer;
+  font-size: 1rem ;
+}
+.iconBtn:active{
+  opacity: 0.7;
+}
+.iconBtn:hover{
+  filter:drop-shadow(1px 1px 2px rgba(0,0,0,.3));
+}
+.dark{
+  color: #4c4c4c;
+}
+.percentage_change{
+  color: white;
+  padding: 0.2rem 0.5rem;
+  font-weight: 400;
+  opacity: 0.8;
+  width: 3rem;
+  display: block;
+  text-align: center;
+  border-radius: 3px;
+}
+
+.price_raised .percentage_change {
+  background: rgba(184, 91, 87, 0.8);
+  color: white;
+}
+
+.price_lowered .percentage_change {
+  background: rgba(97, 160, 85, 0.8);
+  color: white;
+}
