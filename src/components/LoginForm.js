@@ -30,10 +30,10 @@ class LoginForm extends React.Component {
             return;
         }
 
-        firebase.auth().createUserWithEmailAndPassword(name, email, pass)
+        firebase.auth().createUserWithEmailAndPassword(email, pass)
             .then(async () => {
 
-                await this.spritjaktClient.CreateUserDoc();
+                await this.spritjaktClient.CreateUserDoc(name);
 
                 this.setState({ status: true, message: "Registrering vellykket" });
             })

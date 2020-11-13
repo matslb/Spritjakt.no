@@ -350,18 +350,34 @@ class ProductList extends React.Component {
   }
 
   displayProductTypes = () => {
-    let list = [];
+    let notZerolist = [];
+    let zerolist = [];
     let productTypes = this.state.productTypes;
-    Object.keys(productTypes).forEach((ptKey) => {
-      list.push(
+
+    let productTypesNotZero = Object.keys(productTypes).filter(p => Object.keys(productTypes[p].products).length > 0);
+    let productTypesZero = Object.keys(productTypes).filter(p => Object.keys(productTypes[p].products).length == 0);
+
+    productTypesNotZero.forEach((ptKey) => {
+      notZerolist.push(
         <ProductType key={ptKey} store={this.state.selectedStores} handleFilterClick={this.handleFilterClick.bind(this)} name={ptKey} productType={productTypes[ptKey]}
         />
       );
     });
-    SortArray(list, {
-      by: "key"
+    SortArray(notZerolist, {
+      by: "key",
     })
-    return list;
+
+    productTypesZero.forEach((ptKey) => {
+      zerolist.push(
+        <ProductType key={ptKey} store={this.state.selectedStores} handleFilterClick={this.handleFilterClick.bind(this)} name={ptKey} productType={productTypes[ptKey]}
+        />
+      );
+    });
+    SortArray(zerolist, {
+      by: "key",
+    });
+
+    return notZerolist.concat(zerolist);
   };
 
   formatDate = (date) => {
