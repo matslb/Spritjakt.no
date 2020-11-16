@@ -4,9 +4,6 @@ import Select from 'react-select'
 class StoreSelector extends React.Component {
   constructor() {
     super();
-    this.state = {
-      selectedOptions: []
-    };
     this.ProductFetchTimeout = null;
   }
   handleStoreUpdate = (storeOptions) => {
@@ -16,21 +13,18 @@ class StoreSelector extends React.Component {
     } else {
       list.push("0");
     }
-    this.setState({
-      selectedOptions: storeOptions
-    });
 
     this.props.handleStoreUpdate(list);
   }
 
   render() {
-    const {stores, selectedStores} = this.props;
+    const { stores, selectedStores } = this.props;
     let storeOptions = [{ label: "vinmonopolet.no", value: "online" }];
-    let selectedOptions = this.state.selectedOptions ?? [];
+    let selectedOptions = [];
     stores.forEach(s => {
       let option = {
         value: s.storeId,
-        label: s.storeName + " (" + (s.count ? s.count : 0 ) + ")",
+        label: s.storeName + " (" + (s.count ? s.count : 0) + ")",
         disabled: s.count == undefined
       }
       storeOptions.push(option);

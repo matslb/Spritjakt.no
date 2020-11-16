@@ -1,11 +1,57 @@
 import React from "react";
 import "./css/highlightedProduct.css";
 import SortArray from "sort-array";
+import { faBoxes, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import dateFormater from "../dateFormater";
+import SpritjaktClient from "../datahandlers/spritjaktClient";
+import firebase from "firebase/app";
+
 
 class ProductComp extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      user: false,
+      IsSelectedByUser: false
+    };
+    this.spritjaktClient = new SpritjaktClient();
     this.productButton = React.createRef();
+  }
+
+  async componentDidMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({ user: user });
+      } else {
+        this.setState({ IsSelectedByUser: null });
+      }
+    });
+  }
+
+  componentDidUpdate() {
+    if (!this.state.user)
+      return;
+
+    firebase.firestore().collection("Users").doc(this.state.user.uid)
+      .onSnapshot(async (doc) => {
+        let userData = doc.data();
+        if (userData) {
+          let IsSelectedByUser = userData.products !== undefined ? userData.products.includes(this.props.product.Id) : false;
+          this.setState({ userData: userData, IsSelectedByUser: IsSelectedByUser });
+        }
+      });
+  }
+
+  toggleProdctWatch = () => {
+
+    if (this.state.IsSelectedByUser) {
+      this.spritjaktClient.RemoveProductFromUser(this.props.product.Id)
+    } else {
+      this.spritjaktClient.AddProductToUser(this.props.product.Id)
+    }
+    this.setState({ IsSelectedByUser: !this.state.IsSelectedByUser });
   }
 
   renderStoreStock = () => {
@@ -50,6 +96,15 @@ class ProductComp extends React.Component {
           (priceIsLower ? "price_lowered" : "price_raised")
         }
       >
+        <span className="productWatchBtns">
+          {/*lastChangedDate*/}
+          {this.state.IsSelectedByUser &&
+            <a className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></a>
+          }
+          {this.state.IsSelectedByUser == false &&
+            <a className="watch iconBtn dark" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></a>
+          }
+        </span>
         <div className="product_img" style={background}></div>
         {showDiff &&
           <span className="percentage_change">

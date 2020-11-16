@@ -170,7 +170,26 @@ class SpritjaktClient {
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.set({
-      name: name
+      name: name,
+      notifications: {
+        onAll: false,
+        onFilters: false,
+        onFavorites: false,
+        byEmail: false,
+        byPush: false
+      }
+    });
+  }
+  async DeleteUserDoc(uid) {
+    const usersRef = firebase.firestore().collection("Users").doc(uid);
+    await usersRef.delete();
+  }
+  async UpdateUserNotifications(notifications) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      notifications: notifications
     });
   }
 

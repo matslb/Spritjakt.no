@@ -2,13 +2,12 @@ import React from "react";
 import "./css/notificationSettings.css";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
 import MiniProduct from "./MiniProduct";
-import { faEnvelope, faCircleNotch, faPlusCircle, faMinusCircle, faEdit, faTrash, faArrowCircleRight, faTimesCircle, faArrowCircleLeft, faHamburger, faBars } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faTimesCircle, faBars, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import * as Scroll from "react-scroll";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import ProductPopUp from "./ProductPopUp";
-import queryString, { parse } from "query-string";
+import queryString from "query-string";
 
 
 class NotificationSettings extends React.Component {
@@ -20,6 +19,14 @@ class NotificationSettings extends React.Component {
             user: null,
             stores: [],
             highlightedProduct: false,
+            deleteProcessStarted: false,
+            notifications: {
+                onAll: false,
+                onFilters: false,
+                onFavorites: false,
+                byPush: false,
+                byEmail: false,
+            }
         }
         this.spritjaktClient = new SpritjaktClient();
     }
@@ -35,10 +42,15 @@ class NotificationSettings extends React.Component {
                 firebase.firestore().collection("Users").doc(user.uid)
                     .onSnapshot(async (doc) => {
                         let userData = doc.data();
-                        let products = await this.spritjaktClient.FetchProductsById(userData.products);
-                        let stores = await this.spritjaktClient.FetchStores();
-                        stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
-                        this.setState({ userData: userData, productResult: products, stores: stores });
+                        if (userData) {
+                            let products = [];
+                            if (userData.products) {
+                                products = await this.spritjaktClient.FetchProductsById(userData.products);
+                            }
+                            let stores = await this.spritjaktClient.FetchStores();
+                            stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
+                            this.setState({ userData: userData, notifications: userData.notifications, productResult: products, stores: stores });
+                        }
                     });
             }
         });
@@ -60,6 +72,30 @@ class NotificationSettings extends React.Component {
             alert(error.message);
         });
     }
+
+    deleteUser = (event) => {
+        event.preventDefault();
+        if (!this.state.deleteProcessStarted) {
+            this.setState({ deleteProcessStarted: true });
+            return;
+        }
+        let userId = this.state.user.uid;
+        let email = this.state.user.email;
+        let pass = event.target[0].value;
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(async () => {
+                await this.spritjaktClient.DeleteUserDoc(userId);
+                this.setState({ deleteProcessStarted: false });
+                this.state.user.delete().then(async () => {
+                }).catch(function (error) {
+                    alert("Noe gikk galt, brukeren ble ikke slettet. Feilmelding: " + error.message);
+                })
+            })
+            .catch(function (error) {
+                alert("Passordet er feil");
+            });
+    }
+
     renderProducts() {
         let items = [];
         for (const product of this.state.productResult) {
@@ -93,8 +129,15 @@ class NotificationSettings extends React.Component {
             });
 
             items.push(<li className="filter">
-                <div onClick={() => { this.applyFilter(filter) }} className="stores">{storeNames.length > 0 ? storeNames.join().replace(/,/g, ", ") : "Alle"}</div>
-                <div onClick={() => { this.applyFilter(filter) }} className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
+                <div className="operations">
+                    <button className="iconBtn dark" onClick={() => { this.applyFilter(filter) }} >
+                        <FontAwesomeIcon icon={faFilter} />
+                    </button>
+                </div>
+                <div className="details">
+                    <div className="stores">{storeNames.length > 0 ? storeNames.join().replace(/,/g, ", ") : "Alle"}</div>
+                    <div className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
+                </div>
                 <div className="operations">
                     <button className="iconBtn dark" onClick={() => { this.spritjaktClient.removeUserFilter(filter) }} >
                         <FontAwesomeIcon icon={faTrash} />
@@ -103,6 +146,14 @@ class NotificationSettings extends React.Component {
             </li>);
         }
         return items;
+    }
+
+    handleNotifications = (checkbox) => {
+        const field = checkbox.currentTarget.name;
+        const checked = checkbox.currentTarget.checked;
+        let notifications = this.state.notifications;
+        notifications[field] = checked;
+        this.spritjaktClient.UpdateUserNotifications(notifications);
     }
 
     nextProduct = (change) => {
@@ -139,39 +190,30 @@ class NotificationSettings extends React.Component {
                     </div>
                 }
                 {user && userData &&
-                    <div className={"NotificationSettings " + (this.state.isActive ? " active " : "")} >
-                        <div className="sectionHeader">
+                    <div className={"notificationSettings " + (this.state.isActive ? " active " : "")} >
+                        <div className="sectionHeader toolbar">
                             <button aria-label="Skjul innstillinger" name="Togglesettings" onClick={() => this.toggleSection(!this.state.isActive)} className="iconBtn toggleSettings">
                                 <FontAwesomeIcon size="lg" icon={faTimesCircle} />
                             </button>
+                            <div>Logget inn som <span class="userName">{this.state.userData?.name}</span></div>
                             <button name="logout" onClick={this.logout} className="bigGreenBtn clickable logout">Logg ut</button>
                         </div>
-                        <div className="heading">
-                            <h2>Min konto</h2>
-                            <p>
-                                <strong>Når vil du få varsler?</strong>
-                            </p>
-                            <label><input type="checkbox" name="GetNotification" /> Ved alle prisendringer</label><br />
-                            <label><input type="checkbox" name="GetNotification" /> Ved prisendringer i mine lagrede søk</label><br />
-                            <label><input type="checkbox" name="GetNotification" /> Ved prisendringer på mine favoritter</label><br />
-                            <p>
-                                <strong>Hvordan vil du bli varslet?</strong>
-                            </p>
-                            <label><input type="checkbox" /> Push-varsler (Ikke tilgjengelig på iPhone)</label><br />
-                            <label><input type="checkbox" /> Epost</label>
-                        </div>
-                        <br />
-                        <hr />
-                        {userData.filters.length > 0 ?
+
+                        {userData.filters && userData.filters.length > 0 ?
                             <div className="filters">
                                 <div className="sectionHeader">
                                     <h3>Lagrede søk ({this.state.userData.filters.length})</h3>
                                 </div>
                                 <ul class="list filters">
                                     <li class="listHeaders filter">
-                                        <div className="stores">Butikker</div>
-                                        <div className="productTypes">Varetyper</div>
-                                        <div className="operations"></div>
+                                        <div className="operations">
+                                        </div>
+                                        <div className="details">
+                                            <div className="stores">Butikker</div>
+                                            <div className="productTypes">Varetyper</div>
+                                        </div>
+                                        <div className="operations">
+                                        </div>
                                     </li>
                                     {this.renderFilters()}
                                 </ul>
@@ -202,7 +244,42 @@ class NotificationSettings extends React.Component {
                             </div>
                         }
                         <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
+                        <br />
+                        <hr />
+                        <div className="heading">
+                            <h2>Kontoinnstillinger</h2>
+                            <h3>Varsler</h3>
+                            <label><input type="checkbox" checked={this.state.notifications.onAll} onChange={this.handleNotifications} name="onAll" /> Ved alle prisendringer</label><br />
+                            <label><input type="checkbox" disabled={this.state.notifications.onAll} onChange={this.handleNotifications} checked={this.state.notifications.onFilters} name="onFilters" /> Ved prisendringer i mine lagrede søk</label><br />
+                            <label><input type="checkbox" disabled={this.state.notifications.onAll} onChange={this.handleNotifications} checked={this.state.notifications.onFavorites} name="onFavorites" /> Ved prisendringer på mine favoritter</label><br />
+                            <p>
+                                <strong>Hvordan vil du bli varslet?</strong>
+                            </p>
+                            <label><input type="checkbox" name="byPush" checked={this.state.notifications.byPush} onChange={this.handleNotifications} /> Push-varsler (Ikke tilgjengelig på iPhone)</label><br />
+                            <label><input type="checkbox" name="byEmail" checked={this.state.notifications.byEmail} onChange={this.handleNotifications} /> Epost</label>
+                            <div>
+                                <br />
+                                <h3>Slett konto</h3>
+                                <div className="deleteWarning">
+                                    <form onSubmit={this.deleteUser} >
+                                        {this.state.deleteProcessStarted ?
+                                            <label>
+                                                Oppgi passord for å bekrefte sletting
+                                            <input type="password" name="password" />
+                                            </label>
+                                            :
+                                            <span>Lagrede søk og favoritter vil slettes, og du vil ikke lenger kunne logge inn med denne kontoen.<br /><strong>Denne handlingen kan ikke angres.</strong></span>
+                                        }
+                                        {this.state.deleteProcessStarted &&
+                                            <a className="clickable" onClick={() => { this.setState({ deleteProcessStarted: false }) }}>Tilbake</a>
+                                        }
+                                        <input type="submit" className="bigRedBtn clickable" value="Slett konto" />
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div >
+
                 }
             </div>
         );

@@ -66,7 +66,6 @@ footer span {
   align-items: center;
   font-size: 0.85rem;
   cursor: pointer;
-  max-height: 1.2rem;
 }
 
 
@@ -84,6 +83,7 @@ select:focus {
     color: white!important;
     font-weight: 400;
 }
+/*
 .select__menu
 .select__menu-list
 .select__option.select__option--is-focused:not(.select__option--is-selected ){
@@ -93,7 +93,7 @@ select:focus {
 .select__menu .select__menu-list .select__option.select__option--is-focused:focus{
   background-color:#d0b55e7c;
 }
-
+*/
 .main .select__control {
   border-radius: 0;
   border: none;
@@ -188,26 +188,29 @@ input[type="password"]:active {
 }
 
 .bigRedBtn{
-  background:#90495d;
+  background:#a00b35;
   border: none;
   color: white;
   cursor: pointer;
-  padding: 1rem;
+  padding: .75rem;
+  border-radius: 3px;
 }
 .bigGoldBtn{
   background:#d0b55e;
   border: none;
   color: white;
   cursor: pointer;
-  padding: 1rem;
+  padding: .5rem;
   opacity: 1;
+  border-radius: 3px;
 }
 .bigGreenBtn{
     background: rgba(97, 160, 85, 0.7);
     border: none;
     color: white;
     cursor: pointer;
-    padding: 1rem;
+    padding: .7rem;
+    border-radius: 3px;
 }
 
 .iconBtn{

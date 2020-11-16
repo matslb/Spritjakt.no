@@ -40,7 +40,7 @@ class ProductComp extends React.Component {
             </span>
           }
         </div>
-        <div className="operations">
+        <div style={{ textAlign: "center" }}>
           <button className="iconBtn dark" onClick={() => { this.props.removeProduct() }} >
             <FontAwesomeIcon icon={faTrash} />
           </button>

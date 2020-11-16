@@ -17,21 +17,20 @@ class ProductComp extends React.Component {
   }
 
   async componentDidMount() {
-    this.updateWatchState();
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        this.updateWatchState();
+        firebase.firestore().collection("Users").doc(user.uid)
+          .onSnapshot(async (doc) => {
+            let userData = doc.data();
+            if (userData) {
+              let IsSelectedByUser = userData.products !== undefined ? userData.products.includes(this.props.product.Id) : false;
+              this.setState({ userData: userData, IsSelectedByUser: IsSelectedByUser });
+            }
+          });
       } else {
         this.setState({ IsSelectedByUser: null });
       }
     });
-  }
-
-  async updateWatchState() {
-    let userData = await this.spritjaktClient.GetUser();
-    if (userData != null) {
-      this.setState({ IsSelectedByUser: userData.products.includes(this.props.product.Id) });
-    }
   }
 
   toggleProdctWatch = () => {

@@ -162,18 +162,18 @@ ul.ProductList {
   display: grid;
   grid-template-columns: 1fr;
 }
-.filter fieldset {
+.Productlist .filter fieldset {
   display: contents;
 }
-.filter .toggleFilter {
+.Productlist .filter .toggleFilter {
   display: none;
   outline: none;
 }
-.filter {
+.Productlist .filter {
   display: flex;
   flex-direction: column;
 }
-.filter legend {
+.Productlist .filter legend {
   grid-area: leg;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -182,16 +182,13 @@ ul.ProductList {
   display: none;
 }
 
-.filterSaverWrapper {
-  height: 70px;
-}
-
 .filterSaver{
   background: #90495d;
   display: flex;
   padding: 1rem;
   color: white;
   align-items: center;
+  margin: 0 0 1rem 0 ;
 }
 .filterSaver span{
   margin-left: 2rem;
@@ -226,7 +223,7 @@ ul.ProductList {
     overflow: scroll;
   }
 
-  .filter {
+  .Productlist .filter {
     position: fixed;
     width: 46%;
     transition: 0.2s 0.05s ease;
@@ -243,7 +240,7 @@ ul.ProductList {
     border-bottom-right-radius: 2px;
   }
 
-  .filter .toggleFilter {
+  .Productlist .filter .toggleFilter {
     display: block;
     content: "Filter";
     background: #92496e;
@@ -261,10 +258,10 @@ ul.ProductList {
     width: 3.6rem;
     font-size: 1rem;
   }
-  .filter {
+  .Productlist .filter {
     right: 100%;
   }
-  .filter.active {
+  .Productlist .filter.active {
     right: 45%;
   }
   .filter_backdrop.active {

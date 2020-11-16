@@ -12,8 +12,8 @@ class LoginForm extends React.Component {
     }
     register = (event) => {
         event.preventDefault();
-        const name = event.target[0].value;
-        const email = event.target[1].value;
+        const email = event.target[0].value;
+        const name = event.target[1].value;
         const pass = event.target[2].value;
         const pass2 = event.target[3].value;
 
@@ -53,46 +53,71 @@ class LoginForm extends React.Component {
                 this.setState({ status: true, message: "Innlogging vellykket" });
             })
             .catch((error) => {
-                this.setState({ status: false, message: error.message });
+                this.setState({ status: false, message: "Feil epostadresse eller passord" });
             });
+    }
+
+    resetPassword = (event) => {
+        event.preventDefault();
+
+        const email = event.target[0].value;
+
+        firebase.auth().sendPasswordResetEmail(email).then(() => {
+            this.setState({ status: true, message: "Vi har send deg en link på epost hvor du kan tilbakestille passordet ditt." });
+        }).catch((error) => {
+            this.setState({ status: false, message: error.message });
+        });
     }
 
     render() {
         return (
             <div>
                 <h2>{this.props.heading}</h2>
-                <form className="loginForm" onSubmit={this.props.justLogin ? this.login : this.register}>
-                    {!this.props.justLogin &&
+                {this.props.resetPass ?
+                    <form className="loginForm" onSubmit={this.resetPassword}>
                         <label>
-                            Navn
-                    <br />
-                            <input required placeholder="Navnet ditt" name="name" type="text" />
+                            Epost
+                  <br />
+                            <input required placeholder="Din epostadresse" name="email" type="email" />
                         </label>
-                    }
-                    <label>
-                        Epost
-                    <br />
-                        <input required placeholder="Din epostadresse" name="email" type="email" />
-                    </label>
-                    <label>
-                        Passord
-                    <br />
-                        <input required name="pass" type="password" />
-                    </label>
-                    {!this.props.justLogin &&
+                        <br />
+                        <input disabled={this.state.status !== null} className="bigGreenBtn" type="submit" value={this.props.heading} />
+
+                    </form>
+                    :
+                    <form className="loginForm" onSubmit={this.props.justLogin ? this.login : this.register}>
                         <label>
-                            Bekreft passord
-                            <br /><input required name="pass2" type="password" />
-                        </label>
-                    }
+                            Epost
                     <br />
-                    {this.state.status != null &&
-                        <div className={"statusMessage" + this.state.status ? " success" : " error"}>
-                            {this.state.message}
-                        </div>
-                    }
-                    <input className="bigGreenBtn" type="submit" value={this.props.heading} />
-                </form>
+                            <input required placeholder="Din epostadresse" name="email" type="email" />
+                        </label>
+                        {!this.props.justLogin &&
+                            <label>
+                                Navn
+                        <br />
+                                <input required placeholder="Navnet ditt" name="name" type="text" />
+                            </label>
+                        }
+                        <label>
+                            Passord
+                    <br />
+                            <input required name="pass" type="password" />
+                        </label>
+                        {!this.props.justLogin &&
+                            <label>
+                                Bekreft passord
+                        <br /><input required name="pass2" type="password" />
+                            </label>
+                        }
+                        <br />
+                        <input className="bigGreenBtn" type="submit" value={this.props.heading} />
+                    </form>
+                }
+                {this.state.status != null &&
+                    <div className={"statusMessage" + this.state.status ? " success" : " error"}>
+                        {this.state.message}
+                    </div>
+                }
             </div>
         );
     }

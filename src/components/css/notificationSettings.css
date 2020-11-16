@@ -1,4 +1,4 @@
-.NotificationSettings {
+.notificationSettings {
     background: #90495d;
     max-width: 50rem;
     padding: 1rem 2rem;
@@ -17,7 +17,7 @@
     box-sizing: border-box;
     box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
 }
-.NotificationSettings.active {
+.notificationSettings.active {
     right: 0;
 }
 .resultMessage {
@@ -56,17 +56,24 @@
 .list .filter{
     list-style: none;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: row;
     text-align: left;
-    display: grid;
-    gap: 1rem;
     min-height: 1.5rem;
     max-height: 5rem;
-    grid-template-columns: 5fr 5fr 1fr;
     overflow: auto;
     cursor: pointer;
 }
+.list .filter .details{
+    display: flex;
+    margin-right: 1rem;
+    width: 90%;
+    position: relative;
+}
+
+.list .filter .details > div{
+    width: 50%;
+}
+
 .list .filter:active{
     opacity: 0.8;
 }
@@ -75,8 +82,11 @@
     font-weight: bold;
     border-bottom: 3px solid grey;
 }
-.list .operations{
-    text-align: center;
+.list .operations {
+    width: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .sectionHeader{
     display: flex;
@@ -91,13 +101,34 @@
     text-align: right;
     z-index: 10;
     display: flex;
-    width: 7rem;
     justify-content: space-between;
     padding: .5rem 1rem;
     background: #4f5e65b0;
     border-bottom-left-radius: 3px;
 }
+.profileStatusBar button,
 .profileStatusBar a{
     cursor: pointer;
-    padding: 0 0.5rem;
+    margin-left: 1rem;
+}
+.notificationSettings .toggleSettings{
+    font-size: 1.5rem;
+    margin-left: -1rem;
+}
+.notificationSettings .toolbar{
+    background: rgba(0, 0, 0, 0.3);
+    margin: -1rem -2rem 1rem;
+    padding: .5rem 1.5rem;
+}
+.deleteWarning form{
+    display: flex;
+    background: white;
+    color: black;
+    padding: 1rem;
+    align-items: center;
+    border-radius: 3px;
+}
+.deleteWarning button{
+    min-width: 7rem;
+    margin-left: 1rem;
 }

@@ -155,7 +155,7 @@ class ProductList extends React.Component {
     this.createFilter();
   }
 
-  createFilter() {
+  createFilter(selectedStores = this.state.selectedStores.filter(s => s != "0")) {
     if (!this.state.user) {
       return;
     }
@@ -166,7 +166,6 @@ class ProductList extends React.Component {
       }
     })
 
-    let selectedStores = this.state.selectedStores.filter(s => s != "0");
     let newFilter = {
       productTypes: productTypesInFilter,
       stores: selectedStores
@@ -309,7 +308,7 @@ class ProductList extends React.Component {
     this.filterProducts(this.state.selectedStores, productTypes);
   };
 
-  filterProducts(selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
+  async filterProducts(selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
     let productResult = [];
     let prevSelectedProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state) ?? [];
 
@@ -325,7 +324,7 @@ class ProductList extends React.Component {
       }
     }
 
-    this.setState({
+    await this.setState({
       productResult: productResult,
       productTypes: productTypes,
       selectedStores: selectedStores,
@@ -350,34 +349,18 @@ class ProductList extends React.Component {
   }
 
   displayProductTypes = () => {
-    let notZerolist = [];
-    let zerolist = [];
+    let list = [];
     let productTypes = this.state.productTypes;
-
-    let productTypesNotZero = Object.keys(productTypes).filter(p => Object.keys(productTypes[p].products).length > 0);
-    let productTypesZero = Object.keys(productTypes).filter(p => Object.keys(productTypes[p].products).length == 0);
-
-    productTypesNotZero.forEach((ptKey) => {
-      notZerolist.push(
+    Object.keys(productTypes).forEach((ptKey) => {
+      list.push(
         <ProductType key={ptKey} store={this.state.selectedStores} handleFilterClick={this.handleFilterClick.bind(this)} name={ptKey} productType={productTypes[ptKey]}
         />
       );
     });
-    SortArray(notZerolist, {
-      by: "key",
+    SortArray(list, {
+      by: "key"
     })
-
-    productTypesZero.forEach((ptKey) => {
-      zerolist.push(
-        <ProductType key={ptKey} store={this.state.selectedStores} handleFilterClick={this.handleFilterClick.bind(this)} name={ptKey} productType={productTypes[ptKey]}
-        />
-      );
-    });
-    SortArray(zerolist, {
-      by: "key",
-    });
-
-    return notZerolist.concat(zerolist);
+    return list;
   };
 
   formatDate = (date) => {
@@ -392,7 +375,6 @@ class ProductList extends React.Component {
       storeList: storeList,
       productTypes: productTypes
     });
-    this.createFilter();
     this.setUrlParams("stores", storeList);
     this.filterProducts(storeList, productTypes);
   };

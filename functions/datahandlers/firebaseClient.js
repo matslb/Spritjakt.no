@@ -149,10 +149,10 @@ module.exports = class FirebaseClient {
   static async SetStockUpdateList(Stocks, addOnSaleProductsIfMissing = false) {
     if (addOnSaleProductsIfMissing) {
       let d = new Date();
-      if(d.getMonth() === 0){
-        d.setFullYear(d.getFullYear()-1);
+      if (d.getMonth() === 0) {
+        d.setFullYear(d.getFullYear() - 1);
         d.setMonth(11);
-      }else{
+      } else {
         d.setMonth(d.getMonth() - 1);
       }
       var products = await this.GetProductsOnSale(d.getTime());
@@ -227,7 +227,9 @@ module.exports = class FirebaseClient {
       .then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
           let user = doc.data();
-          emails.push(user.Email);
+          if (user.Email) {
+            emails.push(user.Email);
+          }
         });
       })
       .catch(function (error) {
