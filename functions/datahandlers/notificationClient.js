@@ -33,8 +33,8 @@ module.exports = class NotificationClient {
             if (user.filters && user.filters.length > 0 && user.notifications.onFilters) {
                 user.filters.forEach(filter => {
                     let filterMatchedProducts = products.filter(p =>
-                        (!filter.productTypes || filter.productTypes.includes(p.SubType))
-                        && (!filter.stores || p.Stock.Stores.find(s => filter.stores.includes(s.name) || (filter.stores.includes("online") && !["Utgått", "Utsolgt"].includes(p.ProductStatusSaleName)))));
+                        (!filter.productTypes === undefined || filter.productTypes.length === 0 || filter.productTypes.includes(p.SubType))
+                        && (filter.stores === undefined || filter.stores.length === 0 || p.Stock.Stores.find(s => filter.stores.includes(s.name) || (filter.stores.includes("online") && !["Utgått", "Utsolgt"].includes(p.ProductStatusSaleName)))));
                     if (filterMatchedProducts.length > 0) {
                         userFilterMatches.push({
                             user: user,
@@ -81,16 +81,17 @@ module.exports = class NotificationClient {
 
     static CreateFilterEmail(userFilterMatch) {
         let greeting = userFilterMatch.user.name ? "Hei " + userFilterMatch.user.name : greetings[Math.floor(Math.random() * greetings.length)];
-        let subheader = "Ditt lagrede søk har fått nye treff!";
+        let subject = "Ditt lagrede søk har fått " + userFilterMatch.products.length + " nye treff!";
+        let subheader = subject;
         let email = this.CreateEmail(greeting, subheader, userFilterMatch.products);
         email.to = userFilterMatch.user.email;
-        email.subject = subheader;
+        email.subject = subject;
         return email;
     }
 
     static CreateFavoritesEmail(userFavoriteMatch) {
         let greeting = userFavoriteMatch.user.name ? "Hei " + userFavoriteMatch.user.name : greetings[Math.floor(Math.random() * greetings.length)];
-        let subheader = "Dine favoritter er på tilbud!";
+        let subheader = userFavoriteMatch.products.length + " av favorittene dine er på tilbud!";
         let email = this.CreateEmail(greeting, subheader, userFavoriteMatch.products);
         email.to = userFavoriteMatch.user.email;
         email.subject = subheader;

@@ -127,7 +127,7 @@ class LoginForm extends React.Component {
                                         <h4>Varsle meg ved...</h4>
                                         <label><input type="checkbox" onChange={this.handleNotifications} name="onAll" /> Alle prisendringer</label><br />
                                         <label><input type="checkbox" onChange={this.handleNotifications} name="onFilters" /> Prisendringer i lagrede søk</label><br />
-                                        <label><input type="checkbox" onChange={this.handleNotifications} name="onFavorites" /> Prisendringer på favoritter</label><br />
+                                        <label><input type="checkbox" onChange={this.handleNotifications} name="onFavorites" /> Prisendringer i favoritter</label><br />
                                     </div>
                                     <div>
                                         <h4>Varsle meg på...</h4>
