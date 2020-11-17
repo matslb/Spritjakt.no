@@ -1,6 +1,9 @@
 const SortArray = require("sort-array");
 const firebase = require("firebase-admin");
+const { user } = require("firebase-functions/lib/providers/auth");
 require("firebase/firestore");
+require("firebase/auth");
+
 const allTimeEarliestDate = new Date(1594166400000);
 
 module.exports = class FirebaseClient {
@@ -220,22 +223,39 @@ module.exports = class FirebaseClient {
     return dataObject[type];
   }
 
-  static async GetEmails() {
-    var emails = [];
+  static async GetUsers() {
+    var users = [];
+    var authUsers = [];
     await firebase.firestore().collection("Users")
-      .get()
-      .then(function (querySnapshot) {
-        querySnapshot.forEach(function (doc) {
-          let user = doc.data();
-          if (user.Email) {
-            emails.push(user.Email);
-          }
-        });
-      })
-      .catch(function (error) {
-        console.log("Error getting emails: ", error);
-      });
-    return emails;
+      .get().then((qs) => {
+        if (!qs.empty) {
+          qs.forEach(async (userObject) => {
+            let uid = userObject.id;
+            let userData = userObject.data();
+            if (userData.products === undefined) {
+              userData.products = [];
+            }
+            if (userData.filters === undefined) {
+              userData.filters = [];
+            }
+            userData.id = uid;
+            if (userData.name) {
+              users.push(userData);
+            }
+          });
+        }
+      }).catch(e => console.log(e));
+
+    for (const i in users) {
+      let user = users[i];
+      await firebase.auth().getUser(user.id)
+        .then(async (userRecord) => {
+          user.email = userRecord.email;
+          authUsers.push(user);
+        }).catch(e => console.log(e))
+    }
+
+    return users;
   }
 
   static async RegisterUser(email) {

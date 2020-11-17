@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const FirebaseClient = require("./datahandlers/firebaseClient");
 const VmpClient = require("./datahandlers/vmpClient");
-const EmailClient = require("./datahandlers/emailClient");
+const NotificationClient = require("./datahandlers/notificationClient");
 const firebaseAdmin = require("firebase-admin");
 const serviceAccount = require("./configs/serviceAccountKey.json");
 const rp = require("request-promise");
@@ -234,7 +234,7 @@ exports.removeEmail = functions.region("europe-west1").runWith(runtimeOpts).http
 });
 
 
-exports.sendEmails = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let d = new Date();
   d.setHours(0);
   d.setMinutes(0);
@@ -242,7 +242,6 @@ exports.sendEmails = functions.region("europe-west1").runWith(runtimeOpts).pubsu
   d.setMilliseconds(0);
   let products = await FirebaseClient.GetProductsOnSale(d.getTime() - (2 * 60 * 60 * 1000));
   products.map(async p => {
-    let date = new Date(p.LastUpdated);
 
     p.ComparingPrice = p.PriceHistory[p.PriceHistorySorted[1]];
     if (p.ComparingPrice) {
@@ -261,22 +260,7 @@ exports.sendEmails = functions.region("europe-west1").runWith(runtimeOpts).pubsu
     order: "asc"
   });
 
-  let usedCategories = [];
-  var newsLetterProducts = [];
-  await products.map(async p => {
-    let pp = await FirebaseClient.PrepProduct(p);
-
-    if (products.length < 9) {
-      newsLetterProducts.push(pp);
-    } else {
-      if (newsLetterProducts.length < 9 && !usedCategories.includes(pp.SubType)) {
-        newsLetterProducts.push(pp);
-        usedCategories.push(pp.SubType);
-      }
-    }
-  });
-
-  var emails = await FirebaseClient.GetEmails();
-  var emailClient = new EmailClient(newsLetterProducts, emails);
-  await emailClient.SendEmails();
+  let users = await FirebaseClient.GetUsers();
+  await NotificationClient.sendNotifications(products, users);
+  console.log("Notifications complete");
 });

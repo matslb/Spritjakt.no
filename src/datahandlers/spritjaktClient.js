@@ -110,12 +110,14 @@ class SpritjaktClient {
       });
     return res === undefined ? [] : res;
   }
+
   async FetchStores() {
     const storesRef = firebase.firestore().collection("Stores").doc("1");
     let storeObject = storesRef.get();
     storeObject = (await storeObject).data();
     return storeObject.StoreList;
   }
+
   async FetchProductTypes() {
     const ref = firebase.firestore().collection("Constants").doc("ProductTypes");
     let object = ref.get();
@@ -147,6 +149,7 @@ class SpritjaktClient {
       });
     return res;
   }
+
   static async removeEmail(email) {
     let options = {
       uri: "https://europe-west1-spritjakt.cloudfunctions.net/removeEmail",
@@ -174,10 +177,12 @@ class SpritjaktClient {
       notifications: notifications
     });
   }
+
   async DeleteUserDoc(uid) {
     const usersRef = firebase.firestore().collection("Users").doc(uid);
     await usersRef.delete();
   }
+
   async UpdateUserNotifications(notifications) {
     const user = firebase.auth().currentUser;
     if (!user) return;
@@ -238,7 +243,6 @@ class SpritjaktClient {
       filters: firebase.firestore.FieldValue.arrayRemove(filter)
     });
   }
-
 
   async AddProductToUser(productId) {
     const user = firebase.auth().currentUser;

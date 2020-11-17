@@ -1,7 +1,7 @@
 .notificationSettings {
     background: #90495d;
     max-width: 50rem;
-    padding: 1rem 2rem;
+    padding: 1rem 1.5rem;
     margin: auto;
     color: white;
     transition:  0.5s 0.1s ease-in-out;
@@ -117,7 +117,7 @@
 }
 .notificationSettings .toolbar{
     background: rgba(0, 0, 0, 0.3);
-    margin: -1rem -2rem 1rem;
+    margin: -1rem -1.5rem 1rem;
     padding: .5rem 1.5rem;
 }
 .deleteWarning form{
