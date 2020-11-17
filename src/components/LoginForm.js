@@ -12,10 +12,18 @@ class LoginForm extends React.Component {
     }
     register = (event) => {
         event.preventDefault();
-        const email = event.target[0].value;
-        const name = event.target[1].value;
-        const pass = event.target[2].value;
-        const pass2 = event.target[3].value;
+        const email = event.target.email.value;
+        const name = event.target.name.value;
+        const pass = event.target.pass.value;
+        const pass2 = event.target.pass2.value;
+
+        const notifications = {
+            onAll: event.target.onAll.checked ?? false,
+            onFilters: event.target.onFilters.checked ?? false,
+            onFavorites: event.target.onFavorites.checked ?? false,
+            byPush: event.target.byPush.checked ?? false,
+            byEmail: event.target.byEmail.checked ?? false,
+        }
 
         if (email === "") {
             this.setState({ status: false, message: "Passordet må være på minst 6 tegn" });
@@ -33,7 +41,7 @@ class LoginForm extends React.Component {
         firebase.auth().createUserWithEmailAndPassword(email, pass)
             .then(async () => {
 
-                await this.spritjaktClient.CreateUserDoc(name);
+                await this.spritjaktClient.CreateUserDoc(name, notifications);
 
                 this.setState({ status: true, message: "Registrering vellykket" });
             })
@@ -45,8 +53,8 @@ class LoginForm extends React.Component {
     login = (event) => {
         event.preventDefault();
 
-        const email = event.target[0].value;
-        const pass = event.target[1].value;
+        const email = event.target.email.value;
+        const pass = event.target.pass.value;
 
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => {
@@ -106,8 +114,28 @@ class LoginForm extends React.Component {
                         {!this.props.justLogin &&
                             <label>
                                 Bekreft passord
-                        <br /><input required name="pass2" type="password" />
+                                    <br />
+                                <input required name="pass2" type="password" />
                             </label>
+                        }
+                        {!this.props.justLogin &&
+                            <div >
+                                <h3>Varsler</h3>
+                                    Du kan endre disse innstillingene når som helst i kontrollpanelet.
+                                <div className="notificationSection">
+                                    <div>
+                                        <h4>Varsle meg ved...</h4>
+                                        <label><input type="checkbox" onChange={this.handleNotifications} name="onAll" /> Alle prisendringer</label><br />
+                                        <label><input type="checkbox" onChange={this.handleNotifications} name="onFilters" /> Prisendringer i lagrede søk</label><br />
+                                        <label><input type="checkbox" onChange={this.handleNotifications} name="onFavorites" /> Prisendringer på favoritter</label><br />
+                                    </div>
+                                    <div>
+                                        <h4>Varsle meg på...</h4>
+                                        <label><input type="checkbox" name="byPush" onChange={this.handleNotifications} /> Push-varsler (Ikke på iPhone)</label><br />
+                                        <label><input type="checkbox" name="byEmail" onChange={this.handleNotifications} /> Epost</label>
+                                    </div>
+                                </div>
+                            </div>
                         }
                         <br />
                         <input className="bigGreenBtn" type="submit" value={this.props.heading} />

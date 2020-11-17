@@ -250,12 +250,12 @@ class NotificationSettings extends React.Component {
                             <h2>Kontoinnstillinger</h2>
                             <h3>Varsler</h3>
                             <label><input type="checkbox" checked={this.state.notifications.onAll} onChange={this.handleNotifications} name="onAll" /> Ved alle prisendringer</label><br />
-                            <label><input type="checkbox" disabled={this.state.notifications.onAll} onChange={this.handleNotifications} checked={this.state.notifications.onFilters} name="onFilters" /> Ved prisendringer i mine lagrede søk</label><br />
-                            <label><input type="checkbox" disabled={this.state.notifications.onAll} onChange={this.handleNotifications} checked={this.state.notifications.onFavorites} name="onFavorites" /> Ved prisendringer på mine favoritter</label><br />
+                            <label><input type="checkbox" disabled={this.state.notifications.onAll} onChange={this.handleNotifications} checked={this.state.notifications.onFilters} name="onFilters" /> Ved prisendringer i lagrede søk</label><br />
+                            <label><input type="checkbox" disabled={this.state.notifications.onAll} onChange={this.handleNotifications} checked={this.state.notifications.onFavorites} name="onFavorites" /> Ved prisendringer på favoritter</label><br />
                             <p>
                                 <strong>Hvordan vil du bli varslet?</strong>
                             </p>
-                            <label><input type="checkbox" name="byPush" checked={this.state.notifications.byPush} onChange={this.handleNotifications} /> Push-varsler (Ikke tilgjengelig på iPhone)</label><br />
+                            <label><input type="checkbox" name="byPush" checked={this.state.notifications.byPush} onChange={this.handleNotifications} /> Push-varsler (Ikke på iPhone)</label><br />
                             <label><input type="checkbox" name="byEmail" checked={this.state.notifications.byEmail} onChange={this.handleNotifications} /> Epost</label>
                             <div>
                                 <br />

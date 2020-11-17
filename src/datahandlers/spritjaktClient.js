@@ -165,19 +165,13 @@ class SpritjaktClient {
     return res;
   }
 
-  async CreateUserDoc(name) {
+  async CreateUserDoc(name, notifications) {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.set({
       name: name,
-      notifications: {
-        onAll: false,
-        onFilters: false,
-        onFavorites: false,
-        byEmail: false,
-        byPush: false
-      }
+      notifications: notifications
     });
   }
   async DeleteUserDoc(uid) {

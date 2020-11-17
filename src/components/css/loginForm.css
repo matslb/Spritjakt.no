@@ -19,3 +19,10 @@
 .statusMessage{
     text-align: center;
 }
+.notificationSection {
+    display: flex;
+    text-align: left;
+}
+.notificationSection div {
+    width: 50%;
+}
