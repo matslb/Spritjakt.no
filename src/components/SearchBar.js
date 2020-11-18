@@ -3,8 +3,7 @@ import "./css/searchBar.css";
 import ProductComp from "./ProductComp";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
 import ProductPopUp from "./ProductPopUp";
-import { CSSTransition } from "react-transition-group";
-import { faArrowCircleLeft, faArrowCircleRight, faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import firebase from "firebase/app";
 import "firebase/analytics";
@@ -79,7 +78,7 @@ class SearchBar extends React.Component {
     let highlightedProductIndex = this.state.productResult.indexOf(this.state.highlightedProduct);
     let newHighlightedProduct = this.state.productResult[highlightedProductIndex + change] ?? null;
     this.setGraph(null, null);
-    if(newHighlightedProduct){
+    if (newHighlightedProduct) {
       this.setGraph(newHighlightedProduct.Id);
     }
   }
@@ -128,7 +127,7 @@ class SearchBar extends React.Component {
             </ul>
           </div>
         )}
-        <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)}  setGraph={this.setGraph.bind(this)}   />
+        <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
       </div>
     );
   }

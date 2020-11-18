@@ -25,14 +25,14 @@ class StoreSelector extends React.Component {
       let option = {
         value: s.storeId,
         label: s.storeName + " (" + (s.count ? s.count : 0) + ")",
-        disabled: s.count == undefined
+        disabled: s.count === undefined
       }
       storeOptions.push(option);
-      if (selectedStores.includes(option.value) && !selectedOptions.find(so => so.value == option.value)) {
+      if (selectedStores.includes(option.value) && !selectedOptions.find(so => so.value === option.value)) {
         selectedOptions.push(option);
       }
     });
-    if (selectedStores.includes("online") && !selectedOptions.find(so => so.value == "online")) {
+    if (selectedStores.includes("online") && !selectedOptions.find(so => so.value === "online")) {
       selectedOptions.push(storeOptions[0]);
     }
 
@@ -45,7 +45,6 @@ class StoreSelector extends React.Component {
             onChange={this.handleStoreUpdate}
             isMulti
             options={storeOptions}
-            isOptionDisabled={o => o.disabled === true}
             noOptionsMessage={() => "Fant niks og nada"}
             placeholder={'Velg butikker'}
             classNamePrefix="select"

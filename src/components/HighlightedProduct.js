@@ -1,10 +1,9 @@
 import React from "react";
 import "./css/highlightedProduct.css";
 import SortArray from "sort-array";
-import { faBoxes, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import dateFormater from "../dateFormater";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
 import firebase from "firebase/app";
 
@@ -99,10 +98,10 @@ class ProductComp extends React.Component {
         <span className="productWatchBtns">
           {/*lastChangedDate*/}
           {this.state.IsSelectedByUser &&
-            <a className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></a>
+            <button className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
           }
-          {this.state.IsSelectedByUser == false &&
-            <a className="watch iconBtn dark" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></a>
+          {this.state.IsSelectedByUser === false &&
+            <button className="watch iconBtn dark" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></button>
           }
         </span>
         <div className="product_img" style={background}></div>

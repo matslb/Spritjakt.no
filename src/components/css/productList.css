@@ -193,7 +193,9 @@ ul.ProductList {
 .filterSaver span{
   margin-left: 2rem;
 } 
-
+.filterSaverWrapper{
+  min-height: 4.5rem;
+}
 @media (max-width: 1024px) {
   ul.ProductList {
     grid-template-columns: 1fr 1fr 1fr;

@@ -59,7 +59,7 @@ module.exports = class FirebaseClient {
         });
         let LatestPrice = p.LatestPrice;
         let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
-        if (ComparingPrice == undefined) {
+        if (ComparingPrice === undefined) {
           ComparingPrice = LatestPrice;
         }
 
@@ -99,7 +99,7 @@ module.exports = class FirebaseClient {
     if (p.SubType && p.SubType.includes("Alkoholfri")) {
       p.SubType = "Alkoholfritt";
     }
-    if (p.SubType == undefined) {
+    if (p.SubType === undefined) {
       p.SubType = p.Type;
     }
 

@@ -2,32 +2,34 @@ import React from "react";
 import "./css/notificationSettings.css";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
 import MiniProduct from "./MiniProduct";
-import { faTrash, faTimesCircle, faBars, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faTimesCircle, faBars, faFilter, faPen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import ProductPopUp from "./ProductPopUp";
 import queryString from "query-string";
 
+const startState = {
+    isActive: false,
+    resultMessage: "",
+    user: null,
+    stores: [],
+    userData: false,
+    highlightedProduct: false,
+    deleteProcessStarted: false,
+    notifications: {
+        onAll: false,
+        onFilters: false,
+        onFavorites: false,
+        byPush: false,
+        byEmail: false,
+    }
+};
 
 class NotificationSettings extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            isActive: false,
-            resultMessage: "",
-            user: null,
-            stores: [],
-            highlightedProduct: false,
-            deleteProcessStarted: false,
-            notifications: {
-                onAll: false,
-                onFilters: false,
-                onFavorites: false,
-                byPush: false,
-                byEmail: false,
-            }
-        }
+        this.state = startState;
         this.spritjaktClient = new SpritjaktClient();
     }
 
@@ -66,8 +68,9 @@ class NotificationSettings extends React.Component {
         window.history.replaceState('', '', '?' + query);
     }
 
-    logout() {
-        firebase.auth().signOut().then(function () {
+    logout = () => {
+        firebase.auth().signOut().then(() => {
+            this.setState(startState);
         }).catch(function (error) {
             alert(error.message);
         });
@@ -85,14 +88,14 @@ class NotificationSettings extends React.Component {
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(async () => {
                 await this.spritjaktClient.DeleteUserDoc(userId);
-                this.setState({ deleteProcessStarted: false });
                 this.state.user.delete().then(async () => {
+                    this.setState(startState);
                 }).catch(function (error) {
                     alert("Noe gikk galt, brukeren ble ikke slettet. Feilmelding: " + error.message);
                 })
             })
             .catch(function (error) {
-                alert("Passordet er feil");
+                alert("Feil passord");
             });
     }
 
@@ -125,7 +128,7 @@ class NotificationSettings extends React.Component {
 
             let storeNames = [];
             filter.stores.forEach(id => {
-                storeNames.push(this.state.stores.find(s => s.storeId == id).storeName);
+                storeNames.push(this.state.stores.find(s => s.storeId === id).storeName);
             });
 
             items.push(<li className="filter">
@@ -271,7 +274,7 @@ class NotificationSettings extends React.Component {
                                             <span>Lagrede søk og favoritter vil slettes, og du vil ikke lenger kunne logge inn med denne kontoen.<br /><strong>Denne handlingen kan ikke angres.</strong></span>
                                         }
                                         {this.state.deleteProcessStarted &&
-                                            <a className="clickable" onClick={() => { this.setState({ deleteProcessStarted: false }) }}>Tilbake</a>
+                                            <button className="clickable" onClick={() => { this.setState({ deleteProcessStarted: false }) }}>Tilbake</button>
                                         }
                                         <input type="submit" className="bigRedBtn clickable" value="Slett konto" />
                                     </form>

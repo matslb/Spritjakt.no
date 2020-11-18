@@ -1,11 +1,10 @@
 import React from "react";
-import { CSSTransition } from "react-transition-group";
 import ProductComp from "./ProductComp";
 import ProductType from "./ProductType";
 import Pagination from "./Pagination";
 import "./css/productList.css";
 import SpritjaktClient from "../datahandlers/spritjaktClient";
-import { faCircleNotch, faTimes, faTimesCircle, faArrowCircleRight, faArrowCircleLeft, faGrinTongueSquint } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
 import ProductPopUp from "./ProductPopUp";
@@ -38,7 +37,8 @@ class ProductList extends React.Component {
       change: "lowered",
       filterVisibility: false,
       user: null,
-      urlParameters: {}
+      urlParameters: {},
+      filterName: ""
     };
 
     this.sortOptions = [
@@ -78,7 +78,7 @@ class ProductList extends React.Component {
     }
 
     let query = queryString.stringify(urlParameters, { arrayFormat: 'comma' });
-    if (field == "product" && value != null) {
+    if (field === "product" && value !== null) {
       window.history.pushState('', '', '?' + query);
     }
     window.history.replaceState('', '', '?' + query);
@@ -139,10 +139,25 @@ class ProductList extends React.Component {
     await this.updateProductResults(this.state.timeSpan, true);
     this.applyUrlParams();
 
-    firebase.auth().onAuthStateChanged(async (user) => {
+    firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        this.setState({ user: await this.spritjaktClient.GetUser() });
-        this.createFilter();
+        firebase.firestore().collection("Users").doc(user.uid)
+          .onSnapshot(async (doc) => {
+            if (!doc.exists) {
+              return null;
+            }
+            let userData = await doc.data();
+
+            if (userData.products === undefined) {
+              userData.products = [];
+            }
+            if (userData.filters === undefined) {
+              userData.filters = [];
+            }
+
+            this.setState({ user: userData });
+            this.createFilter();
+          });
       } else {
         this.setState({ user: null });
       }
@@ -151,11 +166,10 @@ class ProductList extends React.Component {
 
   async saveUserFilter() {
     this.spritjaktClient.saveUserFilter(this.state.filter);
-    this.setState({ user: await this.spritjaktClient.GetUser() });
     this.createFilter();
   }
 
-  createFilter(selectedStores = this.state.selectedStores.filter(s => s != "0")) {
+  createFilter(selectedStores = this.state.selectedStores.filter(s => s !== "0")) {
     if (!this.state.user) {
       return;
     }
@@ -181,7 +195,7 @@ class ProductList extends React.Component {
   }
 
   arraysAreEqual(arr1, arr2) {
-    if (arr1?.length != arr2?.length) {
+    if (arr1?.length !== arr2?.length) {
       return false;
     }
     for (const x of arr1) {
@@ -467,7 +481,7 @@ class ProductList extends React.Component {
         <div className="filterSaverWrapper">
           {(user && !currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
             <div className="filterSaver">
-              <button className="bigGoldBtn clickable" onClick={() => { this.saveUserFilter() }}>Overvåk dette søket</button>
+              <button className="bigGoldBtn clickable" onClick={() => { this.saveUserFilter() }}>Lagre søk</button>
               <span>Få varsel når produkter som matcher dette søket kommer på tilbud.</span>
             </div>
           }

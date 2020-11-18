@@ -61,21 +61,16 @@
     min-height: 1.5rem;
     max-height: 5rem;
     overflow: auto;
-    cursor: pointer;
 }
 .list .filter .details{
     display: flex;
     margin-right: 1rem;
-    width: 90%;
+    width: 80%;
     position: relative;
 }
 
 .list .filter .details > div{
     width: 50%;
-}
-
-.list .filter:active{
-    opacity: 0.8;
 }
 
 .list .listHeaders{

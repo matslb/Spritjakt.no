@@ -250,7 +250,7 @@ exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts
       p.SortingDiscount = 100;
     }
   });
-  products = products.filter(p => p.SortingDiscount <= 95 && (p.ProductStatusSaleName == undefined || p.ProductStatusSaleName !== "Utgått"));
+  products = products.filter(p => p.SortingDiscount <= 95 && (p.ProductStatusSaleName === undefined || p.ProductStatusSaleName !== "Utgått"));
   if (products === undefined || products.length === 0) {
     return;
   }

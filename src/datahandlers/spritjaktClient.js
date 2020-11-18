@@ -1,7 +1,6 @@
 import rp from "request-promise";
 import firebase from "firebase/app";
 import "firebase/firestore";
-import dateFormater from "../dateFormater";
 
 const allTimeEarliestDate = 1594166400000;
 
@@ -85,7 +84,7 @@ class SpritjaktClient {
     let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && parseInt(priceDate) !== parseInt(p.LastUpdated)));
     p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
     p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
-    if (p.ComparingPrice == undefined) {
+    if (p.ComparingPrice === undefined) {
       p.SortingDiscount = 100;
     }
 
@@ -209,20 +208,22 @@ class SpritjaktClient {
   async GetUser() {
     const user = firebase.auth().currentUser;
     if (!user) return;
-    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
-    const doc = await usersRef.get();
-    if (!doc.exists) {
-      return null;
-    }
-    let userData = doc.data();
+    let userData = null;
+    await firebase.firestore().collection("Users").doc(user.uid)
+      .onSnapshot(async (doc) => {
+        if (!doc.exists) {
+          return null;
+        }
+        userData = doc.data();
 
-    if (userData.products === undefined) {
-      userData.products = [];
-    }
-    if (userData.filters === undefined) {
-      userData.filters = [];
-    }
+        if (userData.products === undefined) {
+          userData.products = [];
+        }
+        if (userData.filters === undefined) {
+          userData.filters = [];
+        }
 
+      });
     return userData;
   }
 
