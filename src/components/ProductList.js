@@ -136,8 +136,6 @@ class ProductList extends React.Component {
       }
     });
     this.setState({ stores: stores, urlParameters: queryString.parse(window.location.search, { arrayFormat: 'comma' }) });
-    await this.updateProductResults(this.state.timeSpan, true);
-    this.applyUrlParams();
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -162,17 +160,26 @@ class ProductList extends React.Component {
         this.setState({ user: null });
       }
     });
+
+    setTimeout(async () => {
+      await this.updateProductResults(this.state.timeSpan, true);
+      this.applyUrlParams();
+    }, 1000);
+
   }
 
   async SaveUserFilter() {
-    this.spritjaktClient.SaveUserFilter(this.state.filter);
-    this.createFilter();
+
+    if (this.state.user) {
+      this.spritjaktClient.SaveUserFilter(this.state.filter);
+      this.createFilter();
+    } else {
+      this.props.toggleLoginSection();
+    }
+
   }
 
   createFilter(selectedStores = this.state.selectedStores.filter(s => s !== "0")) {
-    if (!this.state.user) {
-      return;
-    }
     let productTypesInFilter = [];
     Object.keys(this.state.productTypes).forEach(pt => {
       if (this.state.productTypes[pt].state) {
@@ -187,7 +194,7 @@ class ProductList extends React.Component {
 
     let filterExists = false;
 
-    if (this.state.user.filters.find(f => this.arraysAreEqual(f.stores, newFilter.stores) && this.arraysAreEqual(f.productTypes, newFilter.productTypes))) {
+    if (this.state.user && this.state.user.filters.find(f => this.arraysAreEqual(f.stores, newFilter.stores) && this.arraysAreEqual(f.productTypes, newFilter.productTypes))) {
       filterExists = true;
     }
 
@@ -222,7 +229,7 @@ class ProductList extends React.Component {
         }
         timeSpan = this.timeSpanOptions[timespanIndex - 1].value;
       } else {
-        timeSpan = parseInt(this.urlParameters.timespan);
+        timeSpan = parseInt(this.state.urlParameters.timespan);
         products = await this.spritjaktClient.FetchProducts(timeSpan, change === "lowered");
       }
     } else {
@@ -479,7 +486,7 @@ class ProductList extends React.Component {
       <div key="Productlist" className="Productlist" >
 
         <div className="filterSaverWrapper">
-          {(user && !currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
+          {(!currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
             <div className="filterSaver">
               <button className="bigGoldBtn clickable" onClick={() => { this.SaveUserFilter() }}>Lagre filter</button>
               <span>Få varsel når produkter som matcher dette filteret kommer på tilbud.</span>

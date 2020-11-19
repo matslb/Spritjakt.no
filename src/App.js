@@ -36,7 +36,6 @@ class App extends React.Component {
             Se når polet har tilbud!
           </h2>
         </header>
-        <LoginPage />
         <div className="Body">
           <Homepage />
         </div>

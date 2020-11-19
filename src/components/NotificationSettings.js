@@ -41,7 +41,6 @@ class NotificationSettings extends React.Component {
             setTimeout(() => this.toggleSection(true), 1500)
         }
         firebase.auth().onAuthStateChanged((user) => {
-            this.setState({ user: user });
             if (user) {
                 firebase.firestore().collection("Users").doc(user.uid)
                     .onSnapshot(async (doc) => {
@@ -53,7 +52,7 @@ class NotificationSettings extends React.Component {
                             }
                             let stores = await this.spritjaktClient.FetchStores();
                             stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
-                            this.setState({ userData: userData, notifications: userData.notifications, productResult: products, stores: stores });
+                            this.setState({ user: user, userData: userData, notifications: userData.notifications, productResult: products, stores: stores });
 
                             if (userData.notifications.byPush) {
                                 this.notificationService.AddClientDevice();

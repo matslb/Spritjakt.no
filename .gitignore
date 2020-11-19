@@ -13,6 +13,7 @@
 /.firebaserc
 /firebase.json
 
+/public/firebase-messaging-sw.js
 # testing
 /coverage
 database-debug.log

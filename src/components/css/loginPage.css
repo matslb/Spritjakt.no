@@ -31,7 +31,7 @@
     right: 0;
     text-align: center;
     color: white;
-    border: 3px solid #1f2b33;
+    box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
     border-radius: 3px;
 }
 .loginSection a{

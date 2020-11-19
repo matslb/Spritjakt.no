@@ -13,7 +13,6 @@ class LoginPage extends React.Component {
             user: null,
             justLogin: null,
             resetPass: false,
-            isActive: false
         }
     }
 
@@ -26,8 +25,8 @@ class LoginPage extends React.Component {
             }
         });
     }
-    toggleSection = (e) => {
-        this.setState({ isActive: !this.state.isActive });
+    toggleLoginSection = (e) => {
+        this.setState({ justLogin: false });
     }
 
     render() {

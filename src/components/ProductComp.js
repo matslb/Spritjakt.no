@@ -89,7 +89,7 @@ class ProductComp extends React.Component {
           </span>
         }
         <span className="productWatchBtns">
-          {/*lastChangedDate*/}
+          {lastChangedDate}
           {this.state.IsSelectedByUser &&
             <button className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
           }

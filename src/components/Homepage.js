@@ -5,11 +5,13 @@ import queryString from "query-string";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import NotificationSettings from "./NotificationSettings";
+import LoginPage from "./LoginPage";
 
 class Homepage extends React.Component {
     constructor(props) {
         super(props);
         this.ProductList = React.createRef();
+        this.LoginPage = React.createRef();
     }
 
     componentDidMount() {
@@ -24,6 +26,9 @@ class Homepage extends React.Component {
         }
     }
 
+    toggleLoginSection = () => {
+        this.LoginPage.current.toggleLoginSection();
+    }
     applyUserFilter = () => {
         this.ProductList.current.updateUrlParams();
     }
@@ -32,9 +37,10 @@ class Homepage extends React.Component {
 
         return (
             <div className="homepage">
-                <NotificationSettings applyUserFilter={this.applyUserFilter.bind(this)} />
                 <SearchBar />
-                <ProductList ref={this.ProductList} />
+                <LoginPage ref={this.LoginPage} />
+                <NotificationSettings applyUserFilter={this.applyUserFilter.bind(this)} />
+                <ProductList toggleLoginSection={this.toggleLoginSection.bind(this)} ref={this.ProductList} />
             </div>
         );
     }
