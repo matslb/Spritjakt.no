@@ -1,9 +1,6 @@
 {
   "rules": {
-    ".read": "false",
-    ".write": "false",
-    "Products":{
-      ".indexOn" : ["Price", "LastUpdated", "SearchableName"]
-    }
+    ".read": "auth != null",
+    ".write": "auth != null"
   }
 }

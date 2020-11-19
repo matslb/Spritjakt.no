@@ -233,6 +233,40 @@ exports.removeEmail = functions.region("europe-west1").runWith(runtimeOpts).http
   return res.send("<h2>Du er nå fjernet fra Spritjakts nyhetsbrev</h2>");
 });
 
+exports.subscribeClientsToTopic = functions.region("europe-west1").firestore.document('Users/{userId}').onWrite((change, context) => {
+  let userId = context.params.userId;
+  let oldUserData = change.before.data();
+  let newUserData = change.after.data();
+  let tokensToRemove = [];
+  let tokensToAdd = [];
+
+  if (oldUserData.notificationTokens) {
+    tokensToRemove = oldUserData.notificationTokens.filter(t => newUserData.notificationTokens === undefined || !newUserData.notificationTokens.includes(t));
+  }
+  if (newUserData.notificationTokens) {
+    tokensToAdd = newUserData.notificationTokens.filter(t => oldUserData.notificationTokens === undefined || !oldUserData.notificationTokens.includes(t));
+  }
+
+  if (tokensToAdd.length > 0) {
+    firebaseAdmin.messaging().subscribeToTopic(tokensToAdd, userId)
+      .then(function (response) {
+        console.log('Successfully subscribed to topic:', response);
+      })
+      .catch(function (error) {
+        console.log('Error subscribing to topic:', error);
+      });
+  }
+
+  if (tokensToRemove.length > 0) {
+    firebaseAdmin.messaging().unsubscribeFromTopic(tokensToRemove, userId)
+      .then(function (response) {
+        console.log('Successfully unsubscribed from topic:', response);
+      })
+      .catch(function (error) {
+        console.log('Error unsubscribing from topic:', error);
+      });
+  }
+});
 
 exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let d = new Date();

@@ -1,6 +1,6 @@
 import React from "react";
 import "./css/notificationSettings.css";
-import SpritjaktClient from "../datahandlers/spritjaktClient";
+import SpritjaktClient from "../services/spritjaktClient";
 import MiniProduct from "./MiniProduct";
 import { faTrash, faTimesCircle, faBars, faFilter, faPen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,6 +8,7 @@ import firebase from "firebase/app";
 import "firebase/analytics";
 import ProductPopUp from "./ProductPopUp";
 import queryString from "query-string";
+import NotificationService from "../services/notificationService";
 
 const startState = {
     isActive: false,
@@ -31,6 +32,7 @@ class NotificationSettings extends React.Component {
         super(props);
         this.state = startState;
         this.spritjaktClient = new SpritjaktClient();
+        this.notificationService = new NotificationService();
     }
 
     async componentDidMount() {
@@ -52,6 +54,10 @@ class NotificationSettings extends React.Component {
                             let stores = await this.spritjaktClient.FetchStores();
                             stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
                             this.setState({ userData: userData, notifications: userData.notifications, productResult: products, stores: stores });
+
+                            if (userData.notifications.byPush) {
+                                this.notificationService.AddClientDevice();
+                            }
                         }
                     });
             }
@@ -142,7 +148,7 @@ class NotificationSettings extends React.Component {
                     <div className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
                 </div>
                 <div className="operations">
-                    <button className="iconBtn dark" onClick={() => { this.spritjaktClient.removeUserFilter(filter) }} >
+                    <button className="iconBtn dark" onClick={() => { this.spritjaktClient.RemoveUserFilter(filter) }} >
                         <FontAwesomeIcon icon={faTrash} />
                     </button>
                 </div>
@@ -185,8 +191,8 @@ class NotificationSettings extends React.Component {
         return (
             <div>
                 {user && userData &&
-                    <div class="profileStatusBar">
-                        <div>Hei <span class="userEmail">{this.state.userData?.name}</span>!</div>
+                    <div className="profileStatusBar">
+                        <div>Hei <span className="userEmail">{this.state.userData?.name}</span>!</div>
                         <button aria-label="Vis innstillinger" name="Togglesettings" onClick={() => this.toggleSection(!this.state.isActive)} className="iconBtn toggleSettings">
                             <FontAwesomeIcon size="lg" icon={faBars} />
                         </button>
@@ -198,17 +204,17 @@ class NotificationSettings extends React.Component {
                             <button aria-label="Skjul innstillinger" name="Togglesettings" onClick={() => this.toggleSection(!this.state.isActive)} className="iconBtn toggleSettings">
                                 <FontAwesomeIcon size="lg" icon={faTimesCircle} />
                             </button>
-                            <div>Logget inn som <span class="userName">{this.state.userData?.name}</span></div>
+                            <div>Logget inn som <span className="userName">{this.state.userData?.name}</span></div>
                             <button name="logout" onClick={this.logout} className="bigGreenBtn clickable logout">Logg ut</button>
                         </div>
 
                         {userData.filters && userData.filters.length > 0 ?
                             <div className="filters">
                                 <div className="sectionHeader">
-                                    <h3>Lagrede søk ({this.state.userData.filters.length})</h3>
+                                    <h3>Lagrede filtre ({this.state.userData.filters.length})</h3>
                                 </div>
-                                <ul class="list filters">
-                                    <li class="listHeaders filter">
+                                <ul className="list filters">
+                                    <li className="listHeaders filter">
                                         <div className="operations">
                                         </div>
                                         <div className="details">
@@ -224,9 +230,9 @@ class NotificationSettings extends React.Component {
                             :
                             <div className="filters">
                                 <div className="sectionHeader">
-                                    <h3>Lagrede søk</h3>
+                                    <h3>Lagrede filtre</h3>
                                 </div>
-                                <p>De lagrede søkene dine vil dukke opp her.</p>
+                                <p>De lagrede filtrene dine vil dukke opp her.</p>
                             </div>
                         }
                         <br />
@@ -236,7 +242,7 @@ class NotificationSettings extends React.Component {
                                 <div className="sectionHeader">
                                     <h3>Favoritter ({this.state.productResult.length})</h3>
                                 </div>
-                                <ul class="list miniproducts">{this.renderProducts()}</ul>
+                                <ul className="list miniproducts">{this.renderProducts()}</ul>
                             </div>
                             :
                             <div className="filters">
@@ -253,7 +259,7 @@ class NotificationSettings extends React.Component {
                             <h2>Kontoinnstillinger</h2>
                             <h3>Varsler</h3>
                             <label><input type="checkbox" checked={this.state.notifications.onAll} onChange={this.handleNotifications} name="onAll" /> Ved alle prisendringer</label><br />
-                            <label><input type="checkbox" onChange={this.handleNotifications} checked={this.state.notifications.onFilters} name="onFilters" /> Ved prisendringer i lagrede søk</label><br />
+                            <label><input type="checkbox" onChange={this.handleNotifications} checked={this.state.notifications.onFilters} name="onFilters" /> Ved prisendringer i lagrede filtre</label><br />
                             <label><input type="checkbox" onChange={this.handleNotifications} checked={this.state.notifications.onFavorites} name="onFavorites" /> Ved prisendringer i favoritter</label><br />
                             <p>
                                 <strong>Hvordan vil du bli varslet?</strong>
@@ -271,7 +277,7 @@ class NotificationSettings extends React.Component {
                                             <input type="password" name="password" />
                                             </label>
                                             :
-                                            <span>Lagrede søk og favoritter vil slettes, og du vil ikke lenger kunne logge inn med denne kontoen.<br /><strong>Denne handlingen kan ikke angres.</strong></span>
+                                            <span>Lagrede filtre og favoritter vil slettes, og du vil ikke lenger kunne logge inn med denne kontoen.<br /><strong>Denne handlingen kan ikke angres.</strong></span>
                                         }
                                         {this.state.deleteProcessStarted &&
                                             <button className="clickable" onClick={() => { this.setState({ deleteProcessStarted: false }) }}>Tilbake</button>

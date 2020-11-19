@@ -1,6 +1,6 @@
 import React from "react";
 import "./css/miniProduct.css";
-import SpritjaktClient from "../datahandlers/spritjaktClient";
+import SpritjaktClient from "../services/spritjaktClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 

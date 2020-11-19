@@ -204,30 +204,16 @@ class SpritjaktClient {
     }
     return products;
   }
-
-  async GetUser() {
+  async SetUserNotificationToken(token) {
     const user = firebase.auth().currentUser;
     if (!user) return;
-    let userData = null;
-    await firebase.firestore().collection("Users").doc(user.uid)
-      .onSnapshot(async (doc) => {
-        if (!doc.exists) {
-          return null;
-        }
-        userData = doc.data();
-
-        if (userData.products === undefined) {
-          userData.products = [];
-        }
-        if (userData.filters === undefined) {
-          userData.filters = [];
-        }
-
-      });
-    return userData;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      notificationTokens: firebase.firestore.FieldValue.arrayUnion(token)
+    });
   }
 
-  async saveUserFilter(filter) {
+  async SaveUserFilter(filter) {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
@@ -236,7 +222,7 @@ class SpritjaktClient {
     });
   }
 
-  async removeUserFilter(filter) {
+  async RemoveUserFilter(filter) {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);

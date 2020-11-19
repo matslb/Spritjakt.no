@@ -3,6 +3,7 @@ import "./App.css";
 import { ReactComponent as ReactLogo } from "./assets/logo.svg";
 import firebase from "firebase/app";
 import "firebase/analytics";
+import "firebase/messaging";
 import Homepage from "./components/Homepage";
 import LoginPage from "./components/LoginPage";
 
@@ -31,13 +32,13 @@ class App extends React.Component {
               </span>
             </h1>
           </a>
-          <h2 style={{fontSize:"1.1rem", fontWeight:400}}>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 400 }}>
             Se når polet har tilbud!
           </h2>
         </header>
-          <LoginPage /> 
+        <LoginPage />
         <div className="Body">
-          <Homepage />       
+          <Homepage />
         </div>
         <footer>
           <span>
@@ -47,7 +48,7 @@ class App extends React.Component {
           <span data-nosnippet="true">© {date.getFullYear()} <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
           </span>
         </footer>
-        
+
       </div>
     );
   }

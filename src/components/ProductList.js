@@ -3,7 +3,7 @@ import ProductComp from "./ProductComp";
 import ProductType from "./ProductType";
 import Pagination from "./Pagination";
 import "./css/productList.css";
-import SpritjaktClient from "../datahandlers/spritjaktClient";
+import SpritjaktClient from "../services/spritjaktClient";
 import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
@@ -164,8 +164,8 @@ class ProductList extends React.Component {
     });
   }
 
-  async saveUserFilter() {
-    this.spritjaktClient.saveUserFilter(this.state.filter);
+  async SaveUserFilter() {
+    this.spritjaktClient.SaveUserFilter(this.state.filter);
     this.createFilter();
   }
 
@@ -481,8 +481,8 @@ class ProductList extends React.Component {
         <div className="filterSaverWrapper">
           {(user && !currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
             <div className="filterSaver">
-              <button className="bigGoldBtn clickable" onClick={() => { this.saveUserFilter() }}>Lagre søk</button>
-              <span>Få varsel når produkter som matcher dette søket kommer på tilbud.</span>
+              <button className="bigGoldBtn clickable" onClick={() => { this.SaveUserFilter() }}>Lagre filter</button>
+              <span>Få varsel når produkter som matcher dette filteret kommer på tilbud.</span>
             </div>
           }
         </div>

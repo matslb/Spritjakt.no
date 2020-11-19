@@ -1,7 +1,7 @@
 import React from "react";
 import "./css/searchBar.css";
 import ProductComp from "./ProductComp";
-import SpritjaktClient from "../datahandlers/spritjaktClient";
+import SpritjaktClient from "../services/spritjaktClient";
 import ProductPopUp from "./ProductPopUp";
 import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

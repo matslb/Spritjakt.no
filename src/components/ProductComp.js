@@ -4,7 +4,7 @@ import { faBoxes, faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
-import SpritjaktClient from "../datahandlers/spritjaktClient";
+import SpritjaktClient from "../services/spritjaktClient";
 import firebase from "firebase/app";
 
 class ProductComp extends React.Component {

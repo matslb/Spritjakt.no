@@ -15,7 +15,7 @@ service cloud.firestore {
       allow write: if false;
     }
     match /Users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow read, update, delete: if request.auth != null && request.auth.uid ===userId;
       allow create: if request.auth != null;
     }
   }

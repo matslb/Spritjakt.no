@@ -1,7 +1,7 @@
 import React from "react";
 import "./css/loginForm.css";
 import firebase from "firebase";
-import SpritjaktClient from "../datahandlers/spritjaktClient";
+import SpritjaktClient from "../services/spritjaktClient";
 
 class LoginForm extends React.Component {
 
@@ -85,7 +85,7 @@ class LoginForm extends React.Component {
                     <form className="loginForm" onSubmit={this.resetPassword}>
                         <label>
                             Epost
-                  <br />
+                            <br />
                             <input required placeholder="Din epostadresse" name="email" type="email" />
                         </label>
                         <br />
@@ -126,7 +126,7 @@ class LoginForm extends React.Component {
                                     <div>
                                         <h4>Varsle meg ved...</h4>
                                         <label><input type="checkbox" onChange={this.handleNotifications} name="onAll" /> Alle prisendringer</label><br />
-                                        <label><input type="checkbox" onChange={this.handleNotifications} name="onFilters" /> Prisendringer i lagrede søk</label><br />
+                                        <label><input type="checkbox" onChange={this.handleNotifications} name="onFilters" /> Prisendringer i lagrede filtre</label><br />
                                         <label><input type="checkbox" onChange={this.handleNotifications} name="onFavorites" /> Prisendringer i favoritter</label><br />
                                     </div>
                                     <div>
