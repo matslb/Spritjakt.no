@@ -480,7 +480,7 @@ class ProductList extends React.Component {
   };
   render() {
 
-    let { currentFilterExists, user, pageSize, page, productResult, stores, selectedStores, filter } = this.state;
+    let { currentFilterExists, pageSize, page, productResult, stores, selectedStores, filter } = this.state;
 
     return (
       <div key="Productlist" className="Productlist" >

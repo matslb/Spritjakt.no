@@ -204,14 +204,21 @@ button{
   opacity: 1;
   border-radius: 3px;
 }
+.bigWhiteBtn{
+  background:white;
+  border: none;
+  color: black;
+  padding: .5rem;
+  opacity: 1;
+  border-radius: 3px;
+}
 .bigGreenBtn{
-    background: rgba(97, 160, 85, 0.7);
+    background: rgba(97, 160, 85, .9);
     border: none;
     color: white;
     padding: .7rem;
     border-radius: 3px;
 }
-
 .iconBtn{
   background: none;
   color: white;

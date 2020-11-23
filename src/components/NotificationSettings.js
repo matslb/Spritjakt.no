@@ -16,6 +16,7 @@ const startState = {
     user: null,
     stores: [],
     userData: false,
+    newName: "",
     highlightedProduct: false,
     deleteProcessStarted: false,
     notifications: {
@@ -184,6 +185,11 @@ class NotificationSettings extends React.Component {
         }
     };
 
+    changeName = (e) => {
+        this.spritjaktClient.ChangeUserName(this.state.newName);
+        this.setState({ changeName: false });
+    }
+
     render() {
         let { user, userData, productResult } = this.state;
 
@@ -256,6 +262,20 @@ class NotificationSettings extends React.Component {
                         <hr />
                         <div className="heading">
                             <h2>Kontoinnstillinger</h2>
+
+                            <h3>Brukernavn</h3>
+                            {this.state.changeName ?
+                                <div className="changeName">
+                                    <input type="text" name="name" onChange={(e) => { this.setState({ newName: e.currentTarget.value }) }} />
+                                    <button className="bigWhiteBtn clickable" onClick={() => { this.setState({ changeName: false }) }}>Tilbake</button>
+                                    <button name="changeName" disabled={this.state.newName.length === 0} onClick={this.changeName} className="bigGreenBtn clickable">Lagre</button>
+                                </div>
+                                :
+                                <div className="changeName">
+                                    {userData.name}
+                                    <button className="iconBtn clickable" onClick={() => { this.setState({ changeName: true }) }} ><FontAwesomeIcon size="lg" icon={faPen} /></button>
+                                </div>
+                            }
                             <h3>Varsler</h3>
                             <label><input type="checkbox" checked={this.state.notifications.onAll} onChange={this.handleNotifications} name="onAll" /> Ved alle prisendringer</label><br />
                             <label><input type="checkbox" onChange={this.handleNotifications} checked={this.state.notifications.onFilters} name="onFilters" /> Ved prisendringer i lagrede filtre</label><br />
@@ -264,7 +284,7 @@ class NotificationSettings extends React.Component {
                                 <strong>Hvordan vil du bli varslet?</strong>
                             </p>
                             <label><input type="checkbox" name="byPush" checked={this.state.notifications.byPush} onChange={this.handleNotifications} /> Push-varsler (Ikke på iPhone)</label><br />
-                            <label><input type="checkbox" name="byEmail" checked={this.state.notifications.byEmail} onChange={this.handleNotifications} /> Epost</label>
+                            <label><input type="checkbox" name="byEmail" checked={this.state.notifications.byEmail} onChange={this.handleNotifications} /> E-post</label>
                             <div>
                                 <br />
                                 <h3>Slett konto</h3>

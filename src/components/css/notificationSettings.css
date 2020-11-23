@@ -72,7 +72,13 @@
 .list .filter .details > div{
     width: 50%;
 }
-
+.changeName{
+    display: flex;
+    align-items: center;
+}
+.changeName button{
+    margin-left: .5rem;
+}
 .list .listHeaders{
     font-weight: bold;
     border-bottom: 3px solid grey;

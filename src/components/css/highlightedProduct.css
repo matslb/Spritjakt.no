@@ -6,9 +6,9 @@
   display: flex;
   color: black;
   flex-wrap: wrap;
+  margin: 0 1rem 0 0;
 }
-
-.HighlightedProduct .product_img {
+ .HighlightedProduct .product_img {
   min-height: 200px;
   background-repeat: no-repeat;
   background-position: center;

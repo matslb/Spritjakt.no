@@ -5,7 +5,6 @@ import firebase from "firebase/app";
 import "firebase/analytics";
 import "firebase/messaging";
 import Homepage from "./components/Homepage";
-import LoginPage from "./components/LoginPage";
 
 const firebaseConfig = require("./config.json");
 let date = new Date();

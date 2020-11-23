@@ -1,6 +1,7 @@
 import React from "react";
 import "./css/loginForm.css";
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/auth";
 import SpritjaktClient from "../services/spritjaktClient";
 
 class LoginForm extends React.Component {
@@ -61,7 +62,7 @@ class LoginForm extends React.Component {
                 this.setState({ status: true, message: "Innlogging vellykket" });
             })
             .catch((error) => {
-                this.setState({ status: false, message: "Feil epostadresse eller passord" });
+                this.setState({ status: false, message: "Feil e-postadresse eller passord" });
             });
     }
 
@@ -71,7 +72,7 @@ class LoginForm extends React.Component {
         const email = event.target[0].value;
 
         firebase.auth().sendPasswordResetEmail(email).then(() => {
-            this.setState({ status: true, message: "Vi har send deg en link på epost hvor du kan tilbakestille passordet ditt." });
+            this.setState({ status: true, message: "Vi har send deg en link på e-post hvor du kan tilbakestille passordet ditt." });
         }).catch((error) => {
             this.setState({ status: false, message: error.message });
         });
@@ -84,9 +85,9 @@ class LoginForm extends React.Component {
                 {this.props.resetPass ?
                     <form className="loginForm" onSubmit={this.resetPassword}>
                         <label>
-                            Epost
+                            E-post
                             <br />
-                            <input required placeholder="Din epostadresse" name="email" type="email" />
+                            <input required placeholder="Din e-postadresse" name="email" type="email" />
                         </label>
                         <br />
                         <input disabled={this.state.status !== null} className="bigGreenBtn" type="submit" value={this.props.heading} />
@@ -95,9 +96,9 @@ class LoginForm extends React.Component {
                     :
                     <form className="loginForm" onSubmit={this.props.justLogin ? this.login : this.register}>
                         <label>
-                            Epost
+                            E-post
                     <br />
-                            <input required placeholder="Din epostadresse" name="email" type="email" />
+                            <input required placeholder="Din e-postadresse" name="email" type="email" />
                         </label>
                         {!this.props.justLogin &&
                             <label>
@@ -132,7 +133,7 @@ class LoginForm extends React.Component {
                                     <div>
                                         <h4>Varsle meg på...</h4>
                                         <label><input type="checkbox" name="byPush" onChange={this.handleNotifications} /> Push-varsler (Ikke på iPhone)</label><br />
-                                        <label><input type="checkbox" name="byEmail" onChange={this.handleNotifications} /> Epost</label>
+                                        <label><input type="checkbox" name="byEmail" onChange={this.handleNotifications} /> E-post</label>
                                     </div>
                                 </div>
                             </div>

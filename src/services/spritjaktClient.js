@@ -176,7 +176,14 @@ class SpritjaktClient {
       notifications: notifications
     });
   }
-
+  async ChangeUserName(name) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      name: name
+    });
+  }
   async DeleteUserDoc(uid) {
     const usersRef = firebase.firestore().collection("Users").doc(uid);
     await usersRef.delete();

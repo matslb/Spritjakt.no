@@ -1,7 +1,6 @@
-import firebase from "firebase";
+import firebase from "firebase/app";
 import "firebase/messaging";
 import SpritjaktClient from "./spritjaktClient";
-const firebaseConfig = require("../config.json");
 
 class NotificationService {
     constructor() {

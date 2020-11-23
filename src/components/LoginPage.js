@@ -26,7 +26,7 @@ class LoginPage extends React.Component {
         });
     }
     toggleLoginSection = (e) => {
-        this.setState({ justLogin: false });
+        this.setState({ justLogin: true });
     }
 
     render() {
@@ -60,12 +60,20 @@ class LoginPage extends React.Component {
                                     :
                                     <div>
                                         {!this.state.resetPass ?
-                                            <p>Mistet passordet? <button className="link" onClick={() => this.setState({ resetPass: true })}>Sett nytt passord</button></p>
+                                            <div>
+                                                <p>
+                                                    <strong>Er du allerede påmeldt nyhetsbrevet?</strong><br />Få tilsendt link på e-post for å sette passord på kontoen din,<br /> og få tilgang til personlige varsler.
+                                                <br /><br /><button className="bigGoldBtn" onClick={() => this.setState({ resetPass: true })}>Sett passord</button>
+                                                </p>
+                                                <br />
+                                                <p className="lostPass" >Mistet passordet?<br /><button className="link" onClick={() => this.setState({ resetPass: true })}>Sett nytt passord</button></p>
+                                            </div>
                                             :
-                                            <p><button className="link" onClick={() => this.setState({ resetPass: false })}>Tilbake til innlogging</button></p>
+                                            <div><button className="link" onClick={() => this.setState({ resetPass: false })}>Tilbake til innlogging</button></div>
                                         }
                                         <br />
-                                        <p>Har du ikke bruker?<br /><button className="link" onClick={() => this.setState({ justLogin: false })}> Registrer deg</button></p>
+                                        <div className="register" >Har du ikke bruker?<br /><button className="link" onClick={() => this.setState({ justLogin: false })}>Registrer deg</button></div>
+                                        <br />
                                     </div>
                                 }
                             </div>
