@@ -131,41 +131,6 @@ class SpritjaktClient {
     return productTypes;
   }
 
-  static async registerEmail(email) {
-    let options = {
-      uri: "https://europe-west1-spritjakt.cloudfunctions.net/registerEmail",
-      qs: {
-        email: email
-      },
-      json: true,
-    };
-    let res = await rp(options)
-      .then(function (res) {
-        return true;
-      })
-      .catch(function (err) {
-        return false;
-      });
-    return res;
-  }
-
-  static async removeEmail(email) {
-    let options = {
-      uri: "https://europe-west1-spritjakt.cloudfunctions.net/removeEmail",
-      qs: {
-        email: email
-      },
-      json: true,
-    };
-    let res = await rp(options)
-      .then(function (res) {
-        return true;
-      })
-      .catch(function (err) {
-        return false;
-      });
-    return res;
-  }
 
   async CreateUserDoc(name, notifications) {
     const user = firebase.auth().currentUser;

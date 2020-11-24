@@ -17,7 +17,7 @@ class VmpClient {
     options.uri += "products/v0/details-normal/";
     options.resolveWithFullResponse = true;
     options.qs = {
-      changedSince: today.toISOString().slice(0, 10),
+      //  changedSince: today.toISOString().slice(0, 10),
       start: start,
       maxResults: 5000,
     };

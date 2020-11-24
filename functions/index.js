@@ -194,45 +194,6 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
-exports.registerEmail = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
-  let { res, exit } = httpCorsOptions(req, oldRes);
-  if (exit) {
-    return;
-  }
-  if (req.query.email === undefined || !validateEmail(req.query.email)) {
-    return res.status(400).send();
-  }
-
-  let email = req.query.email.toLowerCase();
-
-  let emails = await FirebaseClient.GetEmails();
-
-  if (emails.includes(email)) {
-    return res.status(409).send("Email already exist");
-  }
-
-  if (!await FirebaseClient.RegisterUser(email)) {
-    console.error("Could not remove email");
-  }
-  return res.status(201).send("Email registered");
-});
-
-exports.removeEmail = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
-  let { res, exit } = httpCorsOptions(req, oldRes);
-  if (exit) {
-    return;
-  }
-  if (req.query.email === undefined || !validateEmail(req.query.email)) {
-    return res.status(400).send();
-  }
-
-  if (!await FirebaseClient.RemoveUser(req.query.email)) {
-    console.error("Could not remove email");
-  }
-
-  return res.send("<h2>Du er nå fjernet fra Spritjakts nyhetsbrev</h2>");
-});
-
 exports.subscribeClientsToTopic = functions.region("europe-west1").firestore.document('Users/{userId}').onWrite((change, context) => {
   let userId = context.params.userId;
   let oldUserData = change.before.data();

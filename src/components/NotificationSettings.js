@@ -108,7 +108,7 @@ class NotificationSettings extends React.Component {
     renderProducts() {
         let items = [];
         for (const product of this.state.productResult) {
-            items.push(<MiniProduct product={product} setGraph={this.setGraph.bind(this)} removeProduct={() => { this.spritjaktClient.RemoveProductFromUser(product.Id) }} />);
+            items.push(<MiniProduct key={product.Id} product={product} setGraph={this.setGraph.bind(this)} removeProduct={() => { this.spritjaktClient.RemoveProductFromUser(product.Id) }} />);
         }
         return items;
     }
@@ -137,7 +137,7 @@ class NotificationSettings extends React.Component {
                 storeNames.push(this.state.stores.find(s => s.storeId === id).storeName);
             });
 
-            items.push(<li className="filter">
+            items.push(<li key={this.state.userData.filters.indexOf(filter)} className="filter">
                 <div className="operations">
                     <button className="iconBtn dark" onClick={() => { this.applyFilter(filter) }} >
                         <FontAwesomeIcon icon={faFilter} />

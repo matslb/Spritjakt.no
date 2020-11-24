@@ -5,12 +5,12 @@ const emailHeader = fs.readFileSync(path.resolve(__dirname, "./templates/header.
 const emailFooter = fs.readFileSync(path.resolve(__dirname, "./templates/footer.txt"), 'utf8');
 const emailProductItem = fs.readFileSync(path.resolve(__dirname, "./templates/productItem.txt"), 'utf8');
 const firebaseAdmin = require("firebase-admin");
-const nodemailer = require("nodemailer");
-const transporter = nodemailer.createTransport(emailConfig.smtp_mail);
+const mailgun = require('mailgun-js')({
+    apiKey: emailConfig.mailgun.apiKey,
+    domain: emailConfig.mailgun.domain,
+    host: "api.eu.mailgun.net",
+});
 
-const sgMail = require('@sendgrid/mail');
-const { useForkRef } = require("@material-ui/core");
-sgMail.setApiKey(emailConfig.sendgrid.sendgridToken);
 const options = {
     from: "Spritjakt.no<varsel@spritjakt.no>",
     to: "",
@@ -247,14 +247,13 @@ module.exports = class NotificationClient {
     }
 
     static async SendEmail(email) {
-        try {
-            console.log("Sending smtp email");
-            let result = await transporter.sendMail(email);
-            console.log(result);
 
-        } catch (error) {
-            console.log(error);
-        }
+        mailgun.messages().send(email, function (error, body) {
+            console.log(body);
+            if (error) {
+                console.log(error);
+            }
+        });
     }
 }
 

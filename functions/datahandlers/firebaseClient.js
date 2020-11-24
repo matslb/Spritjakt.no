@@ -51,9 +51,8 @@ module.exports = class FirebaseClient {
         sp.ProductStatusSaleName = p.ProductStatusSaleName;
         sp.SearchWords = p.SearchWords;
         sp.Description = p.Description;
-        sp.ManufacturerId = p.ManufacturerId;
         sp.ManufacturerName = p.ManufacturerName;
-
+        sp.Type = p.Type;
         sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
           order: "desc",
         });

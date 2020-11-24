@@ -60,7 +60,7 @@ class ProductComp extends React.Component {
     SortArray(stores, { by: "displayName" });
     stores.map((store) =>
       list.push(
-        <li key={store.id}>
+        <li key={store.name}>
           <strong>{store.displayName}:</strong>
           {store.stockInfo.stockLevel} stk
         </li>

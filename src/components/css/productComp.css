@@ -17,6 +17,9 @@ li.ProductComp:hover {
 li.ProductComp:focus-within {
   outline: 1px auto black;
 }
+.ProductComp .changeDate{
+  font-size: 0.8rem;
+}
 
 li.ProductComp > button {
   cursor: pointer;

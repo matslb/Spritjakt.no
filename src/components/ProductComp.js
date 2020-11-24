@@ -44,7 +44,7 @@ class ProductComp extends React.Component {
   }
 
   render() {
-    let { product, selectedStore = "0" } = this.props;
+    let { product, selectedStores = false } = this.props;
     let background = {
       backgroundImage:
         "url(https://bilder.vinmonopolet.no/cache/100x100/" +
@@ -55,9 +55,12 @@ class ProductComp extends React.Component {
     let priceIsLower = product.LatestPrice < product.ComparingPrice;
     let lastChangedDate = dateFormater.format(product.LastUpdated);
     let stock = 0;
-    if (product.Stock.Stores.length > 0 && selectedStore !== "0") {
-      let store = product.Stock.Stores.find((s) => s.name === selectedStore);
-      stock = store.stockInfo.stockLevel;
+    if (product.Stock.Stores.length > 0 && selectedStores !== false) {
+      let stores = product.Stock.Stores.filter((s) => selectedStores.includes(s.name));
+      stores.forEach(store => {
+        stock += store.stockInfo.stockLevel;
+      });
+
     } else if (product.Stock.Stores.length > 0) {
       for (const i in product.Stock.Stores) {
         stock += product.Stock.Stores[i].stockInfo.stockLevel;
@@ -89,7 +92,9 @@ class ProductComp extends React.Component {
           </span>
         }
         <span className="productWatchBtns">
-          {lastChangedDate}
+          <span className="changeDate">
+            {lastChangedDate}
+          </span>
           {this.state.IsSelectedByUser &&
             <button className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
           }

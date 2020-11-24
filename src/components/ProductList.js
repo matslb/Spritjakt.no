@@ -362,7 +362,7 @@ class ProductList extends React.Component {
       const p = productResult[i];
       if (productDisplay.length < this.state.pageSize) {
         productDisplay.push(
-          <ProductComp key={p.Id} showDiff={true} product={p} selectedStore={"0"} setGraph={this.setGraph.bind(this)} />
+          <ProductComp key={p.Id} showDiff={true} product={p} selectedStores={this.state.selectedStores} setGraph={this.setGraph.bind(this)} />
         );
       }
     }
@@ -453,7 +453,7 @@ class ProductList extends React.Component {
     let isOnline = undefined;
 
     if (selectedStores.includes("online")) {
-      isOnline = !(p.ProductStatusSaleName && ["Midlertidig utsolgt", "Utgått"].includes(p.ProductStatusSaleName));
+      isOnline = !(p.ProductStatusSaleName && ["Midlertidig utsolgt", "Utsolgt", "Utgått"].includes(p.ProductStatusSaleName));
     }
 
     if (isOnline || (selectedStores.includes("0") || p.Stock.Stores.find((s) => selectedStores.includes(s.name)))) {
