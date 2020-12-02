@@ -293,18 +293,21 @@ class ProductList extends React.Component {
     }
   }
 
-  setGraph = (productId) => {
+  async setGraph(productId) {
     if (productId === null || productId === this.state.highlightedProduct.Id) {
       this.setState({ highlightedProduct: false, graphIsVisible: false });
       this.onbackPress();
     } else {
       this.setUrlParams("product", productId);
       let product = this.state.loadedProducts.find((p) => p.Id === productId);
+
+      if (product === undefined) {
+        product = await this.spritjaktClient.FetchProductById(productId);
+      }
       this.setState({ highlightedProduct: product, graphIsVisible: true });
       firebase.analytics().logEvent("select_item");
     }
   };
-
   selectAllTypes = (resetUrlParams = true) => {
     let productTypes = this.state.productTypes;
     Object.keys(this.state.productTypes).map(

@@ -167,15 +167,24 @@ class SpritjaktClient {
     let products = [];
     for (let i = 0; i < productIds.length; i++) {
       const id = productIds[i];
-      const productRef = firebase.firestore().collection("Products").doc(id);
-      const productDoc = await productRef.get();
-      let p = productDoc.data();
+      let p = await this.FetchProductById(id);
       if (p !== undefined) {
-        products.push(this.CalculateProductDiscount(p));
+        products.push(p);
       }
     }
     return products;
   }
+
+  async FetchProductById(id) {
+    const productRef = firebase.firestore().collection("Products").doc(id);
+    const productDoc = await productRef.get();
+    let p = productDoc.data();
+    if (p !== undefined) {
+      this.CalculateProductDiscount(p);
+    }
+    return p;
+  }
+
   async SetUserNotificationToken(token) {
     const user = firebase.auth().currentUser;
     if (!user) return;
