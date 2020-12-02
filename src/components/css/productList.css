@@ -81,7 +81,7 @@ ul.ProductList {
 }
 
 .productNavigation {
-  margin: auto;
+  margin: 1rem auto;
   z-index: 99999;
   width: 100%;
   max-width: 27rem;
@@ -202,6 +202,7 @@ ul.ProductList {
   }
 }
 @media (max-width: 768px) {
+  
   .main{
     display: block;
   }
@@ -286,7 +287,8 @@ ul.ProductList {
 }
 .productNavigation{
   background: #49908d;
-  border: none;
+  border: none;  
+  margin: auto;
 }
 
 
