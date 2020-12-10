@@ -189,23 +189,18 @@ exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
   return await FirebaseClient.SetStockUpdateList(newValue);
 });
 
-function validateEmail(email) {
-  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
-}
-
 exports.subscribeClientsToTopic = functions.region("europe-west1").firestore.document('Users/{userId}').onWrite((change, context) => {
   let userId = context.params.userId;
-  let oldUserData = change.before.data();
-  let newUserData = change.after.data();
+  let oldUserData = change.before.data() || {};
+  let newUserData = change.after.data() || {};
   let tokensToRemove = [];
   let tokensToAdd = [];
 
-  if (oldUserData.notificationTokens) {
-    tokensToRemove = oldUserData.notificationTokens.filter(t => newUserData.notificationTokens === undefined || !newUserData.notificationTokens.includes(t));
+  if (typeof oldUserData.notificationTokens !== "undefined") {
+    tokensToRemove = oldUserData.notificationTokens.filter(t => typeof newUserData.notificationTokens === "undefined" || !newUserData.notificationTokens.includes(t));
   }
-  if (newUserData.notificationTokens) {
-    tokensToAdd = newUserData.notificationTokens.filter(t => oldUserData.notificationTokens === undefined || !oldUserData.notificationTokens.includes(t));
+  if (typeof newUserData.notificationTokens !== "undefined") {
+    tokensToAdd = newUserData.notificationTokens.filter(t => typeof oldUserData.notificationTokens === "undefined" || !oldUserData.notificationTokens.includes(t));
   }
 
   if (tokensToAdd.length > 0) {

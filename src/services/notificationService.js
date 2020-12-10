@@ -4,11 +4,14 @@ import SpritjaktClient from "./spritjaktClient";
 
 class NotificationService {
     constructor() {
-        this.messaging = firebase.messaging();
+        this.messaging = firebase.messaging.isSupported() ? firebase.messaging() : null
         this.spritjaktclient = new SpritjaktClient();
     }
 
     AddClientDevice() {
+        if (this.messaging === null) {
+            return;
+        }
         this.messaging.getToken().then(async (currentToken) => {
             await this.spritjaktclient.SetUserNotificationToken(currentToken);
         }).catch((err) => {

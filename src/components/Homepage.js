@@ -12,6 +12,7 @@ class Homepage extends React.Component {
         super(props);
         this.ProductList = React.createRef();
         this.LoginPage = React.createRef();
+        this.Notification = React.createRef();
     }
 
     componentDidMount() {

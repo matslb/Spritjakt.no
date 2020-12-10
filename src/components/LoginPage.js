@@ -4,6 +4,7 @@ import React from "react";
 import LoginForm from "./LoginForm";
 import "./css/loginPage.css";
 import firebase from "firebase/app";
+import queryString from "query-string";
 
 class LoginPage extends React.Component {
 
@@ -24,6 +25,10 @@ class LoginPage extends React.Component {
                 this.setState({ user: null });
             }
         });
+        let parsed = queryString.parse(window.location.search);
+        if (parsed?.login) {
+            this.toggleLoginSection();
+        }
     }
     toggleLoginSection = (e) => {
         this.setState({ justLogin: true });

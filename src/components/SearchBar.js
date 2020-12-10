@@ -7,6 +7,7 @@ import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import firebase from "firebase/app";
 import "firebase/analytics";
+import Notification from "./Notification";
 
 class SearchBar extends React.Component {
   constructor() {
@@ -20,6 +21,7 @@ class SearchBar extends React.Component {
     };
     this.SpritjaktClient = new SpritjaktClient();
     this.ProductFetchTimeout = null;
+    this.Notification = React.createRef();
   }
 
   handleChange = (event) => {
@@ -52,6 +54,7 @@ class SearchBar extends React.Component {
         <ProductComp
           key={p.Id}
           product={p}
+          notification={this.Notification}
           setGraph={this.setGraph.bind(this)}
         />
       );
@@ -127,7 +130,8 @@ class SearchBar extends React.Component {
             </ul>
           </div>
         )}
-        <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
+        <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
+        <Notification ref={this.Notification} />
       </div>
     );
   }

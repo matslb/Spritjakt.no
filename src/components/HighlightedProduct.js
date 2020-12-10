@@ -7,8 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
 import firebase from "firebase/app";
 
-
-class ProductComp extends React.Component {
+class HighlightedProduct extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -43,12 +42,15 @@ class ProductComp extends React.Component {
       });
   }
 
-  toggleProdctWatch = () => {
+  toggleProdctWatch = (e) => {
 
     if (this.state.IsSelectedByUser) {
-      this.spritjaktClient.RemoveProductFromUser(this.props.product.Id)
+      this.spritjaktClient.RemoveProductFromUser(this.props.product.Id);
+      this.props.notification.current.setNotification(e, "Fjernet", "success");
+
     } else {
       this.spritjaktClient.AddProductToUser(this.props.product.Id)
+      this.props.notification.current.setNotification(e, "Lagt til", "success");
     }
     this.setState({ IsSelectedByUser: !this.state.IsSelectedByUser });
   }
@@ -144,4 +146,4 @@ class ProductComp extends React.Component {
   }
 }
 
-export default ProductComp;
+export default HighlightedProduct;

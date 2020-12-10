@@ -32,7 +32,7 @@ class App extends React.Component {
             </h1>
           </a>
           <h2 style={{ fontSize: "1.1rem", fontWeight: 400 }}>
-            Se når polet har tilbud!
+            Se når Vinmonopolet har tilbud!
           </h2>
         </header>
         <div className="Body">

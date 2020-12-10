@@ -8,6 +8,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
 
 class PriceGraph extends React.Component {
+
+  constructor() {
+    super();
+  }
+
   componentDidMount() {
     this.vmpLink.focus();
   }
@@ -42,7 +47,7 @@ class PriceGraph extends React.Component {
     let maxPrice = priceSortedByAmount[0] * 1.2;
     return (
       <div className="expandedProduct">
-        <HighlightedProduct product={p} isGraph={false} />
+        <HighlightedProduct product={p} isGraph={false} notification={this.props.notification} />
         <a
           rel="noopener noreferrer"
           ref={(link) => {

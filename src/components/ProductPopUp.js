@@ -8,7 +8,7 @@ class PopupProduct extends React.Component {
 
     render() {
         return (
-            <div className="PopupProduct" style={{ position: "absolute", zIndex: "999999" }} >
+            <div className="PopupProduct" style={{ position: "absolute", zIndex: "99" }} >
                 <CSSTransition
                     in={this.props.graphIsVisible}
                     timeout={100}
@@ -21,7 +21,7 @@ class PopupProduct extends React.Component {
                                 <div className="backdrop" onClick={() => this.props.setGraph(null, null)} >
                                 </div>
                                 <div className="priceGraphWrapper">
-                                    <PriceGraph p={this.props.product} />
+                                    <PriceGraph p={this.props.product} notification={this.props.notification} />
                                     <nav className="productNavigation">
                                         <button aria-label="Forrige produkt" onClick={() => this.props.nextProduct(-1)} className="iconBtn productNav prev">
                                             <FontAwesomeIcon size="lg" icon={faArrowCircleLeft} />

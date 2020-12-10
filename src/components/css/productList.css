@@ -190,7 +190,7 @@ ul.ProductList {
   align-items: center;
   margin: 0 0 1rem 0 ;
 }
-.filterSaver span{
+.filterSaver > div{
   margin-left: 2rem;
 } 
 .filterSaverWrapper{

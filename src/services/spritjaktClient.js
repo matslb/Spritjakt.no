@@ -138,7 +138,8 @@ class SpritjaktClient {
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.set({
       name: name,
-      notifications: notifications
+      notifications: notifications,
+      notificationsConsentDate: new Date()
     });
   }
   async ChangeUserName(name) {
@@ -159,7 +160,8 @@ class SpritjaktClient {
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
-      notifications: notifications
+      notifications: notifications,
+      notificationsConsentDate: new Date()
     });
   }
 

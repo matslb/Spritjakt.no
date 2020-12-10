@@ -8,13 +8,13 @@ import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
 import ProductPopUp from "./ProductPopUp";
-import * as Scroll from "react-scroll";
 import { isMobileOnly } from "react-device-detect";
 import firebase from "firebase/app";
 import "firebase/analytics";
 import StoreSelector from "./StoreSelector";
 import { Select } from '@material-ui/core';
 import queryString from "query-string";
+import Notification from "./Notification";
 
 
 class ProductList extends React.Component {
@@ -56,7 +56,7 @@ class ProductList extends React.Component {
       { label: "Siste 90 dager", value: 90 }
     ];
     this.spritjaktClient = new SpritjaktClient();
-    this.productList = React.createRef();
+    this.Notification = React.createRef();
   }
 
   onbackPress = (e) => {
@@ -168,10 +168,11 @@ class ProductList extends React.Component {
 
   }
 
-  async SaveUserFilter() {
+  async SaveUserFilter(e) {
 
     if (this.state.user) {
       this.spritjaktClient.SaveUserFilter(this.state.filter);
+      this.Notification.current.setNotification(e, "Lagret", "success");
       this.createFilter();
     } else {
       this.props.toggleLoginSection();
@@ -365,7 +366,7 @@ class ProductList extends React.Component {
       const p = productResult[i];
       if (productDisplay.length < this.state.pageSize) {
         productDisplay.push(
-          <ProductComp key={p.Id} showDiff={true} product={p} selectedStores={this.state.selectedStores} setGraph={this.setGraph.bind(this)} />
+          <ProductComp key={p.Id} showDiff={true} product={p} notification={this.Notification} selectedStores={this.state.selectedStores} setGraph={this.setGraph.bind(this)} />
         );
       }
     }
@@ -479,11 +480,10 @@ class ProductList extends React.Component {
   setPage = (page) => {
     this.setState({ page: page });
     this.setUrlParams("page", page);
-    Scroll.animateScroll.scrollTo(this.productList.current.offsetTop - 100);
   };
   render() {
 
-    let { currentFilterExists, pageSize, page, productResult, stores, selectedStores, filter } = this.state;
+    let { currentFilterExists, pageSize, page, productResult, stores, selectedStores, filter, user } = this.state;
 
     return (
       <div key="Productlist" className="Productlist" >
@@ -491,8 +491,15 @@ class ProductList extends React.Component {
         <div className="filterSaverWrapper">
           {(!currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
             <div className="filterSaver">
-              <button className="bigGoldBtn clickable" onClick={() => { this.SaveUserFilter() }}>Lagre filter</button>
-              <span>Få varsel når produkter som matcher dette filteret kommer på tilbud.</span>
+              <button className="bigGoldBtn clickable" onClick={(e) => { this.SaveUserFilter(e) }}>Lagre filter</button>
+              <div>
+                <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
+                {user && !user.notifications.onFilters &&
+                  <div>
+                    <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
+                  </div>
+                }
+              </div>
             </div>
           }
         </div>
@@ -578,7 +585,7 @@ class ProductList extends React.Component {
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
             />
-            <ul ref={this.productList} className="ProductList">
+            <ul className="ProductList">
               {this.state.loading ? <FontAwesomeIcon icon={faCircleNotch} size="5x" /> : this.displayProducts()}
               {productResult.length === 0 && this.state.loading === false ? (
                 <p
@@ -597,7 +604,7 @@ class ProductList extends React.Component {
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
             />
-            <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
+            <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
             <div
               className={
                 "filter_backdrop " +
@@ -607,7 +614,8 @@ class ProductList extends React.Component {
             ></div>
           </main>
         </div>
-      </div >
+        <Notification ref={this.Notification} />
+      </div>
     );
   }
 }

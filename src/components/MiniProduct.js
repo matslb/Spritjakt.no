@@ -41,7 +41,10 @@ class ProductComp extends React.Component {
           }
         </div>
         <div style={{ textAlign: "center" }}>
-          <button className="iconBtn dark" onClick={() => { this.props.removeProduct() }} >
+          <button className="iconBtn dark" onClick={(e) => {
+            this.props.removeProduct();
+            this.props.notification.current.setNotification(e, "Fjernet", "success");
+          }} >
             <FontAwesomeIcon icon={faTrash} />
           </button>
         </div>

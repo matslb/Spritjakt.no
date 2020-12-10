@@ -9,6 +9,7 @@ import "firebase/analytics";
 import ProductPopUp from "./ProductPopUp";
 import queryString from "query-string";
 import NotificationService from "../services/notificationService";
+import Notification from "./Notification";
 
 const startState = {
     isActive: false,
@@ -34,6 +35,7 @@ class NotificationSettings extends React.Component {
         this.state = startState;
         this.spritjaktClient = new SpritjaktClient();
         this.notificationService = new NotificationService();
+        this.Notification = React.createRef();
     }
 
     async componentDidMount() {
@@ -53,7 +55,14 @@ class NotificationSettings extends React.Component {
                             }
                             let stores = await this.spritjaktClient.FetchStores();
                             stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
-                            this.setState({ user: user, userData: userData, notifications: userData.notifications, productResult: products, stores: stores });
+
+                            this.setState({
+                                user: user,
+                                userData: userData,
+                                notifications: userData.notifications,
+                                productResult: products,
+                                stores: stores
+                            });
 
                             if (userData.notifications.byPush) {
                                 this.notificationService.AddClientDevice();
@@ -84,6 +93,7 @@ class NotificationSettings extends React.Component {
 
     deleteUser = (event) => {
         event.preventDefault();
+        event = Object.assign({}, event);
         if (!this.state.deleteProcessStarted) {
             this.setState({ deleteProcessStarted: true });
             return;
@@ -100,15 +110,15 @@ class NotificationSettings extends React.Component {
                     alert("Noe gikk galt, brukeren ble ikke slettet. Feilmelding: " + error.message);
                 })
             })
-            .catch(function (error) {
-                alert("Feil passord");
+            .catch((error) => {
+                this.Notification.current.setNotification(event, "Feil passord", "error");
             });
     }
 
     renderProducts() {
         let items = [];
         for (const product of this.state.productResult) {
-            items.push(<MiniProduct key={product.Id} product={product} setGraph={this.setGraph.bind(this)} removeProduct={() => { this.spritjaktClient.RemoveProductFromUser(product.Id) }} />);
+            items.push(<MiniProduct key={product.Id} product={product} notification={this.Notification} setGraph={this.setGraph.bind(this)} removeProduct={() => { this.spritjaktClient.RemoveProductFromUser(product.Id) }} />);
         }
         return items;
     }
@@ -139,7 +149,10 @@ class NotificationSettings extends React.Component {
 
             items.push(<li key={this.state.userData.filters.indexOf(filter)} className="filter">
                 <div className="operations">
-                    <button className="iconBtn dark" onClick={() => { this.applyFilter(filter) }} >
+                    <button className="iconBtn dark" onClick={(e) => {
+                        this.applyFilter(filter);
+                        this.Notification.current.setNotification(e, "Filter satt", "success");
+                    }} >
                         <FontAwesomeIcon icon={faFilter} />
                     </button>
                 </div>
@@ -148,7 +161,10 @@ class NotificationSettings extends React.Component {
                     <div className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
                 </div>
                 <div className="operations">
-                    <button className="iconBtn dark" onClick={() => { this.spritjaktClient.RemoveUserFilter(filter) }} >
+                    <button className="iconBtn dark" onClick={(e) => {
+                        this.spritjaktClient.RemoveUserFilter(filter);
+                        this.Notification.current.setNotification(e, "Fjernet", "success");
+                    }} >
                         <FontAwesomeIcon icon={faTrash} />
                     </button>
                 </div>
@@ -162,6 +178,7 @@ class NotificationSettings extends React.Component {
         const checked = checkbox.currentTarget.checked;
         let notifications = this.state.notifications;
         notifications[field] = checked;
+        this.Notification.current.setNotification(checkbox, "Lagret", "success");
         this.spritjaktClient.UpdateUserNotifications(notifications);
     }
 
@@ -192,7 +209,6 @@ class NotificationSettings extends React.Component {
 
     render() {
         let { user, userData, productResult } = this.state;
-
         return (
             <div>
                 {user && userData &&
@@ -257,12 +273,11 @@ class NotificationSettings extends React.Component {
                                 <p>Her listes favorittproduktene dine opp.</p>
                             </div>
                         }
-                        <ProductPopUp product={this.state.highlightedProduct} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
+                        <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
                         <br />
                         <hr />
                         <div className="heading">
                             <h2>Kontoinnstillinger</h2>
-
                             <h3>Brukernavn</h3>
                             {this.state.changeName ?
                                 <div className="changeName">
@@ -293,13 +308,13 @@ class NotificationSettings extends React.Component {
                                         {this.state.deleteProcessStarted ?
                                             <label>
                                                 Oppgi passord for å bekrefte sletting
-                                            <input type="password" name="password" />
+                                            <input type="password" aria-label="passord" name="password" />
                                             </label>
                                             :
                                             <span>Lagrede filtre og favoritter vil slettes, og du vil ikke lenger kunne logge inn med denne kontoen.<br /><strong>Denne handlingen kan ikke angres.</strong></span>
                                         }
                                         {this.state.deleteProcessStarted &&
-                                            <button className="clickable" onClick={() => { this.setState({ deleteProcessStarted: false }) }}>Tilbake</button>
+                                            <button className="clickable bigWhiteBtn" onClick={() => { this.setState({ deleteProcessStarted: false }) }}>Tilbake</button>
                                         }
                                         <input type="submit" className="bigRedBtn clickable" value="Slett konto" />
                                     </form>
@@ -307,8 +322,8 @@ class NotificationSettings extends React.Component {
                             </div>
                         </div>
                     </div >
-
                 }
+                <Notification ref={this.Notification} />
             </div>
         );
     }

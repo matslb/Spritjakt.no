@@ -33,12 +33,14 @@ class ProductComp extends React.Component {
     });
   }
 
-  toggleProdctWatch = () => {
+  toggleProdctWatch = (e) => {
 
     if (this.state.IsSelectedByUser) {
       this.spritjaktClient.RemoveProductFromUser(this.props.product.Id)
+      this.props.notification.current.setNotification(e, "Fjernet", "success");
     } else {
       this.spritjaktClient.AddProductToUser(this.props.product.Id)
+      this.props.notification.current.setNotification(e, "Lagt til", "success");
     }
     this.setState({ IsSelectedByUser: !this.state.IsSelectedByUser });
   }
