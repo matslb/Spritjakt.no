@@ -7,42 +7,62 @@ export default class Notification extends React.Component {
     constructor() {
         super();
         this.state = {
-            showMessage: false
         };
     }
     setNotification = (event, message, theme) => {
         let target = event.currentTarget.getBoundingClientRect();
-        this.setState({
+        let state = this.state;
+        let key = Math.floor(Math.random() * 10000);
+        state[key] = {
             showMessage: true,
-            notificationProps: {
-                target: {
-                    top: target.top + window.pageYOffset,
-                    left: target.left,
-                    width: target.width
-                },
-                message: message,
-                theme: theme
-            }
-        });
-        setTimeout(() => { this.setState({ showMessage: false }) }, 1000);
+            target: {
+                top: target.top + window.pageYOffset,
+                left: target.left,
+                width: target.width
+            },
+            message: message,
+            theme: theme
+        };
+        this.setState(state);
+        setTimeout(() => {
+            state = this.state;
+            state[key].showMessage = false;
+            this.setState(state)
+
+        }, 1000);
+        setTimeout(() => {
+            state = this.state;
+            delete state[key];
+            this.setState(state)
+        }, 2000);
     }
     render() {
-        if (!this.state.notificationProps) {
+        if (!this.state) {
             return null;
         }
-        const { target, message, theme } = this.state.notificationProps;
 
-        let y = target.top - 54;
-        let x = target.left + ((target.width) / 2) - 26;
         return (
-            <div style={{ top: y, left: x }} className={"notification " + theme + " " + this.state.showMessage}>
-                {theme == "success" ?
-                    <FontAwesomeIcon icon={faCheckCircle} />
-                    :
-                    <FontAwesomeIcon icon={faTimesCircle} />
+            <div>
+                {
+                    Object.keys(this.state).map((key) => {
+                        let noti = this.state[key];
+                        let y = noti.target.top - 54;
+                        let x = noti.target.left + ((noti.target.width) / 2) - 26;
+
+                        return (
+                            <div key={key} style={{ top: y, left: x }} className={"notification " + noti.theme + " " + noti.showMessage}>
+                                {noti.theme === "success" ?
+                                    <FontAwesomeIcon icon={faCheckCircle} />
+                                    :
+                                    <FontAwesomeIcon icon={faTimesCircle} />
+                                }
+                                {noti.message}
+                            </div>
+                        );
+                    })
                 }
-                {message}
             </div>
+
         );
     }
 }

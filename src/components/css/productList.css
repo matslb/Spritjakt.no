@@ -266,6 +266,7 @@ ul.ProductList {
   }
   .Productlist .filter.active {
     right: 45%;
+    z-index: 11;
   }
   .filter_backdrop.active {
     display: block;
@@ -274,6 +275,7 @@ ul.ProductList {
     left: 0;
     bottom: 0;
     right: 0;
+    z-index: 10;
     background: rgba(0, 0, 0, 0.2);
   }
   .nav .stores,

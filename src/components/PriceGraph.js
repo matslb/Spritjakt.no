@@ -8,11 +8,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
 
 class PriceGraph extends React.Component {
-
-  constructor() {
-    super();
-  }
-
   componentDidMount() {
     this.vmpLink.focus();
   }
