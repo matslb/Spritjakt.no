@@ -67,7 +67,7 @@ class LoginPage extends React.Component {
                                         {!this.state.resetPass ?
                                             <div>
                                                 <p>
-                                                    <strong>Er du allerede påmeldt nyhetsbrevet?</strong><br />Få tilsendt link på e-post for å sette passord på kontoen din,<br /> og få tilgang til personlige varsler.
+                                                    <strong>Var du allerede påmeldt det forrige nyhetsbrevet?</strong><br />Få tilsendt link på e-post for å sette passord på kontoen din<br /> og få tilgang til personlige varsler, endring av varslingsinnstillingene, eller for å slette kontoen din.
                                                 <br /><br /><button className="bigGoldBtn" onClick={() => this.setState({ resetPass: true })}>Sett passord</button>
                                                 </p>
                                                 <br />

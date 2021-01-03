@@ -152,7 +152,7 @@ class HighlightedProduct extends React.Component {
           <FontAwesomeIcon icon={faExternalLinkAlt} />
         </a>
         <div className="product_stock">
-          <strong>Lagerstatus</strong>
+          <h4>Lagerstatus</h4>
           <ul>{this.renderStoreStock()}</ul>
         </div>
       </div >

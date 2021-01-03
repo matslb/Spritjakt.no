@@ -83,9 +83,10 @@ class ProductList extends React.Component {
     window.history.replaceState('', '', '?' + query);
   }
 
-  applyUrlParams = () => {
-    Object.keys(this.state.urlParameters).forEach(field => {
-      const param = this.state.urlParameters[field];
+  applyUrlParams = (urlParameters = this.state.urlParameters) => {
+    this.setState({ urlParameters: urlParameters });
+    Object.keys(urlParameters).forEach(field => {
+      const param = urlParameters[field];
       switch (field) {
         case "product":
           this.setGraph(param);
@@ -113,32 +114,20 @@ class ProductList extends React.Component {
             this.handleStoreUpdate([param]);
           }
           break;
+        case "sort":
+          this.setState({ sort: param });
+          break;
+        case "timespan":
+          this.setState({ timeSpan: parseInt(param) });
+          break;
         default:
           break;
       }
     });
   }
 
-  async updateUrlParams() {
-    this.selectAllTypes(false);
-    await this.setState({ urlParameters: queryString.parse(window.location.search, { arrayFormat: 'comma' }) });
-    this.applyUrlParams();
-  }
-
   async componentDidMount() {
     window.onpopstate = (e) => this.onbackPress(e);
-
-    this.spritjaktClient.FetchStores().then(stores => {
-      SortArray(stores, {
-        by: ["city", "storeName"],
-        computed: {
-          city: s => s.address.city
-        }
-      });
-      this.setState({ stores: stores });
-    });
-    const urlParameters = queryString.parse(window.location.search, { arrayFormat: 'comma' });
-    this.setState({ urlParameters: urlParameters, change: urlParameters.change ?? "lowered" });
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -147,7 +136,7 @@ class ProductList extends React.Component {
             if (!doc.exists) {
               return null;
             }
-            let userData = await doc.data();
+            let userData = doc.data();
 
             if (userData.products === undefined) {
               userData.products = [];
@@ -164,11 +153,18 @@ class ProductList extends React.Component {
       }
     });
 
-    setTimeout(async () => {
-      await this.updateProductResults(this.state.timeSpan, true);
-      this.applyUrlParams();
-    }, 1000);
-
+    this.spritjaktClient.FetchStores().then(stores => {
+      SortArray(stores, {
+        by: ["city", "storeName"],
+        computed: {
+          city: s => s.address.city
+        }
+      });
+      this.setState({ stores: stores });
+    }).then(async () => {
+      this.applyUrlParams(queryString.parse(window.location.search, { arrayFormat: 'comma' }));
+      await this.getProductData(this.state.timeSpan, true);
+    })
   }
 
   async SaveUserFilter(e) {
@@ -217,7 +213,7 @@ class ProductList extends React.Component {
     return true;
   }
 
-  async updateProductResults(timeSpan, firstLoad = false) {
+  async getProductData(timeSpan, firstLoad = false) {
     let stores = this.state.stores;
     let products = [];
     const change = this.state.change;
@@ -225,31 +221,42 @@ class ProductList extends React.Component {
 
     if (firstLoad) {
       productTypes = await this.spritjaktClient.FetchProductTypes();
-      if (!this.state.urlParameters.timespan) {
-        let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === timeSpan));
-        while (timespanIndex < this.timeSpanOptions.length && products.length < this.state.pageSize) {
-          products = await this.spritjaktClient.FetchProducts(this.timeSpanOptions[timespanIndex].value, change === "lowered");
-          timespanIndex++;
-        }
-        timeSpan = this.timeSpanOptions[timespanIndex - 1].value;
-      } else {
-        timeSpan = parseInt(this.state.urlParameters.timespan);
-        products = await this.spritjaktClient.FetchProducts(timeSpan, change === "lowered");
-      }
-    } else {
-      products = await this.spritjaktClient.FetchProducts(timeSpan, change === "lowered");
     }
-
     stores.map(s => delete s.count);
 
-    this.setState({ loading: false, page: 1, timeSpan: timeSpan });
-
-    let loadedProducts = [];
     Object.keys(productTypes).map(
       (ptkey) =>
         (productTypes[ptkey].products = {})
     );
+    let selectedTypes = Object.keys(productTypes).filter((pt) => {
+      return productTypes[pt].state;
+    });
 
+    this.setState({
+      stores: stores,
+      productTypes: productTypes,
+      page: 1,
+      showAllresults: selectedTypes.length > 0 ? false : true
+    });
+
+    if (firstLoad) {
+      let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === timeSpan));
+      while (timespanIndex < this.timeSpanOptions.length && products.length < this.state.pageSize) {
+        this.setState({ loading: true });
+        products = await this.spritjaktClient.FetchProducts(this.timeSpanOptions[timespanIndex].value, change === "lowered");
+        this.updateProductResults(products);
+        timespanIndex++;
+      }
+      timeSpan = this.timeSpanOptions[timespanIndex - 1].value;
+    } else {
+      this.spritjaktClient.FetchProducts(timeSpan, change === "lowered").then(products => this.updateProductResults(products));
+    }
+  }
+
+  updateProductResults(products) {
+    let loadedProducts = [];
+    let productTypes = this.state.productTypes;
+    let stores = this.state.stores;
     //Updating existing product type counts
     Object.keys(products).forEach((id) => {
       let p = products[id];
@@ -273,16 +280,12 @@ class ProductList extends React.Component {
       }
     });
 
-    let selectedTypes = Object.keys(productTypes).filter((pt) => {
-      return productTypes[pt].state;
-    });
-
-    await this.setState({
-      sort: this.state.urlParameters.sort ? this.state.urlParameters.sort : this.state.sort,
+    this.setState({
       stores: stores,
       loadedProducts: loadedProducts,
       productTypes: productTypes,
-      showAllresults: selectedTypes.length > 0 ? false : true,
+      loading: false,
+      page: 1
     });
     this.handleSortChange();
     this.filterProducts();
@@ -450,7 +453,7 @@ class ProductList extends React.Component {
     });
     this.resetUrlParams();
     this.setUrlParams("change", value);
-    this.updateProductResults(7, true);
+    this.getProductData(7, true);
   }
 
   stockFilter = (p, selectedStores) => {
@@ -473,7 +476,7 @@ class ProductList extends React.Component {
 
     this.setState({ timeSpan: option, loading: true });
     this.setUrlParams("timespan", option);
-    this.updateProductResults(option);
+    this.getProductData(option);
   };
 
   setPage = (page) => {
@@ -582,7 +585,10 @@ class ProductList extends React.Component {
               pageSize={pageSize}
             />
             <ul className="ProductList">
-              {this.state.loading ? <FontAwesomeIcon icon={faCircleNotch} size="5x" /> : this.displayProducts()}
+              {this.state.loading ?
+                <FontAwesomeIcon icon={faCircleNotch} size="5x" />
+                :
+                this.displayProducts()}
               {productResult.length === 0 && this.state.loading === false ? (
                 <p
                   style={{
