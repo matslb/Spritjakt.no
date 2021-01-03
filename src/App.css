@@ -216,7 +216,7 @@ button{
     background: rgba(97, 160, 85, .9);
     border: none;
     color: white;
-    padding: .7rem;
+    padding: .5rem;
     border-radius: 3px;
 }
 .iconBtn{
@@ -267,4 +267,8 @@ button.link{
 .price_lowered .percentage_change {
   background: rgba(97, 160, 85, 0.8);
   color: white;
+}
+a{
+  text-decoration: none;
+  color: black;
 }

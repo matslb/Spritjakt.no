@@ -46,7 +46,7 @@ ul.ProductList {
 .priceGraphWrapper {
   position: fixed;
   margin: auto;
-  top: 0;
+  top: 5px;
   bottom: 0;
   z-index: 100;
   display: flex;

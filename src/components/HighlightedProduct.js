@@ -1,7 +1,7 @@
 import React from "react";
 import "./css/highlightedProduct.css";
 import SortArray from "sort-array";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faExternalLinkAlt, faHeart, faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
@@ -138,10 +138,24 @@ class HighlightedProduct extends React.Component {
             </span>
           )}
         </div>
+        <a
+          rel="noopener noreferrer"
+          ref={(link) => {
+            this.vmpLink = link;
+          }}
+          className="clickable bigGoldBtn"
+          target="_blank"
+          style={{ width: "100%" }}
+          href={"https://www.vinmonopolet.no/p/" + product.Id}
+        >
+          Se hos vinmonopolet
+          <FontAwesomeIcon icon={faExternalLinkAlt} />
+        </a>
         <div className="product_stock">
+          <strong>Lagerstatus</strong>
           <ul>{this.renderStoreStock()}</ul>
         </div>
-      </div>
+      </div >
     );
   }
 }

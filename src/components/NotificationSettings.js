@@ -38,7 +38,7 @@ class NotificationSettings extends React.Component {
         this.Notification = React.createRef();
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         let parsed = queryString.parse(window.location.search);
         if (parsed?.settings) {
             setTimeout(() => this.toggleSection(true), 1500)
@@ -49,19 +49,19 @@ class NotificationSettings extends React.Component {
                     .onSnapshot(async (doc) => {
                         let userData = doc.data();
                         if (userData) {
-                            let products = [];
                             if (userData.products) {
-                                products = await this.spritjaktClient.FetchProductsById(userData.products);
+                                this.spritjaktClient.FetchProductsById(userData.products).then(products => {
+                                    this.setState({ productResult: products });
+                                });
                             }
-                            let stores = await this.spritjaktClient.FetchStores();
-                            stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
-
+                            this.spritjaktClient.FetchStores().then(stores => {
+                                stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
+                                this.setState({ stores: stores });
+                            });
                             this.setState({
                                 user: user,
                                 userData: userData,
-                                notifications: userData.notifications,
-                                productResult: products,
-                                stores: stores
+                                notifications: userData.notifications
                             });
 
                             if (userData.notifications.byPush) {
@@ -143,9 +143,11 @@ class NotificationSettings extends React.Component {
         for (const filter of this.state.userData.filters) {
 
             let storeNames = [];
-            filter.stores.forEach(id => {
-                storeNames.push(this.state.stores.find(s => s.storeId === id).storeName);
-            });
+            if (this.state.stores) {
+                filter.stores.forEach(id => {
+                    storeNames.push(this.state.stores.find(s => s.storeId === id)?.storeName);
+                });
+            }
 
             items.push(<li key={this.state.userData.filters.indexOf(filter)} className="filter">
                 <div className="operations">
@@ -258,7 +260,7 @@ class NotificationSettings extends React.Component {
                         }
                         <br />
                         <hr />
-                        {productResult.length > 0 ?
+                        {productResult ?
                             <div className="favorites">
                                 <div className="sectionHeader">
                                     <h3>Favoritter ({this.state.productResult.length})</h3>

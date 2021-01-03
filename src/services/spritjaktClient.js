@@ -56,6 +56,7 @@ class SpritjaktClient {
         .orderBy("LastUpdated")
         .where("PriceIsLowered", "==", getLowerPrice)
         .endBefore(endAtPoint)
+        .limit(200)
         .get()
         .then((qs) => {
           if (!qs.empty) {
@@ -191,7 +192,7 @@ class SpritjaktClient {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
-    await usersRef.update({
+    usersRef.update({
       notificationTokens: firebase.firestore.FieldValue.arrayUnion(token)
     });
   }
@@ -200,7 +201,7 @@ class SpritjaktClient {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
-    await usersRef.update({
+    usersRef.update({
       filters: firebase.firestore.FieldValue.arrayUnion(filter)
     });
   }
@@ -209,7 +210,7 @@ class SpritjaktClient {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
-    await usersRef.update({
+    usersRef.update({
       filters: firebase.firestore.FieldValue.arrayRemove(filter)
     });
   }
@@ -218,7 +219,7 @@ class SpritjaktClient {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
-    await usersRef.update({
+    usersRef.update({
       products: firebase.firestore.FieldValue.arrayUnion(productId)
     });
   }
@@ -227,7 +228,7 @@ class SpritjaktClient {
     const user = firebase.auth().currentUser;
     if (!user) return;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
-    await usersRef.update({
+    usersRef.update({
       products: firebase.firestore.FieldValue.arrayRemove(productId)
     });
   }

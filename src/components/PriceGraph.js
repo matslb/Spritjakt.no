@@ -9,7 +9,7 @@ import dateFormater from "../dateFormater";
 
 class PriceGraph extends React.Component {
   componentDidMount() {
-    this.vmpLink.focus();
+    //this.vmpLink.focus();
   }
 
   render() {
@@ -43,19 +43,7 @@ class PriceGraph extends React.Component {
     return (
       <div className="expandedProduct">
         <HighlightedProduct product={p} isGraph={false} notification={this.props.notification} />
-        <a
-          rel="noopener noreferrer"
-          ref={(link) => {
-            this.vmpLink = link;
-          }}
-          className="clickable"
-          target="_blank"
-          href={"https://www.vinmonopolet.no/p/" + p.Id}
-        >
-          Se hos vinmonopolet
-          <FontAwesomeIcon icon={faExternalLinkAlt} />
-        </a>
-        <h3 className="title">Prishistorikk</h3>
+        <h4 className="title">Prishistorikk</h4>
         <div className="graph">
           <ResponsiveLine
             data={[config]}

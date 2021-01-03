@@ -10,7 +10,6 @@ import SortArray from "sort-array";
 import ProductPopUp from "./ProductPopUp";
 import { isMobileOnly } from "react-device-detect";
 import firebase from "firebase/app";
-import "firebase/analytics";
 import StoreSelector from "./StoreSelector";
 import { Select } from '@material-ui/core';
 import queryString from "query-string";
@@ -128,14 +127,18 @@ class ProductList extends React.Component {
 
   async componentDidMount() {
     window.onpopstate = (e) => this.onbackPress(e);
-    let stores = await this.spritjaktClient.FetchStores();
-    SortArray(stores, {
-      by: ["city", "storeName"],
-      computed: {
-        city: s => s.address.city
-      }
+
+    this.spritjaktClient.FetchStores().then(stores => {
+      SortArray(stores, {
+        by: ["city", "storeName"],
+        computed: {
+          city: s => s.address.city
+        }
+      });
+      this.setState({ stores: stores });
     });
-    this.setState({ stores: stores, urlParameters: queryString.parse(window.location.search, { arrayFormat: 'comma' }) });
+    const urlParameters = queryString.parse(window.location.search, { arrayFormat: 'comma' });
+    this.setState({ urlParameters: urlParameters, change: urlParameters.change ?? "lowered" });
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -217,7 +220,7 @@ class ProductList extends React.Component {
   async updateProductResults(timeSpan, firstLoad = false) {
     let stores = this.state.stores;
     let products = [];
-    const change = this.state.urlParameters.change ? this.state.urlParameters.change : this.state.change;
+    const change = this.state.change;
     let productTypes = this.state.productTypes;
 
     if (firstLoad) {
@@ -239,7 +242,7 @@ class ProductList extends React.Component {
 
     stores.map(s => delete s.count);
 
-    this.setState({ loading: false, page: 1, change: change, timeSpan: timeSpan });
+    this.setState({ loading: false, page: 1, timeSpan: timeSpan });
 
     let loadedProducts = [];
     Object.keys(productTypes).map(
@@ -306,7 +309,6 @@ class ProductList extends React.Component {
         product = await this.spritjaktClient.FetchProductById(productId);
       }
       this.setState({ highlightedProduct: product, graphIsVisible: true });
-      firebase.analytics().logEvent("select_item");
     }
   };
   selectAllTypes = (resetUrlParams = true) => {
@@ -329,7 +331,6 @@ class ProductList extends React.Component {
     productTypes[name].state = isSelected;
     let activeProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state);
     this.setUrlParams("filter", activeProductTypes);
-    firebase.analytics().logEvent("filter_click", { value: productTypes[name] });
     this.filterProducts(this.state.selectedStores, productTypes);
   };
 
@@ -410,7 +411,6 @@ class ProductList extends React.Component {
     if (event && event.target) {
       option = event.target.value;
     }
-    firebase.analytics().logEvent("product_sort", { value: option });
     this.setUrlParams("sort", option);
     let sortingCriteria = option.split("_");
     let sortField = sortingCriteria[0];
@@ -473,7 +473,6 @@ class ProductList extends React.Component {
 
     this.setState({ timeSpan: option, loading: true });
     this.setUrlParams("timespan", option);
-    firebase.analytics().logEvent("timespan_change", { value: option });
     this.updateProductResults(option);
   };
 
@@ -511,7 +510,6 @@ class ProductList extends React.Component {
                 this.setState({
                   filterVisibility: !this.state.filterVisibility,
                 });
-                firebase.analytics().logEvent("filter_toggle_handheld");
               }}>
               {!this.state.filterVisibility ? ("Filter") : (<FontAwesomeIcon title="Lukk filter" icon={faTimes} />)}
             </button>
@@ -528,16 +526,14 @@ class ProductList extends React.Component {
             <div className="before_products">
               <div className="nav">
                 <div className="DiscountFilter">
-                  <button
+                  <a
                     className={"clickable " + (this.state.change === "lowered" ? "active" : "")}
-                    value="lowered"
-                    onClick={this.setDiscountFilter}
-                  >Ned i pris</button>
-                  <button
+                    href={"?change=lowered"}
+                  >Ned i pris</a>
+                  <a
                     className={"clickable " + (this.state.change === "raised" ? "active" : "")}
-                    value="raised"
-                    onClick={this.setDiscountFilter}
-                  >Opp i pris</button>
+                    href={"?change=raised"}
+                  >Opp i pris</a>
                 </div>
                 {this.state.stores.length > 0 &&
                   <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} change={this.state.change} selectedStores={selectedStores} stores={stores} />

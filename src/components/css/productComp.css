@@ -101,7 +101,6 @@ span.change_time {
   margin: 0.25rem 0;
   font-size: 1rem;
   text-align: left;
-  min-height: 3rem;
 }
 .ProductComp a {
   color: black;
@@ -123,4 +122,13 @@ span.change_time {
   text-decoration: line-through;
   font-size: 1rem;
   display: block;
+}
+@media (max-width: 768px) {
+  .ProductComp .name {
+    font-size: .8rem;
+  }
+  .ProductComp .type,
+  .ProductComp .stock{
+    font-size: 0.7rem;
+  }
 }

@@ -1,12 +1,10 @@
 .HighlightedProduct {
   border-radius: 3px;
-  padding: 0.5rem;
   position: relative;
   transition: 0.2s 0.05s;
   display: flex;
   color: black;
   flex-wrap: wrap;
-  margin: 0 1rem 0 0;
 }
  .HighlightedProduct .product_img {
   min-height: 200px;
@@ -23,9 +21,7 @@
 }
 .HighlightedProduct .product_stock {
   width: 100%;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 3px;
+  margin-top: 1rem;
 }
 .HighlightedProduct .product_stock li {
   font-size: 0.8rem;
@@ -33,11 +29,12 @@
   padding: 0.5rem;
   margin: 0.25rem;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.8);
   display: flex;
   justify-content: space-between;
 }
-
+.HighlightedProduct .product_stock li:nth-of-type(odd){
+  background: #e8edf1;
+}
 .HighlightedProduct .product_details {
   display: grid;
   width: 70%;
@@ -73,10 +70,9 @@
 }
 .HighlightedProduct .name {
   grid-area: nam;
-  margin: 0;
+  margin: 0 1rem 0 0;
   font-size: 1.2rem;
 }
-
 .HighlightedProduct .percentage_change {
   position: absolute;
   top: 0;

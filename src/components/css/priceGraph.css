@@ -1,15 +1,15 @@
 .expandedProduct {
   background: white;
   box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
-  left: 0;
-  right: 0;
   margin: auto;
+  border-radius: 3px;
   max-width: 25rem;
   z-index: 9999;
   padding: 1rem;
   grid-gap: 1rem;
   overflow: auto;
-  max-height: calc(100vh - 86px);
+  height: 100%;
+  max-height: calc(100vh - 90px);
 }
 
 @media (max-width: 768px){
@@ -30,6 +30,7 @@
   height: 15rem;
   max-height: 30vh;
   grid-area: gra;
+  margin: -.5rem -1rem;
 }
 .expandedProduct .ProductComp,
 .expandedProduct .ProductComp > button {
@@ -40,10 +41,4 @@
 
 .expandedProduct .ProductComp .product_img {
   min-height: 150px;
-}
-.expandedProduct a.clickable {
-  background: #d0b55e;
-  color: white;
-  font-size: 1rem;
-  margin-top: 5px;
 }

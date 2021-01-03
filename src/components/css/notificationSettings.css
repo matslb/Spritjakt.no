@@ -39,7 +39,6 @@
     margin: 0.5rem 0;
     background: white;
     border-radius: 3px;
-    max-height: 30rem;
     overflow: auto;
 }
 .list li{
@@ -59,7 +58,7 @@
     flex-direction: row;
     text-align: left;
     min-height: 1.5rem;
-    max-height: 5rem;
+    max-height: 10rem;
     overflow: auto;
 }
 .list .filter .details{
@@ -131,4 +130,12 @@
 }
 .deleteWarning button{
     margin-left: 1rem;
+}
+@media (max-width: 768px){
+    .notificationSettings{
+        padding: 1rem .5rem;
+    }
+    .notificationSettings .toolbar{
+        margin: -1rem -.5rem 1rem;
+    }
 }
