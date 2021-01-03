@@ -40,9 +40,7 @@ class Pagination extends React.Component {
     let { pageSize, page, total } = this.props;
     let productsShowingtext;
 
-    if (page !== 1 && page > Math.ceil(total / pageSize)) {
-      this.setPage(1);
-    } else if (page === 1) {
+    if (page === 1) {
       productsShowingtext = "1 - " + (pageSize > total ? total : pageSize);
     } else {
       productsShowingtext = 1 + (pageSize * (page - 1)) +

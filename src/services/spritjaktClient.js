@@ -111,10 +111,10 @@ class SpritjaktClient {
   }
 
   async FetchStores() {
-    const storesRef = firebase.firestore().collection("Stores").doc("1");
+    const storesRef = firebase.firestore().collection("Constants").doc("Stores");
     let storeObject = storesRef.get();
     storeObject = (await storeObject).data();
-    return storeObject.StoreList;
+    return storeObject.Stores;
   }
 
   async FetchProductTypes() {

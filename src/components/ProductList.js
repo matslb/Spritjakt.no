@@ -83,6 +83,11 @@ class ProductList extends React.Component {
     window.history.replaceState('', '', '?' + query);
   }
 
+  async updateUrlParams() {
+    this.selectAllTypes(false);
+    await this.setState({ urlParameters: queryString.parse(window.location.search, { arrayFormat: 'comma' }) });
+    this.applyUrlParams();
+  }
   applyUrlParams = (urlParameters = this.state.urlParameters) => {
     this.setState({ urlParameters: urlParameters });
     Object.keys(urlParameters).forEach(field => {
@@ -116,6 +121,13 @@ class ProductList extends React.Component {
           break;
         case "sort":
           this.setState({ sort: param });
+          break;
+        case "page":
+
+          this.setState({ page: param });
+          break;
+        case "change":
+          this.setState({ change: param });
           break;
         case "timespan":
           this.setState({ timeSpan: parseInt(param) });
@@ -161,10 +173,14 @@ class ProductList extends React.Component {
         }
       });
       this.setState({ stores: stores });
-    }).then(async () => {
-      this.applyUrlParams(queryString.parse(window.location.search, { arrayFormat: 'comma' }));
-      await this.getProductData(this.state.timeSpan, true);
-    })
+    }).then(
+      this.spritjaktClient.FetchProductTypes().then((productTypes) => {
+        this.setState({ productTypes: productTypes });
+      }).then(async () => {
+        this.applyUrlParams(queryString.parse(window.location.search, { arrayFormat: 'comma' }));
+        await this.getProductData(this.state.timeSpan, true);
+      })
+    );
   }
 
   async SaveUserFilter(e) {
@@ -214,30 +230,8 @@ class ProductList extends React.Component {
   }
 
   async getProductData(timeSpan, firstLoad = false) {
-    let stores = this.state.stores;
     let products = [];
     const change = this.state.change;
-    let productTypes = this.state.productTypes;
-
-    if (firstLoad) {
-      productTypes = await this.spritjaktClient.FetchProductTypes();
-    }
-    stores.map(s => delete s.count);
-
-    Object.keys(productTypes).map(
-      (ptkey) =>
-        (productTypes[ptkey].products = {})
-    );
-    let selectedTypes = Object.keys(productTypes).filter((pt) => {
-      return productTypes[pt].state;
-    });
-
-    this.setState({
-      stores: stores,
-      productTypes: productTypes,
-      page: 1,
-      showAllresults: selectedTypes.length > 0 ? false : true
-    });
 
     if (firstLoad) {
       let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === timeSpan));
@@ -250,6 +244,7 @@ class ProductList extends React.Component {
       timeSpan = this.timeSpanOptions[timespanIndex - 1].value;
     } else {
       this.spritjaktClient.FetchProducts(timeSpan, change === "lowered").then(products => this.updateProductResults(products));
+      this.setPage(1);
     }
   }
 
@@ -257,6 +252,17 @@ class ProductList extends React.Component {
     let loadedProducts = [];
     let productTypes = this.state.productTypes;
     let stores = this.state.stores;
+
+    stores.map(s => delete s.count);
+
+    Object.keys(productTypes).map(
+      (ptkey) =>
+        (productTypes[ptkey].products = {})
+    );
+    let selectedTypes = Object.keys(productTypes).filter((pt) => {
+      return productTypes[pt].state;
+    });
+
     //Updating existing product type counts
     Object.keys(products).forEach((id) => {
       let p = products[id];
@@ -285,8 +291,9 @@ class ProductList extends React.Component {
       loadedProducts: loadedProducts,
       productTypes: productTypes,
       loading: false,
-      page: 1
+      showAllresults: selectedTypes.length > 0 ? false : true
     });
+    this.applyUrlParams();
     this.handleSortChange();
     this.filterProducts();
   }
@@ -355,6 +362,7 @@ class ProductList extends React.Component {
 
     await this.setState({
       productResult: productResult,
+      page: this.state.page > Math.ceil(productResult.length / this.state.pageSize) ? 1 : this.state.page,
       productTypes: productTypes,
       selectedStores: selectedStores,
       showAllresults: Object.keys(productTypes).find(pt => productTypes[pt].state) ? false : true
@@ -485,13 +493,13 @@ class ProductList extends React.Component {
   };
   render() {
 
-    let { currentFilterExists, pageSize, page, productResult, stores, selectedStores, filter, user } = this.state;
+    let { currentFilterExists, loading, pageSize, page, productResult, stores, selectedStores, filter, user } = this.state;
 
     return (
       <div key="Productlist" className="Productlist" >
 
         <div className="filterSaverWrapper">
-          {(!currentFilterExists && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
+          {(!currentFilterExists && !loading && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
             <div className="filterSaver">
               <button className="bigGoldBtn clickable" onClick={(e) => { this.SaveUserFilter(e) }}>Lagre filter</button>
               <div>

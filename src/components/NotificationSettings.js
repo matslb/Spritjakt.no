@@ -50,7 +50,6 @@ class NotificationSettings extends React.Component {
                         let userData = doc.data();
                         if (userData) {
                             if (userData.products) {
-                                this.setState({ productResult: null });
                                 this.spritjaktClient.FetchProductsById(userData.products).then(products => {
                                     this.setState({ productResult: products });
                                 });
@@ -267,11 +266,11 @@ class NotificationSettings extends React.Component {
                             </div>
                             {productResult ?
                                 <ul className="list miniproducts">{this.renderProducts()}</ul>
-                                : productResult === null ?
+                                : productResult === undefined ?
                                     <FontAwesomeIcon icon={faCircleNotch} size="3x" />
-                                    : (productResult === undefined)(
-                                        <p>Her listes favorittproduktene dine opp.</p>
-                                    )
+                                    :
+                                    <p>Her listes favorittproduktene dine opp.</p>
+
                             }
                         </div>
                         <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
