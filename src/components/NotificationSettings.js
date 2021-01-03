@@ -2,7 +2,7 @@ import React from "react";
 import "./css/notificationSettings.css";
 import SpritjaktClient from "../services/spritjaktClient";
 import MiniProduct from "./MiniProduct";
-import { faTrash, faTimesCircle, faBars, faFilter, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faTimesCircle, faBars, faFilter, faPen, faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import firebase from "firebase/app";
 import "firebase/analytics";
@@ -41,7 +41,7 @@ class NotificationSettings extends React.Component {
     componentDidMount() {
         let parsed = queryString.parse(window.location.search);
         if (parsed?.settings) {
-            setTimeout(() => this.toggleSection(true), 1500)
+            this.toggleSection(true)
         }
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
@@ -50,6 +50,7 @@ class NotificationSettings extends React.Component {
                         let userData = doc.data();
                         if (userData) {
                             if (userData.products) {
+                                this.setState({ productResult: null });
                                 this.spritjaktClient.FetchProductsById(userData.products).then(products => {
                                     this.setState({ productResult: products });
                                 });
@@ -260,21 +261,19 @@ class NotificationSettings extends React.Component {
                         }
                         <br />
                         <hr />
-                        {productResult ?
-                            <div className="favorites">
-                                <div className="sectionHeader">
-                                    <h3>Favoritter ({this.state.productResult.length})</h3>
-                                </div>
+                        <div className="favorites">
+                            <div className="sectionHeader">
+                                <h3>Favoritter ({this.state.productResult?.length ?? 0})</h3>
+                            </div>
+                            {productResult ?
                                 <ul className="list miniproducts">{this.renderProducts()}</ul>
-                            </div>
-                            :
-                            <div className="filters">
-                                <div className="sectionHeader">
-                                    <h3>Favoritter</h3>
-                                </div>
-                                <p>Her listes favorittproduktene dine opp.</p>
-                            </div>
-                        }
+                                : productResult === null ?
+                                    <FontAwesomeIcon icon={faCircleNotch} size="3x" />
+                                    : (productResult === undefined)(
+                                        <p>Her listes favorittproduktene dine opp.</p>
+                                    )
+                            }
+                        </div>
                         <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
                         <br />
                         <hr />

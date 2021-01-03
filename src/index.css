@@ -15,12 +15,10 @@ code {
     monospace;
 }
 .fa-circle-notch {
-  opacity: 0.4;
   animation: rotation 2s infinite linear;
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+  margin: auto;
+  width: 100%;
+  display: block;
 }
 @keyframes rotation {
   from {

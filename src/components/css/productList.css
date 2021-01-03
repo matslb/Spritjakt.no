@@ -58,7 +58,13 @@ ul.ProductList {
   left: 0;
   right: 0;
 }
-
+.ProductList .fa-circle-notch {
+  opacity: 0.4;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
 .backdrop label {
   text-align: center;
   display: block;
