@@ -21,7 +21,7 @@ class SpritjaktClient {
     this.loadedProducts = [];
   }
 
-  async FetchProducts(timeSpan, getLowerPrice) {
+  FetchProducts(timeSpan, getLowerPrice) {
     let startPoint = getTimeFromNow(timeSpan);
 
     let fetchNew = false;
@@ -50,7 +50,7 @@ class SpritjaktClient {
         }
       });
 
-      await firebase.firestore()
+      return firebase.firestore()
         .collection("Products")
         .where("LastUpdated", ">=", startPoint)
         .orderBy("LastUpdated")
@@ -69,15 +69,14 @@ class SpritjaktClient {
               }
             });
           }
+          return this.loadedProducts.filter(p => p.LastUpdated > startPoint);
         });
     } else {
       returnProducts.forEach(p => {
         p = this.CalculateProductDiscount(p, startPoint);
       });
+      return this.loadedProducts.filter(p => p.LastUpdated > startPoint);
     }
-    returnProducts = this.loadedProducts.filter(p => p.LastUpdated > startPoint);
-
-    return returnProducts
   }
 
   CalculateProductDiscount(p, startPoint = Date.now()) {
@@ -131,7 +130,6 @@ class SpritjaktClient {
     return productTypes;
   }
 
-
   async CreateUserDoc(name, notifications) {
     const user = firebase.auth().currentUser;
     if (!user) return;
@@ -142,6 +140,7 @@ class SpritjaktClient {
       notificationsConsentDate: new Date()
     });
   }
+
   async ChangeUserName(name) {
     const user = firebase.auth().currentUser;
     if (!user) return;
@@ -150,6 +149,7 @@ class SpritjaktClient {
       name: name
     });
   }
+
   async DeleteUserDoc(uid) {
     const usersRef = firebase.firestore().collection("Users").doc(uid);
     await usersRef.delete();

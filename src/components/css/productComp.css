@@ -1,134 +1,134 @@
 .ProductComp {
-  border: solid .5px rgba(0, 0, 0, 0.2);
-  padding: 0.5rem;
-  list-style: none;
-  text-align: left;
-  position: relative;
-  transition: 0.2s 0.05s;
-  text-align: left;
-  overflow: hidden;
-  background: white;
-  border-radius: 3px;
+    border: solid 0.5px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    list-style: none;
+    text-align: left;
+    position: relative;
+    transition: 0.2s 0.05s;
+    text-align: left;
+    overflow: hidden;
+    background: white;
+    border-radius: 3px;
 }
 .ProductComp:focus-within,
 li.ProductComp:hover {
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
 }
 li.ProductComp:focus-within {
-  outline: 1px auto black;
+    outline: 1px auto black;
 }
-.ProductComp .changeDate{
-  font-size: 0.8rem;
+.ProductComp .changeDate {
+    font-size: 0.8rem;
 }
 
 li.ProductComp > button {
-  cursor: pointer;
-  width: 100%;
-  background: none;
-  border: none;
-  outline: none;
-  height: 0;
+    cursor: pointer;
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    height: 0;
 }
 
 .ProductComp .product_img {
-  min-height: 200px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+    min-height: 200px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 }
 
 .ProductComp .product_details {
-  display: grid;
-  grid-template-areas: "typ sto" "nam nam" "pri alk" "opr vol";
+    display: grid;
+    grid-template-areas: "typ sto" "nam nam" "pri alk" "opr vol";
 }
 span.change_time {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  text-align: right;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    text-align: right;
 }
-.productWatchBtns{
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  text-align: right;
+.productWatchBtns {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    text-align: right;
 }
-.productWatchBtns .unwatched{
-  color: #555555;
+.productWatchBtns .unwatched {
+    color: #555555;
 }
-.productWatchBtns .watched{
-  color: #90495d;
+.productWatchBtns .watched {
+    color: #90495d;
 }
 .ProductComp .alcohol {
-  grid-area: alk;
-  text-align: right;
+    grid-area: alk;
+    text-align: right;
 }
 .ProductComp .volume {
-  grid-area: vol;
-  text-align: right;
+    grid-area: vol;
+    text-align: right;
 }
 .ProductComp .type {
-  grid-area: typ;
-  border-bottom: 0.5px solid black;
-  padding: 0.2rem;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  text-align: left;
+    grid-area: typ;
+    border-bottom: 0.5px solid black;
+    padding: 0.2rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    text-align: left;
 }
 .ProductComp .stock {
-  grid-area: sto;
-  border-bottom: 0.5px solid black;
-  padding: 0.2rem;
-  font-size: 0.8rem;
-  text-align: right;
+    grid-area: sto;
+    border-bottom: 0.5px solid black;
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    text-align: right;
 }
 .ProductComp .stock svg {
-  opacity: 0.5;
+    opacity: 0.5;
 }
 .ProductComp .price {
-  grid-area: pri;
-  font-size: 1.2rem;
-  align-self: end;
-  text-align: left;
+    grid-area: pri;
+    font-size: 1.2rem;
+    align-self: end;
+    text-align: left;
 }
 .ProductComp .old_price {
-  grid-area: opr;
-  align-self: end;
-  text-align: left;
+    grid-area: opr;
+    align-self: end;
+    text-align: left;
 }
 .ProductComp .name {
-  grid-area: nam;
-  margin: 0.25rem 0;
-  font-size: 1rem;
-  text-align: left;
+    grid-area: nam;
+    margin: 0.25rem 0;
+    font-size: 1rem;
+    text-align: left;
 }
 .ProductComp a {
-  color: black;
-  text-decoration: none;
+    color: black;
+    text-decoration: none;
 }
 .ProductComp span.description {
-  position: absolute;
-  top: 100%;
+    position: absolute;
+    top: 100%;
 }
 
 .ProductComp .percentage_change {
-  position: absolute;
-  top: 0;
-  left: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
 
 }
 
 .ProductComp span.old_price {
-  text-decoration: line-through;
-  font-size: 1rem;
-  display: block;
+    text-decoration: line-through;
+    font-size: 1rem;
+    display: block;
 }
-@media (max-width: 768px) {
-  .ProductComp .name {
-    font-size: .8rem;
-  }
-  .ProductComp .type,
-  .ProductComp .stock{
-    font-size: 0.7rem;
-  }
+@media(max-width: 768px) {
+    .ProductComp .name {
+        font-size: 0.8rem;
+    }
+    .ProductComp .type,
+    .ProductComp .stock {
+        font-size: 0.7rem;
+    }
 }

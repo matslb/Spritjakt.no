@@ -1,82 +1,79 @@
 .HighlightedProduct {
-  border-radius: 3px;
-  position: relative;
-  transition: 0.2s 0.05s;
-  display: flex;
-  color: black;
-  flex-wrap: wrap;
+    border-radius: 3px;
+    position: relative;
+    transition: 0.2s 0.05s;
+    display: flex;
+    color: black;
+    flex-wrap: wrap;
 }
- .HighlightedProduct .product_img {
-  min-height: 200px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  width: 30%;
+.HighlightedProduct .product_img {
+    min-height: 200px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 30%;
 }
 .HighlightedProduct ul {
-  padding: 0.2rem;
-  max-height: 7rem;
-  overflow-x: hidden;
-  margin: 0;
+    padding: 0.2rem;
+    max-height: 7rem;
+    overflow-x: hidden;
+    margin: 0;
 }
 .HighlightedProduct .product_stock {
-  width: 100%;
-  margin-top: 1rem;
+    width: 100%;
 }
 .HighlightedProduct .product_stock li {
-  font-size: 0.8rem;
-  list-style: none;
-  padding: 0.5rem;
-  margin: 0.25rem;
-  border-radius: 3px;
-  display: flex;
-  justify-content: space-between;
+    font-size: 0.8rem;
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0.25rem;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
 }
-.HighlightedProduct .product_stock li:nth-of-type(odd){
-  background: #e8edf1;
+.HighlightedProduct .product_stock li:nth-of-type(odd) {
+    background: #e8edf1;
 }
 .HighlightedProduct .product_details {
-  display: grid;
-  width: 70%;
-  font-size: 0.8rem;
-  grid-template-areas: "nam nam" "pri det" "des des";
+    display: grid;
+    width: 70%;
+    font-size: 0.8rem;
+    grid-template-areas: "nam nam" "pri det" "des des";
 }
 .description span {
-  display: block;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  font-weight: 400;
+    display: block;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    font-weight: 400;
 }
 .HighlightedProduct .alcohol {
-  grid-area: alk;
+    grid-area: alk;
 }
 .HighlightedProduct .details {
-  grid-area: det;
+    grid-area: det;
 }
 .HighlightedProduct .description {
-  grid-area: des;
+    grid-area: des;
 }
 .HighlightedProduct .stock {
-  grid-area: sto;
+    grid-area: sto;
 }
 .HighlightedProduct .stock svg {
-  opacity: 0.5;
+    opacity: 0.5;
 }
 .HighlightedProduct .price {
-  grid-area: pri;
-  font-size: 1.2rem;
+    grid-area: pri;
+    font-size: 1.2rem;
 }
 .HighlightedProduct .old_price {
-  grid-area: opr;
+    grid-area: opr;
 }
 .HighlightedProduct .name {
-  grid-area: nam;
-  margin: 0 1rem 0 0;
-  font-size: 1.2rem;
+    grid-area: nam;
+    margin: 0 1rem 0 0;
+    font-size: 1.2rem;
 }
 .HighlightedProduct .percentage_change {
-  position: absolute;
-  top: 0;
-  left: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
-
-

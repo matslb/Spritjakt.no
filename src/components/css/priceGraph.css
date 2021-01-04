@@ -1,44 +1,43 @@
 .expandedProduct {
-  background: white;
-  box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
-  margin: auto;
-  border-radius: 3px;
-  max-width: 25rem;
-  z-index: 9999;
-  padding: 1rem;
-  grid-gap: 1rem;
-  overflow: auto;
-  height: 100%;
-  max-height: calc(100vh - 90px);
+    background: white;
+    box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
+    top: 5px;
+    border-radius: 3px;
+    max-width: 25rem;
+    z-index: 9999;
+    padding: 1rem;
+    grid-gap: 1rem;
+    overflow: auto;
+    max-height: calc(100vh - 90px);
 }
 
-@media (max-width: 768px){
-  .expandedProduct {
-    top: 0;
-    margin: 0;
-    height: 100%;
-  }
+@media(max-width: 768px) {
+    .expandedProduct {
+        top: 0;
+        margin: 0;
+        height: 100%;
+    }
 }
 
 .fa-external-link-alt {
-  margin-left: 0.5rem;
+    margin-left: 0.5rem;
 }
 .expandedProduct .title {
-  margin-bottom: 0;
+    margin: 1rem 0;
 }
 .expandedProduct .graph {
-  height: 15rem;
-  max-height: 30vh;
-  grid-area: gra;
-  margin: -.5rem -1rem;
+    height: 15rem;
+    max-height: 30vh;
+    grid-area: gra;
+    margin: -0.5rem -1rem;
 }
 .expandedProduct .ProductComp,
 .expandedProduct .ProductComp > button {
-  cursor: default;
-  box-shadow: none !important;
-  outline: none !important;
+    cursor: default;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .expandedProduct .ProductComp .product_img {
-  min-height: 150px;
+    min-height: 150px;
 }

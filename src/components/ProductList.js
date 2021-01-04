@@ -23,7 +23,7 @@ class ProductList extends React.Component {
       loadedProducts: [],
       stores: [],
       selectedStores: ["0"],
-      loading: true,
+      loading: null,
       sort: "LastUpdated_desc",
       productTypes: {},
       showAllresults: true,
@@ -60,7 +60,7 @@ class ProductList extends React.Component {
 
   onbackPress = (e) => {
     if (this.state.highlightedProduct) {
-      this.setState({ highlightedProduct: false, showGraph: false });
+      this.setState({ highlightedProduct: false, graphIsVisible: false });
       this.setUrlParams("product");
     }
   }
@@ -232,13 +232,15 @@ class ProductList extends React.Component {
   async getProductData(timeSpan, firstLoad = false) {
     let products = [];
     const change = this.state.change;
-
     if (firstLoad) {
       let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === timeSpan));
       while (timespanIndex < this.timeSpanOptions.length && products.length < this.state.pageSize) {
-        this.setState({ loading: true });
-        products = await this.spritjaktClient.FetchProducts(this.timeSpanOptions[timespanIndex].value, change === "lowered");
-        this.updateProductResults(products);
+        if (!this.state.loading) {
+          this.setState({ loading: true });
+          this.spritjaktClient.FetchProducts(this.timeSpanOptions[timespanIndex].value, change === "lowered").then(products => {
+            this.updateProductResults(products, true)
+          });
+        }
         timespanIndex++;
       }
       timeSpan = this.timeSpanOptions[timespanIndex - 1].value;
@@ -247,9 +249,11 @@ class ProductList extends React.Component {
       this.setPage(1);
     }
   }
-
-  updateProductResults(products) {
-    let loadedProducts = [];
+  updateProductResults(products, addToStack = false) {
+    if (products === undefined || products.length === 0) {
+      return;
+    }
+    let loadedProducts = addToStack ? this.state.loadedProducts : [];
     let productTypes = this.state.productTypes;
     let stores = this.state.stores;
 
@@ -308,7 +312,7 @@ class ProductList extends React.Component {
   }
 
   async setGraph(productId) {
-    if (productId === null || productId === this.state.highlightedProduct.Id) {
+    if (productId === null) {
       this.setState({ highlightedProduct: false, graphIsVisible: false });
       this.onbackPress();
     } else {
@@ -316,9 +320,13 @@ class ProductList extends React.Component {
       let product = this.state.loadedProducts.find((p) => p.Id === productId);
 
       if (product === undefined) {
-        product = await this.spritjaktClient.FetchProductById(productId);
+        this.spritjaktClient.FetchProductById(productId).then(product => {
+          this.setState({ highlightedProduct: product, graphIsVisible: true });
+        });
+      } else {
+        this.setState({ highlightedProduct: product, graphIsVisible: true });
       }
-      this.setState({ highlightedProduct: product, graphIsVisible: true });
+
     }
   };
   selectAllTypes = (resetUrlParams = true) => {

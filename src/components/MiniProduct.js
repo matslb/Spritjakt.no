@@ -41,7 +41,7 @@ class ProductComp extends React.Component {
           }
         </div>
         <div style={{ textAlign: "center" }}>
-          <button className="iconBtn dark" onClick={(e) => {
+          <button aria-label="Fjern fra favoritter" className="iconBtn dark" onClick={(e) => {
             this.props.removeProduct();
             this.props.notification.current.setNotification(e, "Fjernet", "success");
           }} >

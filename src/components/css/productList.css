@@ -1,118 +1,116 @@
 .main {
-  display: grid;
-  grid-template-columns: 1fr 5fr;
-  gap: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    gap: 2rem;
 }
-.Productlist{
-  padding: 1rem;
-  max-width: 1200px;
-  margin: auto;
-  border-top: 1px solid;
+.Productlist {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: auto;
+    border-top: 1px solid;
 }
 .main > p {
-  margin: 0 0 1rem;
-  text-align: center;
+    margin: 0 0 1rem;
+    text-align: center;
 }
 .before_products {
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 }
 .before_products p,
 .before_products select {
-  margin: 2.5px 0;
-  font-size: 0.85rem;
+    margin: 2.5px 0;
+    font-size: 0.85rem;
 }
 ul.ProductList {
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  padding: 0;
-  position: relative;
-  min-height: 23rem;
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    padding: 0;
+    position: relative;
+    min-height: 23rem;
 }
 
 .toggle {
-  opacity: 0;
-  transition: 0.2s;
-  position: relative;
-  z-index: 10;
+    opacity: 0;
+    transition: 0.2s;
+    position: relative;
+    z-index: 10;
 }
 .toggle.enter-done {
-  opacity: 1;
-  position: relative;
-  z-index: 10;
+    opacity: 1;
+    position: relative;
+    z-index: 10;
 }
 
 .priceGraphWrapper {
-  position: fixed;
-  margin: auto;
-  top: 5px;
-  bottom: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: space-between;
-  max-width: 30rem;
-  width: 100%;
-  left: 0;
-  right: 0;
+    position: fixed;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 30rem;
+    width: 100%;
+    left: 0;
+    right: 0;
 }
 .ProductList .fa-circle-notch {
-  opacity: 0.4;
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+    opacity: 0.4;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
 }
 .backdrop label {
-  text-align: center;
-  display: block;
-  z-index: 999999;
-  color: white;
-  top: 0;
-  position: absolute;
-  left: 0;
-  right: 0;
-  font-size: 0.8rem;
+    text-align: center;
+    display: block;
+    z-index: 999999;
+    color: white;
+    top: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-size: 0.8rem;
 }
- .backdrop {
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  height: 100vh;
-  position: fixed;
+.backdrop {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    height: 100vh;
+    position: fixed;
 }
 
 .productNavigation {
-  margin: 1rem auto;
-  z-index: 99999;
-  width: 100%;
-  max-width: 27rem;
-  padding: 0.5rem 0;
-  display: flex;
-  justify-content: space-between;
-  border-top: .5px solid white;
-  border-bottom: .5px solid white;
+    margin: 1rem auto;
+    z-index: 99999;
+    width: 100%;
+    max-width: 27rem;
+    padding: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    border-top: 0.5px solid white;
+    border-bottom: 0.5px solid white;
 }
-.productNavigation .productNav{
-  font-size: 1.5rem;
+.productNavigation .productNav {
+    font-size: 1.5rem;
 }
 
 .nav {
-  display: grid;
-  grid-template-areas:"dis dis"
-                      "sto sto"
-                      "sor tim";
-  grid-gap: 10px;
-  grid-template-columns: 1fr 1fr;
-  align-items: baseline;
-  width: 100%;
+    display: grid;
+    grid-template-areas: "dis dis" "sto sto" "sor tim";
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    align-items: baseline;
+    width: 100%;
 }
 .nav .timeSpan {
-  grid-area: tim;
+    grid-area: tim;
 }
 
 .nav .DiscountFilter {
@@ -123,186 +121,185 @@ ul.ProductList {
     gap: 10px;
     position: relative;
 }
-.nav .DiscountFilter .clickable{
-  width: 100%;
-  padding: 1rem .5rem;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  font-weight: 100;
-  position: relative;
-  outline:none;  
-  opacity: 1;
-  font-size: 1rem;
-  background: white;
-  border-bottom: 5px solid rgba(0, 0, 0, 0.562);
+.nav .DiscountFilter .clickable {
+    padding: 1rem 0.5rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    font-weight: 100;
+    position: relative;
+    outline: none;
+    opacity: 1;
+    font-size: 1rem;
+    background: white;
+    border-bottom: 5px solid rgba(0, 0, 0, 0.562);
 }
-.nav .DiscountFilter .clickable.active{
-  border-bottom: 5px solid #d0b55e;
+.nav .DiscountFilter .clickable.active {
+    border-bottom: 5px solid #d0b55e;
 }
 .nav .DiscountFilter .clickable:active,
-  .nav .DiscountFilter .clickable:hover{
+.nav .DiscountFilter .clickable:hover {
     border-bottom: 5px solid #d0b55e79;
 }
 .nav .stores,
 .nav .sorting,
-.nav .timeSpan{
-  width: 100%;
-  min-width: 16rem;
+.nav .timeSpan {
+    width: 100%;
+    min-width: 16rem;
 }
-.nav .timeSpan{
-  justify-self: end;
+.nav .timeSpan {
+    justify-self: end;
 }
 .nav .stores {
-  grid-area: sto;
+    grid-area: sto;
 }
 .nav .sorting {
-  grid-area: sor;
+    grid-area: sor;
 }
 .resetFilter.inactive {
-  opacity: 0.3;
-  cursor: default;
+    opacity: 0.3;
+    cursor: default;
 }
 
 .ProductTypes {
-  grid-area: pts;
-  display: grid;
-  grid-template-columns: 1fr;
+    grid-area: pts;
+    display: grid;
+    grid-template-columns: 1fr;
 }
 .Productlist .filter fieldset {
-  display: contents;
+    display: contents;
 }
 .Productlist .filter .toggleFilter {
-  display: none;
-  outline: none;
+    display: none;
+    outline: none;
 }
 .Productlist .filter {
-  display: flex;
-  flex-direction: column;
-}
-.Productlist .filter legend {
-  grid-area: leg;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-.filter_backdrop.inactive {
-  display: none;
-}
-
-.filterSaver{
-  background: #90495d;
-  display: flex;
-  padding: 1rem;
-  color: white;
-  align-items: center;
-  margin: 0 0 1rem 0 ;
-}
-.filterSaver > div{
-  margin-left: 2rem;
-} 
-.filterSaverWrapper{
-  min-height: 4.5rem;
-}
-@media (max-width: 1024px) {
-  ul.ProductList {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-}
-@media (max-width: 768px) {
-  
-  .main{
-    display: block;
-  }
-  ul.ProductList {
-    grid-gap: 5px;
-  }
-  .info {
-    text-align: left;
-  }
-  .before_products {
-    flex-direction: column-reverse;
-  }
-
-  .nav {
-    grid-template-areas: "dis dis" "sto sto" "stock stock" "fil il" "sor tim";
-  }
-  .filter legend {
-    font-size: 1.5rem;
-  }
-  .ProductTypes{
-    overflow: scroll;
-  }
-
-  .Productlist .filter {
-    position: fixed;
-    width: 46%;
-    transition: 0.2s 0.05s ease;
-    border-right: 6px solid #92496e;
-    background: white;
-    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4);
-    padding: 1rem;
-    z-index: 5;
-    bottom: 0;
-    top: 0;
     display: flex;
     flex-direction: column;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-  }
+}
+.Productlist .filter legend {
+    grid-area: leg;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.filter_backdrop.inactive {
+    display: none;
+}
 
-  .Productlist .filter .toggleFilter {
-    display: block;
-    content: "Filter";
-    background: #92496e;
-    position: absolute;
-    right: -61px;
-    padding: 0.25rem 0.5rem 0.25rem 1rem;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+.filterSaver {
+    background: #90495d;
+    display: flex;
+    padding: 1rem;
     color: white;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-    top: 5rem;
-    border: none;
-    width: 3.6rem;
-    font-size: 1rem;
-  }
-  .Productlist .filter {
-    right: 100%;
-  }
-  .Productlist .filter.active {
-    right: 45%;
-    z-index: 11;
-  }
-  .filter_backdrop.active {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.2);
-  }
-  .nav .stores,
-  .nav .sorting,
-  .nav .timeSpan{
-    width: 100%;
-    min-width: unset;
-  }
-.priceGraphWrapper{
-  margin: 0;
+    align-items: center;
+    margin: 0 0 1rem;
 }
-.productNavigation{
-  background: #49908d;
-  border: none;  
-  margin: auto;
+.filterSaver > div {
+    margin-left: 2rem;
 }
+.filterSaverWrapper {
+    min-height: 4.5rem;
+}
+@media(max-width: 1024px) {
+    ul.ProductList {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+@media(max-width: 768px) {
+
+    .main {
+        display: block;
+    }
+    ul.ProductList {
+        grid-gap: 5px;
+    }
+    .info {
+        text-align: left;
+    }
+    .before_products {
+        flex-direction: column-reverse;
+    }
+
+    .nav {
+        grid-template-areas: "dis dis" "sto sto" "stock stock" "fil il" "sor tim";
+    }
+    .filter legend {
+        font-size: 1.5rem;
+    }
+    .ProductTypes {
+        overflow: scroll;
+    }
+
+    .Productlist .filter {
+        position: fixed;
+        width: 46%;
+        transition: 0.2s 0.05s ease;
+        border-right: 6px solid #92496e;
+        background: white;
+        box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4);
+        padding: 1rem;
+        z-index: 5;
+        bottom: 0;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+    }
+
+    .Productlist .filter .toggleFilter {
+        display: block;
+        content: "Filter";
+        background: #92496e;
+        position: absolute;
+        right: -61px;
+        padding: 0.25rem 0.5rem 0.25rem 1rem;
+        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        color: white;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+        top: 5rem;
+        border: none;
+        width: 3.6rem;
+        font-size: 1rem;
+    }
+    .Productlist .filter {
+        right: 100%;
+    }
+    .Productlist .filter.active {
+        right: 45%;
+        z-index: 11;
+    }
+    .filter_backdrop.active {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    .nav .stores,
+    .nav .sorting,
+    .nav .timeSpan {
+        width: 100%;
+        min-width: unset;
+    }
+    .priceGraphWrapper {
+        margin: 0;
+    }
+    .productNavigation {
+        background: #49908d;
+        border: none;
+        margin: auto;
+    }
 
 
 }
-@media (max-width: 540px) {
-  ul.ProductList {
-    grid-template-columns: 1fr 1fr;
-  }
+@media(max-width: 540px) {
+    ul.ProductList {
+        grid-template-columns: 1fr 1fr;
+    }
 }

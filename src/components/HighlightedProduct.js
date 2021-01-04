@@ -98,12 +98,11 @@ class HighlightedProduct extends React.Component {
         }
       >
         <span className="productWatchBtns">
-          {/*lastChangedDate*/}
           {this.state.IsSelectedByUser &&
-            <button className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
+            <button aria-label="Fjern fra favoritter" className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
           }
           {this.state.IsSelectedByUser === false &&
-            <button className="watch iconBtn dark" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></button>
+            <button aria-label="Legg til i favoritter" className="watch iconBtn dark" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></button>
           }
         </span>
         <div className="product_img" style={background}></div>
@@ -152,7 +151,7 @@ class HighlightedProduct extends React.Component {
           <FontAwesomeIcon icon={faExternalLinkAlt} />
         </a>
         <div className="product_stock">
-          <h4>Lagerstatus</h4>
+          <h4 className="title" >Lagerstatus</h4>
           <ul>{this.renderStoreStock()}</ul>
         </div>
       </div >

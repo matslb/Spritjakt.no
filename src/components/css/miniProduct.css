@@ -1,4 +1,4 @@
-.MiniProduct{
+.MiniProduct {
     list-style: none;
     display: flex;
     align-items: center;
@@ -28,5 +28,5 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    border: .5px solid;
+    border: 0.5px solid;
 }

@@ -5,7 +5,7 @@
     padding: 8px;
     box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
     border-radius: 5px;
-    font-size: .8rem;
+    font-size: 0.8rem;
     height: 32px;
     min-width: 38px;
     display: flex;
@@ -14,36 +14,36 @@
     flex-direction: column;
     transition: opacity 0.2s, top 0s 0.2s ease-in-out;
 }
-.notification.false{
+.notification.false {
     opacity: 0;
-    top: -5rem!important;
+    top: -5rem !important;
 }
-.notification.true{
+.notification.true {
     transition: opacity 0.2s, top 0s 0s ease-in-out;
     opacity: 1;
     max-height: 50rem;
-    animation: wiggle .2s 1;
+    animation: wiggle 0.2s 1;
 }
 
 @keyframes wiggle {
-    0%{
+    0% {
         transform: translateY(0);
     }
-    30%{
+    30% {
         transform: translateY(20px);
     }
-    80%{
+    80% {
         transform: translateY(-10px);
     }
-    100%{
+    100% {
         transform: translateY(0);
     }
 }
 
-.notification.success{
+.notification.success {
     background: cadetblue;
 }
 
-.notification.error{
+.notification.error {
     background: #a00b35;
 }

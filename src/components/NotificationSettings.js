@@ -151,7 +151,7 @@ class NotificationSettings extends React.Component {
 
             items.push(<li key={this.state.userData.filters.indexOf(filter)} className="filter">
                 <div className="operations">
-                    <button className="iconBtn dark" onClick={(e) => {
+                    <button aria-label="Sett filter" className="iconBtn dark" onClick={(e) => {
                         this.applyFilter(filter);
                         this.Notification.current.setNotification(e, "Filter satt", "success");
                     }} >
@@ -163,7 +163,7 @@ class NotificationSettings extends React.Component {
                     <div className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
                 </div>
                 <div className="operations">
-                    <button className="iconBtn dark" onClick={(e) => {
+                    <button aria-label="Slett filter" className="iconBtn dark" onClick={(e) => {
                         this.spritjaktClient.RemoveUserFilter(filter);
                         this.Notification.current.setNotification(e, "Fjernet", "success");
                     }} >
@@ -288,7 +288,7 @@ class NotificationSettings extends React.Component {
                                 :
                                 <div className="changeName">
                                     {userData.name}
-                                    <button className="iconBtn clickable" onClick={() => { this.setState({ changeName: true }) }} ><FontAwesomeIcon size="lg" icon={faPen} /></button>
+                                    <button aria-label="Endre navn" className="iconBtn clickable" onClick={() => { this.setState({ changeName: true }) }} ><FontAwesomeIcon size="lg" icon={faPen} /></button>
                                 </div>
                             }
                             <h3>Varsler</h3>

@@ -4,7 +4,7 @@
     padding: 1rem 1.5rem;
     margin: auto;
     color: white;
-    transition:  0.5s 0.1s ease-in-out;
+    transition: 0.5s 0.1s ease-in-out;
     position: fixed;
     right: -60rem;
     top: 0;
@@ -21,8 +21,8 @@
     right: 0;
 }
 .resultMessage {
-    background: rgba(97, 160, 85, .93);
-    padding: .2rem .5rem;
+    background: rgba(97, 160, 85, 0.93);
+    padding: 0.2rem 0.5rem;
     border-radius: 3px;
     color: white;
     position: absolute;
@@ -31,9 +31,9 @@
     top: 5.5rem;
     margin: auto;
     width: 13rem;
-} 
+}
 
-.list{
+.list {
     list-style: none;
     padding: 0;
     margin: 0.5rem 0;
@@ -41,18 +41,18 @@
     border-radius: 3px;
     overflow: auto;
 }
-.list li{
+.list li {
     color: black;
     padding: 0.5rem;
 }
-.list li:last-child{
+.list li:last-child {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
 }
-.list li:nth-of-type(even){
+.list li:nth-of-type(even) {
     background: #e8edf1;
 }
-.list .filter{
+.list .filter {
     list-style: none;
     display: flex;
     flex-direction: row;
@@ -61,24 +61,24 @@
     max-height: 10rem;
     overflow: auto;
 }
-.list .filter .details{
+.list .filter .details {
     display: flex;
     margin-right: 1rem;
     width: 80%;
     position: relative;
 }
 
-.list .filter .details > div{
+.list .filter .details > div {
     width: 50%;
 }
-.changeName{
+.changeName {
     display: flex;
     align-items: center;
 }
-.changeName button{
-    margin-left: .5rem;
+.changeName button {
+    margin-left: 0.5rem;
 }
-.list .listHeaders{
+.list .listHeaders {
     font-weight: bold;
     border-bottom: 3px solid grey;
 }
@@ -88,12 +88,12 @@
     justify-content: center;
     align-items: center;
 }
-.sectionHeader{
+.sectionHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.profileStatusBar{
+.profileStatusBar {
     top: 0;
     right: 0;
     position: fixed;
@@ -102,25 +102,25 @@
     z-index: 10;
     display: flex;
     justify-content: space-between;
-    padding: .5rem 1rem;
+    padding: 0.5rem 1rem;
     background: #4f5e65b0;
     border-bottom-left-radius: 3px;
 }
 .profileStatusBar button,
-.profileStatusBar a{
+.profileStatusBar a {
     cursor: pointer;
     margin-left: 1rem;
 }
-.notificationSettings .toggleSettings{
+.notificationSettings .toggleSettings {
     font-size: 1.5rem;
     margin-left: -1rem;
 }
-.notificationSettings .toolbar{
+.notificationSettings .toolbar {
     background: rgba(0, 0, 0, 0.3);
     margin: -1rem -1.5rem 1rem;
-    padding: .5rem 1.5rem;
+    padding: 0.5rem 1.5rem;
 }
-.deleteWarning form{
+.deleteWarning form {
     display: flex;
     background: white;
     color: black;
@@ -128,14 +128,14 @@
     align-items: center;
     border-radius: 3px;
 }
-.deleteWarning button{
+.deleteWarning button {
     margin-left: 1rem;
 }
-@media (max-width: 768px){
-    .notificationSettings{
-        padding: 1rem .5rem;
+@media(max-width: 768px) {
+    .notificationSettings {
+        padding: 1rem 0.5rem;
     }
-    .notificationSettings .toolbar{
-        margin: -1rem -.5rem 1rem;
+    .notificationSettings .toolbar {
+        margin: -1rem -0.5rem 1rem;
     }
 }

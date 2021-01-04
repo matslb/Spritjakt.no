@@ -98,10 +98,10 @@ class ProductComp extends React.Component {
             {lastChangedDate}
           </span>
           {this.state.IsSelectedByUser &&
-            <button className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
+            <button aria-label="Fjern fra favoritter" className="iconBtn watched" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
           }
           {this.state.IsSelectedByUser === false &&
-            <button className="watch dark iconBtn" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></button>
+            <button aria-label="Legg til i favoritter" className="watch dark iconBtn" onClick={this.toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></button>
           }
         </span>
         <div onClick={() => this.props.setGraph(product.Id)} className="product_details">

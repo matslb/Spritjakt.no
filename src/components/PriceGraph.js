@@ -3,8 +3,6 @@ import { ResponsiveLine } from "@nivo/line";
 import "./css/priceGraph.css";
 import SortArray from "sort-array";
 import HighlightedProduct from "./HighlightedProduct";
-import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
 
 class PriceGraph extends React.Component {
