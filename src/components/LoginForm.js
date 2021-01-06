@@ -3,6 +3,8 @@ import "./css/loginForm.css";
 import firebase from "firebase/app";
 import "firebase/auth";
 import SpritjaktClient from "../services/spritjaktClient";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 
 class LoginForm extends React.Component {
 
@@ -143,7 +145,8 @@ class LoginForm extends React.Component {
                     </form>
                 }
                 {this.state.status != null &&
-                    <div className={"statusMessage" + this.state.status ? " success" : " error"}>
+                    <div className={"statusMessage" + (this.state.status ? " success" : " error")}>
+                        {!this.state.status && <FontAwesomeIcon icon={faExclamationCircle} />}
                         {this.state.message}
                     </div>
                 }

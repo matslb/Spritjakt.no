@@ -152,6 +152,7 @@ class SpritjaktClient {
 
   async DeleteUserDoc(uid) {
     const usersRef = firebase.firestore().collection("Users").doc(uid);
+    await this.PurgeUserNotificationTokens();
     await usersRef.delete();
   }
 
@@ -193,6 +194,15 @@ class SpritjaktClient {
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       notificationTokens: firebase.firestore.FieldValue.arrayUnion(token)
+    });
+  }
+
+  async PurgeUserNotificationTokens() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
+    await usersRef.update({
+      notificationTokens: []
     });
   }
 

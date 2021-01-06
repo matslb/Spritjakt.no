@@ -18,6 +18,7 @@ const startState = {
     stores: [],
     userData: false,
     newName: "",
+    isLoading: false,
     highlightedProduct: false,
     deleteProcessStarted: false,
     notifications: {
@@ -44,16 +45,19 @@ class NotificationSettings extends React.Component {
             this.toggleSection(true)
         }
         firebase.auth().onAuthStateChanged((user) => {
+            this.setState({ productResult: [] });
             if (user) {
                 firebase.firestore().collection("Users").doc(user.uid)
                     .onSnapshot(async (doc) => {
                         let userData = doc.data();
                         if (userData) {
                             if (userData.products) {
+                                this.setState({ isLoading: true });
                                 this.spritjaktClient.FetchProductsById(userData.products).then(products => {
-                                    this.setState({ productResult: products });
+                                    this.setState({ productResult: products, isLoading: false });
                                 });
                             }
+
                             this.spritjaktClient.FetchStores().then(stores => {
                                 stores.push({ storeName: "vinmonopolet.no", storeId: "online" });
                                 this.setState({ stores: stores });
@@ -66,6 +70,8 @@ class NotificationSettings extends React.Component {
 
                             if (userData.notifications.byPush) {
                                 this.notificationService.AddClientDevice();
+                            } else {
+                                this.spritjaktClient.PurgeUserNotificationTokens();
                             }
                         }
                     });
@@ -210,7 +216,7 @@ class NotificationSettings extends React.Component {
     }
 
     render() {
-        let { user, userData, productResult } = this.state;
+        let { user, userData, productResult, isLoading } = this.state;
         return (
             <div>
                 {user && userData &&
@@ -262,16 +268,21 @@ class NotificationSettings extends React.Component {
                         <hr />
                         <div className="favorites">
                             <div className="sectionHeader">
-                                <h3>Favoritter ({this.state.productResult?.length ?? 0})</h3>
+                                <h3>Favoritter
+                                    {productResult && productResult.length > 0 ? ` (${productResult.length})` : ""}
+                                </h3>
                             </div>
-                            {productResult ?
+                            {productResult && productResult.length > 0 &&
                                 <ul className="list miniproducts">{this.renderProducts()}</ul>
-                                : productResult === undefined ?
-                                    <FontAwesomeIcon icon={faCircleNotch} size="3x" />
-                                    :
-                                    <p>Her listes favorittproduktene dine opp.</p>
+                            }
+                            {userData.products.length === 0 &&
+                                <p>Her listes favorittproduktene dine opp.</p>
+                            }
+                            {isLoading && userData.products.length > 0 && productResult.length === 0 &&
+                                <FontAwesomeIcon icon={faCircleNotch} size="3x" />
 
                             }
+
                         </div>
                         <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
                         <br />

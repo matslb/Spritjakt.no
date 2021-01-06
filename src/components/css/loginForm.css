@@ -6,22 +6,41 @@
     align-items: center;
     padding: 1rem;
 }
+
 .loginForm input {
     margin: 0.5rem 0;
 }
+
 .loginForm label {
     text-align: left;
 }
+
 .loginForm h2 {
     text-align: center;
 }
+
 .statusMessage {
     text-align: center;
 }
+
+.statusMessage.error {
+    background: #ffc107;
+    color: black;
+    padding: 1rem;
+    display: inline-block;
+    border-radius: 3px;
+    font-weight: 400;
+}
+
+.statusMessage .fa-exclamation-circle {
+    margin: 0 0.5rem;
+}
+
 .notificationSection {
     display: flex;
     text-align: left;
 }
+
 .notificationSection div {
     width: 50%;
 }

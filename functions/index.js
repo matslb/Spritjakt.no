@@ -65,7 +65,7 @@ exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).p
   }
 });
 
-exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("59 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreStocksToFetch = true;
   let freshStocks = [];
   let tries = 0;
@@ -202,6 +202,8 @@ exports.subscribeClientsToTopic = functions.region("europe-west1").firestore.doc
   if (typeof newUserData.notificationTokens !== "undefined") {
     tokensToAdd = newUserData.notificationTokens.filter(t => typeof oldUserData.notificationTokens === "undefined" || !oldUserData.notificationTokens.includes(t));
   }
+  console.log("tokensToAdd:", tokensToAdd);
+  console.log("tokensToRemove:", tokensToRemove);
 
   if (tokensToAdd.length > 0) {
     firebaseAdmin.messaging().subscribeToTopic(tokensToAdd, userId)

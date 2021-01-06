@@ -66,7 +66,7 @@ module.exports = class FirebaseClient {
 
         if (SortingDiscount !== 100) {
 
-          if (SortingDiscount < 99 || SortingDiscount > 101) {
+          if (SortingDiscount <= 98 || SortingDiscount >= 102) {
             sp.PriceIsLowered = SortingDiscount < 100;
             statusReport.priceChanged++;
           } else {
