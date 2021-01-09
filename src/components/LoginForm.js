@@ -4,15 +4,26 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import SpritjaktClient from "../services/spritjaktClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+
+
+const formTypes = {
+    register: "Registrer deg",
+    login: "Logg inn",
+    resetPass: "Tilbakestill passord"
+}
 
 class LoginForm extends React.Component {
 
-    constructor() {
-        super();
-        this.state = { status: null, message: "" }
+    constructor(props) {
+        super(props);
+        this.state = {
+            formType: this.props.formType || formTypes.login,
+            message: ""
+        }
         this.spritjaktClient = new SpritjaktClient();
     }
+
     register = (event) => {
         event.preventDefault();
         const email = event.target.email.value;
@@ -74,17 +85,17 @@ class LoginForm extends React.Component {
         const email = event.target[0].value;
 
         firebase.auth().sendPasswordResetEmail(email).then(() => {
-            this.setState({ status: true, message: "Vi har send deg en link på e-post hvor du kan tilbakestille passordet ditt." });
         }).catch((error) => {
-            this.setState({ status: false, message: error.message });
         });
+        this.setState({ status: true, message: "Vi har send deg en link på e-post hvor du kan tilbakestille passordet ditt." });
     }
 
     render() {
+        let { formType } = this.props;
         return (
             <div>
-                <h2>{this.props.heading}</h2>
-                {this.props.resetPass ?
+                <h2>{formType}</h2>
+                {formType === formTypes.resetPass ?
                     <form className="loginForm" onSubmit={this.resetPassword}>
                         <label>
                             E-post
@@ -92,17 +103,17 @@ class LoginForm extends React.Component {
                             <input required placeholder="Din e-postadresse" name="email" type="email" />
                         </label>
                         <br />
-                        <input disabled={this.state.status !== null} className="bigGreenBtn" type="submit" value={this.props.heading} />
+                        <input disabled={this.state.status} className="bigGreenBtn" type="submit" value={formType} />
 
                     </form>
                     :
-                    <form className="loginForm" onSubmit={this.props.justLogin ? this.login : this.register}>
+                    <form className="loginForm" onSubmit={formType === formTypes.login ? this.login : this.register}>
                         <label>
                             E-post
                     <br />
                             <input required placeholder="Din e-postadresse" name="email" type="email" />
                         </label>
-                        {!this.props.justLogin &&
+                        {formType === formTypes.register &&
                             <label>
                                 Navn
                         <br />
@@ -114,14 +125,14 @@ class LoginForm extends React.Component {
                     <br />
                             <input required name="pass" type="password" />
                         </label>
-                        {!this.props.justLogin &&
+                        {formType === formTypes.register &&
                             <label>
                                 Bekreft passord
                                     <br />
                                 <input required name="pass2" type="password" />
                             </label>
                         }
-                        {!this.props.justLogin &&
+                        {formType === formTypes.register &&
                             <div >
                                 <h3>Varsler</h3>
                                     Du kan endre disse innstillingene når som helst i kontrollpanelet.
@@ -141,12 +152,15 @@ class LoginForm extends React.Component {
                             </div>
                         }
                         <br />
-                        <input className="bigGreenBtn" type="submit" value={this.props.heading} />
+                        <input className="bigGreenBtn" type="submit" value={formType} />
                     </form>
                 }
                 {this.state.status != null &&
                     <div className={"statusMessage" + (this.state.status ? " success" : " error")}>
-                        {!this.state.status && <FontAwesomeIcon icon={faExclamationCircle} />}
+                        {!this.state.status ? <FontAwesomeIcon icon={faExclamationCircle} />
+                            :
+                            <FontAwesomeIcon icon={faCheckCircle} />
+                        }
                         {this.state.message}
                     </div>
                 }
@@ -154,5 +168,7 @@ class LoginForm extends React.Component {
         );
     }
 }
+
+LoginForm.formTypes = formTypes;
 
 export default LoginForm;

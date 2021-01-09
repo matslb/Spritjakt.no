@@ -299,7 +299,6 @@ class ProductList extends React.Component {
     });
     this.applyUrlParams();
     this.handleSortChange();
-    this.filterProducts();
   }
 
   nextProduct = (change) => {
@@ -429,8 +428,8 @@ class ProductList extends React.Component {
     let option = this.state.sort;
     if (event && event.target) {
       option = event.target.value;
+      this.setUrlParams("sort", option);
     }
-    this.setUrlParams("sort", option);
     let sortingCriteria = option.split("_");
     let sortField = sortingCriteria[0];
     let sortOrder = sortingCriteria[1];
@@ -451,26 +450,6 @@ class ProductList extends React.Component {
     });
     this.filterProducts();
   };
-
-  setDiscountFilter = async (event) => {
-    let value = "all";
-    if (event.target.value) {
-      value = event.target.value;
-    }
-    let productTypes = this.state.productTypes;
-    Object.keys(productTypes).forEach(pt => {
-      productTypes[pt].products = {};
-      productTypes[pt].state = false;
-    });
-    await this.setState({
-      change: value,
-      loading: true,
-      timeSpan: 7,
-    });
-    this.resetUrlParams();
-    this.setUrlParams("change", value);
-    this.getProductData(7, true);
-  }
 
   stockFilter = (p, selectedStores) => {
     let isOnline = undefined;

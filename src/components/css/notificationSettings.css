@@ -17,9 +17,11 @@
     box-sizing: border-box;
     box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
 }
+
 .notificationSettings.active {
     right: 0;
 }
+
 .resultMessage {
     background: rgba(97, 160, 85, 0.93);
     padding: 0.2rem 0.5rem;
@@ -41,17 +43,21 @@
     border-radius: 3px;
     overflow: auto;
 }
+
 .list li {
     color: black;
     padding: 0.5rem;
 }
+
 .list li:last-child {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
 }
+
 .list li:nth-of-type(even) {
     background: #e8edf1;
 }
+
 .list .filter {
     list-style: none;
     display: flex;
@@ -61,6 +67,7 @@
     max-height: 10rem;
     overflow: auto;
 }
+
 .list .filter .details {
     display: flex;
     margin-right: 1rem;
@@ -71,28 +78,34 @@
 .list .filter .details > div {
     width: 50%;
 }
+
 .changeName {
     display: flex;
     align-items: center;
 }
+
 .changeName button {
     margin-left: 0.5rem;
 }
+
 .list .listHeaders {
     font-weight: bold;
     border-bottom: 3px solid grey;
 }
+
 .list .operations {
     width: 10%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 .sectionHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
 .profileStatusBar {
     top: 0;
     right: 0;
@@ -106,20 +119,24 @@
     background: #4f5e65b0;
     border-bottom-left-radius: 3px;
 }
+
 .profileStatusBar button,
 .profileStatusBar a {
     cursor: pointer;
     margin-left: 1rem;
 }
+
 .notificationSettings .toggleSettings {
     font-size: 1.5rem;
     margin-left: -1rem;
 }
+
 .notificationSettings .toolbar {
     background: rgba(0, 0, 0, 0.3);
     margin: -1rem -1.5rem 1rem;
     padding: 0.5rem 1.5rem;
 }
+
 .deleteWarning form {
     display: flex;
     background: white;
@@ -128,14 +145,24 @@
     align-items: center;
     border-radius: 3px;
 }
+
+.switchLoginNotice {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    text-align: right;
+}
+
 .deleteWarning button {
     margin-left: 1rem;
 }
+
 @media(max-width: 768px) {
     .notificationSettings {
         padding: 1rem 0.5rem;
     }
-    .notificationSettings .toolbar {
+    
+.notificationSettings .toolbar {
         margin: -1rem -0.5rem 1rem;
     }
 }

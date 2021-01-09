@@ -51,7 +51,7 @@ class NotificationSettings extends React.Component {
                     .onSnapshot(async (doc) => {
                         let userData = doc.data();
                         if (userData) {
-                            if (userData.products) {
+                            if (userData.products && userData.products.length > 0) {
                                 this.setState({ isLoading: true });
                                 this.spritjaktClient.FetchProductsById(userData.products).then(products => {
                                     this.setState({ productResult: products, isLoading: false });
@@ -275,12 +275,11 @@ class NotificationSettings extends React.Component {
                             {productResult && productResult.length > 0 &&
                                 <ul className="list miniproducts">{this.renderProducts()}</ul>
                             }
-                            {userData.products.length === 0 &&
+                            {userData.products && userData.products.length === 0 &&
                                 <p>Her listes favorittproduktene dine opp.</p>
                             }
-                            {isLoading && userData.products.length > 0 && productResult.length === 0 &&
+                            {isLoading && userData.products && userData.products.length > 0 && productResult.length === 0 &&
                                 <FontAwesomeIcon icon={faCircleNotch} size="3x" />
-
                             }
 
                         </div>
