@@ -59,11 +59,16 @@ class HighlightedProduct extends React.Component {
     let product = this.props.product;
     let list = [];
     let stores = product.Stock.Stores;
-    SortArray(stores, { by: "displayName" });
+    SortArray(stores, {
+      by: "displayName",
+      computed: {
+        displayName: store => store.pointOfService.displayName
+      }
+    });
     stores.map((store) =>
       list.push(
-        <li key={store.name}>
-          <strong>{store.displayName}:</strong>
+        <li key={store.pointOfService.name}>
+          <strong>{store.pointOfService.displayName}:</strong>
           {store.stockInfo.stockLevel} stk
         </li>
       )

@@ -2,26 +2,39 @@ nav.Pagination ul li {
     list-style: none;
     margin-right: 0.5rem;
 }
+
 nav.Pagination .pageButton {
     padding: 0.5rem;
     background: #e3e3e3;
     min-width: 2rem;
 }
+
 nav.Pagination .pageButton.dummy {
     background: white;
 }
+
 nav.Pagination .pageButton.active {
     background: #d0b55e;
     color: white;
 }
+
 nav.Pagination {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
 }
+
 nav.Pagination span {
     font-size: 0.8rem;
+    display: flex;
+    align-items: center;
 }
+
+nav.Pagination .fa-circle-notch {
+    opacity: 0.9;
+    margin: 0 1rem;
+}
+
 nav.Pagination ul {
     padding: 0;
     display: flex;
@@ -34,17 +47,20 @@ nav.Pagination ul {
         flex-direction: column;
         align-items: center;
     }
-    nav.Pagination ul {
+    
+nav.Pagination ul {
         margin: 2rem 0 1rem;
         display: grid;
         grid-template-columns: repeat(9, 1fr);
         gap: 2px;
         width: 100%;
     }
-    nav.Pagination .pageButton {
+    
+nav.Pagination .pageButton {
         width: 100%;
     }
-    nav.Pagination ul li {
+    
+nav.Pagination ul li {
         margin: 0;
     }
 }

@@ -35,7 +35,7 @@ module.exports = class NotificationClient {
                 user.filters.forEach(filter => {
                     let filterMatchedProducts = products.filter(p =>
                         (!filter.productTypes === undefined || filter.productTypes.length === 0 || filter.productTypes.includes(p.SubType))
-                        && (filter.stores === undefined || filter.stores.length === 0 || p.Stock.Stores.find(s => filter.stores.includes(s.name) || (filter.stores.includes("online") && !["Utgått", "Utsolgt"].includes(p.ProductStatusSaleName)))));
+                        && (filter.stores === undefined || filter.stores.length === 0 || p.Stock.Stores.find(s => filter.stores.includes(s.pointOfService.name) || (filter.stores.includes("online") && !["Utgått", "Utsolgt"].includes(p.ProductStatusSaleName)))));
                     if (filterMatchedProducts.length > 0) {
                         userFilterMatches.push({
                             user: user,

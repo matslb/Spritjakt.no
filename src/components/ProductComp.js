@@ -58,7 +58,7 @@ class ProductComp extends React.Component {
     let lastChangedDate = dateFormater.format(product.LastUpdated);
     let stock = 0;
     if (product.Stock.Stores.length > 0 && selectedStores !== false) {
-      let stores = product.Stock.Stores.filter((s) => selectedStores.includes(s.name));
+      let stores = product.Stock.Stores.filter((s) => selectedStores.includes(s.pointOfService.name));
       stores.forEach(store => {
         stock += store.stockInfo.stockLevel;
       });

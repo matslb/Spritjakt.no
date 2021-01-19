@@ -3,25 +3,30 @@
     grid-template-columns: 1fr 5fr;
     gap: 2rem;
 }
+
 .Productlist {
     padding: 1rem;
     max-width: 1200px;
     margin: auto;
     border-top: 1px solid;
 }
+
 .main > p {
     margin: 0 0 1rem;
     text-align: center;
 }
+
 .before_products {
     display: flex;
     justify-content: space-between;
 }
+
 .before_products p,
 .before_products select {
     margin: 2.5px 0;
     font-size: 0.85rem;
 }
+
 ul.ProductList {
     display: grid;
     grid-gap: 10px;
@@ -37,6 +42,7 @@ ul.ProductList {
     position: relative;
     z-index: 10;
 }
+
 .toggle.enter-done {
     opacity: 1;
     position: relative;
@@ -58,6 +64,7 @@ ul.ProductList {
     left: 0;
     right: 0;
 }
+
 .ProductList .fa-circle-notch {
     opacity: 0.4;
     position: absolute;
@@ -65,6 +72,7 @@ ul.ProductList {
     right: 0;
     margin: 0 auto;
 }
+
 .backdrop label {
     text-align: center;
     display: block;
@@ -76,6 +84,7 @@ ul.ProductList {
     right: 0;
     font-size: 0.8rem;
 }
+
 .backdrop {
     left: 0;
     right: 0;
@@ -97,6 +106,7 @@ ul.ProductList {
     border-top: 0.5px solid white;
     border-bottom: 0.5px solid white;
 }
+
 .productNavigation .productNav {
     font-size: 1.5rem;
 }
@@ -109,6 +119,7 @@ ul.ProductList {
     align-items: baseline;
     width: 100%;
 }
+
 .nav .timeSpan {
     grid-area: tim;
 }
@@ -121,6 +132,7 @@ ul.ProductList {
     gap: 10px;
     position: relative;
 }
+
 .nav .DiscountFilter .clickable {
     padding: 1rem 0.5rem;
     border-bottom-left-radius: 0;
@@ -131,30 +143,38 @@ ul.ProductList {
     opacity: 1;
     font-size: 1rem;
     background: white;
+    color: black;
     border-bottom: 5px solid rgba(0, 0, 0, 0.562);
 }
+
 .nav .DiscountFilter .clickable.active {
     border-bottom: 5px solid #d0b55e;
 }
+
 .nav .DiscountFilter .clickable:active,
 .nav .DiscountFilter .clickable:hover {
     border-bottom: 5px solid #d0b55e79;
 }
+
 .nav .stores,
 .nav .sorting,
 .nav .timeSpan {
     width: 100%;
     min-width: 16rem;
 }
+
 .nav .timeSpan {
     justify-self: end;
 }
+
 .nav .stores {
     grid-area: sto;
 }
+
 .nav .sorting {
     grid-area: sor;
 }
+
 .resetFilter.inactive {
     opacity: 0.3;
     cursor: default;
@@ -165,22 +185,27 @@ ul.ProductList {
     display: grid;
     grid-template-columns: 1fr;
 }
+
 .Productlist .filter fieldset {
     display: contents;
 }
+
 .Productlist .filter .toggleFilter {
     display: none;
     outline: none;
 }
+
 .Productlist .filter {
     display: flex;
     flex-direction: column;
 }
+
 .Productlist .filter legend {
     grid-area: leg;
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
 .filter_backdrop.inactive {
     display: none;
 }
@@ -193,28 +218,35 @@ ul.ProductList {
     align-items: center;
     margin: 0 0 1rem;
 }
+
 .filterSaver > div {
     margin-left: 2rem;
 }
+
 .filterSaverWrapper {
     min-height: 4.5rem;
 }
+
 @media(max-width: 1024px) {
     ul.ProductList {
         grid-template-columns: 1fr 1fr 1fr;
     }
 }
+
 @media(max-width: 768px) {
 
     .main {
         display: block;
     }
+
     ul.ProductList {
         grid-gap: 5px;
     }
+
     .info {
         text-align: left;
     }
+
     .before_products {
         flex-direction: column-reverse;
     }
@@ -222,9 +254,11 @@ ul.ProductList {
     .nav {
         grid-template-areas: "dis dis" "sto sto" "stock stock" "fil il" "sor tim";
     }
+
     .filter legend {
         font-size: 1.5rem;
     }
+
     .ProductTypes {
         overflow: scroll;
     }
@@ -264,13 +298,16 @@ ul.ProductList {
         width: 3.6rem;
         font-size: 1rem;
     }
+
     .Productlist .filter {
         right: 100%;
     }
+
     .Productlist .filter.active {
         right: 45%;
         z-index: 11;
     }
+
     .filter_backdrop.active {
         display: block;
         position: fixed;
@@ -281,15 +318,18 @@ ul.ProductList {
         z-index: 10;
         background: rgba(0, 0, 0, 0.2);
     }
+
     .nav .stores,
     .nav .sorting,
     .nav .timeSpan {
         width: 100%;
         min-width: unset;
     }
+
     .priceGraphWrapper {
         margin: 0;
     }
+
     .productNavigation {
         background: #49908d;
         border: none;
@@ -298,6 +338,7 @@ ul.ProductList {
 
 
 }
+
 @media(max-width: 540px) {
     ul.ProductList {
         grid-template-columns: 1fr 1fr;

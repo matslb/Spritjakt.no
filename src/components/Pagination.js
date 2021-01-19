@@ -1,3 +1,5 @@
+import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import "./css/pagination.css";
 import PageButton from "./PageButton";
@@ -37,7 +39,7 @@ class Pagination extends React.Component {
     return list;
   };
   render() {
-    let { pageSize, page, total } = this.props;
+    let { pageSize, page, total, loading } = this.props;
     let productsShowingtext;
 
     if (page === 1) {
@@ -51,6 +53,11 @@ class Pagination extends React.Component {
       <nav className="Pagination">
         <ul className="pagelist">{this.renderPageButtons()}</ul>
         <span>
+          {loading &&
+            <div className="prouctList-loader">
+              <FontAwesomeIcon icon={faCircleNotch} />
+            </div>
+          }
           Viser {productsShowingtext} av {total} produkter
         </span>
       </nav>

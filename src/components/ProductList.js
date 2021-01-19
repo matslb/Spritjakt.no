@@ -23,7 +23,7 @@ class ProductList extends React.Component {
       loadedProducts: [],
       stores: [],
       selectedStores: ["0"],
-      loading: null,
+      loading: true,
       sort: "LastUpdated_desc",
       productTypes: {},
       showAllresults: true,
@@ -229,31 +229,16 @@ class ProductList extends React.Component {
     return true;
   }
 
-  async getProductData(timeSpan, firstLoad = false) {
-    let products = [];
+  async getProductData(timeSpan = this.state.timeSpan, firstLoad = false) {
     const change = this.state.change;
-    if (firstLoad) {
-      let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === timeSpan));
-      while (timespanIndex < this.timeSpanOptions.length && products.length < this.state.pageSize) {
-        if (!this.state.loading) {
-          this.setState({ loading: true });
-          this.spritjaktClient.FetchProducts(this.timeSpanOptions[timespanIndex].value, change === "lowered").then(products => {
-            this.updateProductResults(products, true)
-          });
-        }
-        timespanIndex++;
-      }
-      timeSpan = this.timeSpanOptions[timespanIndex - 1].value;
-    } else {
-      this.spritjaktClient.FetchProducts(timeSpan, change === "lowered").then(products => this.updateProductResults(products));
-      this.setPage(1);
-    }
+    this.spritjaktClient.FetchProducts(timeSpan, change === "lowered").then(products => this.updateProductResults(products, firstLoad));
   }
-  updateProductResults(products, addToStack = false) {
+
+  updateProductResults(products, firstLoad = false) {
     if (products === undefined || products.length === 0) {
       return;
     }
-    let loadedProducts = addToStack ? this.state.loadedProducts : [];
+    let loadedProducts = [];
     let productTypes = this.state.productTypes;
     let stores = this.state.stores;
 
@@ -280,7 +265,7 @@ class ProductList extends React.Component {
       for (const i in p.Stock.Stores) {
         const store = p.Stock.Stores[i];
         stores.forEach(s => {
-          if (s.storeId === store.name) {
+          if (s.storeId === store.pointOfService.name) {
             if (s.count === undefined) {
               s.count = 0;
             }
@@ -299,6 +284,11 @@ class ProductList extends React.Component {
     });
     this.applyUrlParams();
     this.handleSortChange();
+
+    if (firstLoad && loadedProducts.length < 500) {
+      let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === this.state.timeSpan));
+      this.changeTimeSpan(null, this.timeSpanOptions[timespanIndex + 1].value);
+    }
   }
 
   nextProduct = (change) => {
@@ -328,6 +318,7 @@ class ProductList extends React.Component {
 
     }
   };
+
   selectAllTypes = (resetUrlParams = true) => {
     let productTypes = this.state.productTypes;
     Object.keys(this.state.productTypes).map(
@@ -351,7 +342,7 @@ class ProductList extends React.Component {
     this.filterProducts(this.state.selectedStores, productTypes);
   };
 
-  async filterProducts(selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
+  filterProducts(selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
     let productResult = [];
     let prevSelectedProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state) ?? [];
 
@@ -367,7 +358,7 @@ class ProductList extends React.Component {
       }
     }
 
-    await this.setState({
+    this.setState({
       productResult: productResult,
       page: this.state.page > Math.ceil(productResult.length / this.state.pageSize) ? 1 : this.state.page,
       productTypes: productTypes,
@@ -424,7 +415,6 @@ class ProductList extends React.Component {
   };
 
   handleSortChange = (event) => {
-
     let option = this.state.sort;
     if (event && event.target) {
       option = event.target.value;
@@ -458,19 +448,19 @@ class ProductList extends React.Component {
       isOnline = !(p.ProductStatusSaleName && ["Midlertidig utsolgt", "Utsolgt", "Utgått"].includes(p.ProductStatusSaleName));
     }
 
-    if (isOnline || (selectedStores.includes("0") || p.Stock.Stores.find((s) => selectedStores.includes(s.name)))) {
+    if (isOnline || (selectedStores.includes("0") || p.Stock.Stores.find((s) => selectedStores.includes(s.pointOfService.name)))) {
       return true;
     }
 
     return false;
   }
 
-  changeTimeSpan = (event) => {
-    if (!event) return;
-    let option = event.target.value;
-
+  changeTimeSpan = (event, timespan) => {
+    let option = event?.target?.value || timespan;
     this.setState({ timeSpan: option, loading: true });
-    this.setUrlParams("timespan", option);
+    if (event) {
+      this.setUrlParams("timespan", option);
+    }
     this.getProductData(option);
   };
 
@@ -578,12 +568,15 @@ class ProductList extends React.Component {
               page={this.state.page}
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
+              loading={this.state.loading}
             />
             <ul className="ProductList">
-              {this.state.loading ?
-                <FontAwesomeIcon icon={faCircleNotch} size="5x" />
-                :
-                this.displayProducts()}
+              {loading && productResult.length === 0 &&
+                <div className="prouctList-loader">
+                  <FontAwesomeIcon icon={faCircleNotch} size="5x" />
+                </div>
+              }
+              {this.displayProducts()}
               {productResult.length === 0 && this.state.loading === false ? (
                 <p
                   style={{
@@ -600,6 +593,7 @@ class ProductList extends React.Component {
               page={page}
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
+              loading={this.state.loading}
             />
             <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
             <div
