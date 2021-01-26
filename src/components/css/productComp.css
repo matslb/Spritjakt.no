@@ -10,13 +10,16 @@
     background: white;
     border-radius: 3px;
 }
+
 .ProductComp:focus-within,
 li.ProductComp:hover {
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
 }
+
 li.ProductComp:focus-within {
     outline: 1px auto black;
 }
+
 .ProductComp .changeDate {
     font-size: 0.8rem;
 }
@@ -37,36 +40,32 @@ li.ProductComp > button {
     background-size: contain;
 }
 
+.ProductComp .product_img.soldOut {
+    filter: grayscale();
+}
+
 .ProductComp .product_details {
     display: grid;
     grid-template-areas: "typ sto" "nam nam" "pri alk" "opr vol";
 }
+
 span.change_time {
     position: absolute;
     top: 5px;
     right: 5px;
     text-align: right;
 }
-.productWatchBtns {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    text-align: right;
-}
-.productWatchBtns .unwatched {
-    color: #555555;
-}
-.productWatchBtns .watched {
-    color: #90495d;
-}
+
 .ProductComp .alcohol {
     grid-area: alk;
     text-align: right;
 }
+
 .ProductComp .volume {
     grid-area: vol;
     text-align: right;
 }
+
 .ProductComp .type {
     grid-area: typ;
     border-bottom: 0.5px solid black;
@@ -75,37 +74,64 @@ span.change_time {
     font-size: 0.8rem;
     text-align: left;
 }
+
 .ProductComp .stock {
     grid-area: sto;
     border-bottom: 0.5px solid black;
     padding: 0.2rem;
     font-size: 0.8rem;
     text-align: right;
+    text-transform: capitalize;
 }
+
 .ProductComp .stock svg {
     opacity: 0.5;
+    margin-left: 5px;
 }
+
+
+.ProductComp .soldOutSticker {
+    color: #7a3b3b;
+    font-size: 1.5rem;
+    position: absolute;
+    top: 30%;
+    left: 20px;
+    right: 20px;
+    text-align: center;
+    font-weight: bold;
+    transform: rotateZ(27deg);
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.6);
+    border: 5px solid;
+    border-radius: 9px;
+    padding: 5px;
+}
+
 .ProductComp .price {
     grid-area: pri;
     font-size: 1.2rem;
     align-self: end;
     text-align: left;
 }
+
 .ProductComp .old_price {
     grid-area: opr;
     align-self: end;
     text-align: left;
 }
+
 .ProductComp .name {
     grid-area: nam;
     margin: 0.25rem 0;
     font-size: 1rem;
     text-align: left;
 }
+
 .ProductComp a {
     color: black;
     text-decoration: none;
 }
+
 .ProductComp span.description {
     position: absolute;
     top: 100%;
@@ -115,7 +141,6 @@ span.change_time {
     position: absolute;
     top: 0;
     left: 0;
-
 }
 
 .ProductComp span.old_price {
@@ -123,10 +148,12 @@ span.change_time {
     font-size: 1rem;
     display: block;
 }
+
 @media(max-width: 768px) {
     .ProductComp .name {
         font-size: 0.8rem;
     }
+
     .ProductComp .type,
     .ProductComp .stock {
         font-size: 0.7rem;

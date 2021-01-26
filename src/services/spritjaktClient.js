@@ -4,10 +4,11 @@ import "firebase/firestore";
 
 const allTimeEarliestDate = 1594166400000;
 
-const allowedTimeSpans = [7, 14, 30, 90];
+const allowedTimeSpans = [1, 7, 14, 30, 90];
 
 const getTimeFromNow = (n) => {
   const d = new Date();
+  n = n > allowedTimeSpans[allowedTimeSpans.length - 1] ? allowedTimeSpans[allowedTimeSpans.length - 1] : n;
   d.setDate(d.getDate() - n);
   return d.getTime();
 }

@@ -39,10 +39,20 @@ class SearchBar extends React.Component {
   };
 
   async SearchProducts(searchString) {
-    let productResult = await this.SpritjaktClient.SearchProducts(
-      searchString.toLowerCase()
-    );
+    let productResult = await this.SpritjaktClient.SearchProducts(searchString.toLowerCase());
     if (this.state.searchString !== searchString) return;
+    productResult.map(p => {
+      p.Stock.Stores.map(s => {
+        if (!s.pointOfService) {
+          s.pointOfService = {
+            name: s.name,
+            displayName: s.displayName
+          }
+        }
+        return s;
+      })
+      return p;
+    })
     this.setState({ loading: false, productResult: productResult });
     firebase.analytics().logEvent("product_search", { value: searchString });
   }

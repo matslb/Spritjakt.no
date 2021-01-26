@@ -1,7 +1,6 @@
 .expandedProduct {
     background: white;
     box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
-    top: 5px;
     border-radius: 3px;
     max-width: 25rem;
     z-index: 9999;
@@ -9,6 +8,10 @@
     grid-gap: 1rem;
     overflow: auto;
     max-height: calc(100vh - 90px);
+    position: relative;
+    top: 0;
+    bottom: 0;
+    margin: auto;
 }
 
 @media(max-width: 768px) {
@@ -22,15 +25,18 @@
 .fa-external-link-alt {
     margin-left: 0.5rem;
 }
+
 .expandedProduct .title {
     margin: 1rem 0;
 }
+
 .expandedProduct .graph {
     height: 15rem;
     max-height: 30vh;
     grid-area: gra;
     margin: -0.5rem -1rem;
 }
+
 .expandedProduct .ProductComp,
 .expandedProduct .ProductComp > button {
     cursor: default;

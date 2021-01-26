@@ -46,7 +46,7 @@ class ProductComp extends React.Component {
   }
 
   render() {
-    let { product, selectedStores = false } = this.props;
+    let { product, selectedStores = [] } = this.props;
     let background = {
       backgroundImage:
         "url(https://bilder.vinmonopolet.no/cache/100x100/" +
@@ -57,19 +57,24 @@ class ProductComp extends React.Component {
     let priceIsLower = product.LatestPrice < product.ComparingPrice;
     let lastChangedDate = dateFormater.format(product.LastUpdated);
     let stock = 0;
-    if (product.Stock.Stores.length > 0 && selectedStores !== false) {
+    let isSoldOut = false;
+
+    if (product.Stock.Stores.length > 0 && !selectedStores.includes("0")) {
       let stores = product.Stock.Stores.filter((s) => selectedStores.includes(s.pointOfService.name));
       stores.forEach(store => {
         stock += store.stockInfo.stockLevel;
       });
 
-    } else if (product.Stock.Stores.length > 0) {
+    } else {
       for (const i in product.Stock.Stores) {
         stock += product.Stock.Stores[i].stockInfo.stockLevel;
       }
     }
     if (stock === 0) {
-      stock = product.ProductStatusSaleName ? product.ProductStatusSaleName : "Kan bestilles";
+      stock = product.ProductStatusSaleName ? product.ProductStatusSaleName.replace("Midlertidig", "") : "Nettlager";
+      if (product.ProductStatusSaleName) {
+        isSoldOut = true;
+      }
     }
 
     return (
@@ -87,7 +92,7 @@ class ProductComp extends React.Component {
         >
           {product.Name}
         </button>
-        <div onClick={() => this.props.setGraph(product.Id)} className="product_img" style={background}></div>
+        <div onClick={() => this.props.setGraph(product.Id)} className={"product_img " + (isSoldOut ? " soldOut" : "")} style={background}></div>
         {showDiff &&
           <span className="percentage_change">
             {(priceIsLower ? "" : "+") + (product.SortingDiscount - 100).toFixed(1)}%
@@ -107,8 +112,13 @@ class ProductComp extends React.Component {
         <div onClick={() => this.props.setGraph(product.Id)} className="product_details">
           <h2 className="name">{product.Name}</h2>
           <span className="type">{product.SubType}</span>
-          <span className="stock" title="Lagerstatus">
-            {stock + " "}
+          {isSoldOut &&
+            <span className={"soldOutSticker"}>
+              {stock}
+            </span>
+          }
+          <span className={"stock"} title="Lagerstatus">
+            {stock}
             <FontAwesomeIcon icon={faBoxes} />
           </span>
           <span className="volume">
@@ -137,7 +147,7 @@ class ProductComp extends React.Component {
             </span>
           )}
         </div>
-      </li>
+      </li >
     );
   }
 }

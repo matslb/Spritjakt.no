@@ -65,7 +65,7 @@ exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).p
   }
 });
 
-exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 9 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 8 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreStocksToFetch = true;
   let freshStocks = [];
   let tries = 0;

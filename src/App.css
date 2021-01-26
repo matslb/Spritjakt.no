@@ -24,9 +24,11 @@
     transform: scale(0.75);
     margin-right: 10px;
 }
+
 .App-header > a {
     cursor: pointer;
 }
+
 @media(max-width: 768px) {
     .logo {
         transform: scale(0.5);
@@ -41,21 +43,26 @@
     text-align: center;
     font-weight: 400;
 }
+
 .Body {
     min-height: 70vh;
 }
+
 footer {
     margin: 0 auto;
     text-align: center;
     padding: 1rem;
 }
+
 footer span {
     display: block;
     padding: 1rem 0;
 }
+
 .clickable:hover {
     opacity: 0.7;
 }
+
 .clickable {
     transition: 0.1s 0.05s;
     text-align: center;
@@ -97,13 +104,16 @@ select:focus {
     border: none;
     box-shadow: none !important;
 }
+
 .main .select__control:focus-within {
     background-color: rgba(0, 0, 0, 0.05);
 }
+
 .main .select__control:focus-within:before {
     background-color: rgba(0, 0, 0, 0.05);
     border-bottom: 2px solid #d0b55e !important;
 }
+
 .main .select__control:before {
     content: "";
     width: 100%;
@@ -111,9 +121,11 @@ select:focus {
     bottom: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.87);
 }
+
 .main .select__control:hover:before {
     border-bottom: 2px solid rgba(0, 0, 0, 0.87);
 }
+
 .main .select__control .select__placeholder {
     font-size: 0.85rem;
     color: black;
@@ -124,6 +136,7 @@ select:focus {
     width: 100%;
     position: absolute;
 }
+
 .noinput.select__indicator.select__dropdown-indicator {
     width: 100%;
     display: flex;
@@ -134,6 +147,7 @@ select:focus {
 .MuiInputBase-root {
     display: block !important;
 }
+
 .MuiSelect-select.MuiSelect-select {
     padding-right: 0 !important;
     padding-left: 8px;
@@ -141,16 +155,20 @@ select:focus {
     height: 1.1rem;
     line-height: 1.1rem;
 }
+
 .MuiInput-underline:after {
     border-bottom: 2px solid #d0b55e !important;
 }
+
 .select__indicator.select__dropdown-indicator svg,
 .select__indicators .select__indicator-separator {
     display: none;
 }
+
 .select__indicator.select__dropdown-indicator {
     position: relative;
 }
+
 .select__indicator.select__dropdown-indicator:after {
     position: absolute;
     content: "";
@@ -174,19 +192,22 @@ input[type="password"] {
     font-size: 1rem;
     outline: none;
     border-bottom: 2px solid rgba(0, 0, 0, 0.562);
-    background: rgba(230, 230, 230, .85);
+    background: rgba(230, 230, 230, 0.85);
     padding: 0.5rem 0.2rem;
     width: 100%;
     max-width: 13rem;
 }
+
 input[type="text"]:active,
 input[type="email"]:active,
 input[type="password"]:active {
     border-bottom: 2px solid #d0b55e79;
 }
+
 button {
     cursor: pointer;
 }
+
 .bigRedBtn {
     background: #a00b35;
     border: none;
@@ -194,6 +215,7 @@ button {
     padding: 0.75rem;
     border-radius: 3px;
 }
+
 .bigGoldBtn {
     background: #d0b55e;
     border: none;
@@ -202,6 +224,7 @@ button {
     opacity: 1;
     border-radius: 3px;
 }
+
 .bigWhiteBtn {
     background: white;
     border: none;
@@ -210,6 +233,7 @@ button {
     opacity: 1;
     border-radius: 3px;
 }
+
 .bigGreenBtn {
     background: rgba(97, 160, 85, 0.9);
     border: none;
@@ -217,6 +241,7 @@ button {
     padding: 0.5rem;
     border-radius: 3px;
 }
+
 .iconBtn {
     background: none;
     color: white;
@@ -227,15 +252,19 @@ button {
     outline: none !important;
     font-size: 1rem;
 }
+
 .iconBtn:active {
     opacity: 0.7;
 }
+
 .iconBtn:hover {
     filter:drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
 }
+
 .dark {
     color: #4c4c4c;
 }
+
 .percentage_change {
     color: white;
     padding: 0.2rem 0.5rem;
@@ -266,6 +295,22 @@ button.link {
     background: rgba(97, 160, 85, 0.8);
     color: white;
 }
+
 a.clickable {
     text-decoration: none;
+}
+
+.productWatchBtns {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    text-align: right;
+}
+
+.productWatchBtns .unwatched {
+    color: #555555;
+}
+
+.productWatchBtns .watched {
+    color: #90495d;
 }

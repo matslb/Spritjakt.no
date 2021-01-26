@@ -10,10 +10,7 @@ class StoreSelector extends React.Component {
     let list = [];
     if (storeOptions && storeOptions.length > 0) {
       storeOptions.map(s => list.push(s.value));
-    } else {
-      list.push("0");
     }
-
     this.props.handleStoreUpdate(list);
   }
 

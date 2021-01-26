@@ -22,14 +22,13 @@ class ProductList extends React.Component {
     this.state = {
       loadedProducts: [],
       stores: [],
-      selectedStores: ["0"],
+      selectedStores: [],
       loading: true,
       sort: "LastUpdated_desc",
       productTypes: {},
-      showAllresults: true,
       highlightedProduct: false,
       graphIsVisible: false,
-      timeSpan: 7,
+      timeSpan: 1,
       productResult: [],
       page: 1,
       pageSize: 24,
@@ -37,7 +36,11 @@ class ProductList extends React.Component {
       filterVisibility: false,
       user: null,
       urlParameters: {},
-      filterName: ""
+      filterName: "",
+      filter: {
+        productTypes: [],
+        stores: []
+      }
     };
 
     this.sortOptions = [
@@ -49,6 +52,7 @@ class ProductList extends React.Component {
       { label: "Pris (høy-lav)", value: "LatestPrice_desc" }
     ];
     this.timeSpanOptions = [
+      { label: "Siste døgn", value: 1 },
       { label: "Siste 7 dager", value: 7 },
       { label: "Siste 14 dager", value: 14 },
       { label: "Siste 30 dager", value: 30 },
@@ -64,10 +68,7 @@ class ProductList extends React.Component {
       this.setUrlParams("product");
     }
   }
-  resetUrlParams = () => {
-    this.setState({ urlParameters: {} });
-    window.history.replaceState('', '', '?');
-  }
+
   setUrlParams = (field, value = null) => {
     let urlParameters = this.state.urlParameters;
     urlParameters[field] = value;
@@ -83,11 +84,6 @@ class ProductList extends React.Component {
     window.history.replaceState('', '', '?' + query);
   }
 
-  async updateUrlParams() {
-    this.selectAllTypes(false);
-    await this.setState({ urlParameters: queryString.parse(window.location.search, { arrayFormat: 'comma' }) });
-    this.applyUrlParams();
-  }
   applyUrlParams = (urlParameters = this.state.urlParameters) => {
     this.setState({ urlParameters: urlParameters });
     Object.keys(urlParameters).forEach(field => {
@@ -138,13 +134,12 @@ class ProductList extends React.Component {
     });
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     window.onpopstate = (e) => this.onbackPress(e);
-
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         firebase.firestore().collection("Users").doc(user.uid)
-          .onSnapshot(async (doc) => {
+          .onSnapshot((doc) => {
             if (!doc.exists) {
               return null;
             }
@@ -156,9 +151,21 @@ class ProductList extends React.Component {
             if (userData.filters === undefined) {
               userData.filters = [];
             }
-
-            this.setState({ user: userData });
-            this.createFilter();
+            var productTypes = this.state.productTypes;
+            userData.filters.forEach(filter => {
+              filter.productTypes.forEach(productType => {
+                if (!productTypes[productType]) {
+                  productTypes[productType] = {
+                    products: {},
+                    state: false,
+                  }
+                }
+              });
+            });
+            this.setState({
+              user: userData,
+              productTypes: productTypes
+            }, () => this.createFilter());
           });
       } else {
         this.setState({ user: null });
@@ -175,16 +182,14 @@ class ProductList extends React.Component {
       this.setState({ stores: stores });
     }).then(
       this.spritjaktClient.FetchProductTypes().then((productTypes) => {
-        this.setState({ productTypes: productTypes });
-      }).then(async () => {
+      }).then(() => {
         this.applyUrlParams(queryString.parse(window.location.search, { arrayFormat: 'comma' }));
-        await this.getProductData(this.state.timeSpan, true);
+        this.getProductData(this.state.timeSpan, true);
       })
     );
   }
 
-  async SaveUserFilter(e) {
-
+  saveUserFilter(e) {
     if (this.state.user) {
       this.spritjaktClient.SaveUserFilter(this.state.filter);
       this.Notification.current.setNotification(e, "Lagret", "success");
@@ -195,7 +200,7 @@ class ProductList extends React.Component {
 
   }
 
-  createFilter(selectedStores = this.state.selectedStores.filter(s => s !== "0")) {
+  createFilter(selectedStores = this.state.selectedStores) {
     let productTypesInFilter = [];
     Object.keys(this.state.productTypes).forEach(pt => {
       if (this.state.productTypes[pt].state) {
@@ -229,13 +234,13 @@ class ProductList extends React.Component {
     return true;
   }
 
-  async getProductData(timeSpan = this.state.timeSpan, firstLoad = false) {
+  getProductData(autoFetch = false) {
     const change = this.state.change;
-    this.spritjaktClient.FetchProducts(timeSpan, change === "lowered").then(products => this.updateProductResults(products, firstLoad));
+    this.spritjaktClient.FetchProducts(this.state.timeSpan, change === "lowered").then(products => this.updateProductResults(products, autoFetch));
   }
 
-  updateProductResults(products, firstLoad = false) {
-    if (products === undefined || products.length === 0) {
+  updateProductResults(products, autoFetch = false) {
+    if (products === undefined) {
       return;
     }
     let loadedProducts = [];
@@ -248,9 +253,6 @@ class ProductList extends React.Component {
       (ptkey) =>
         (productTypes[ptkey].products = {})
     );
-    let selectedTypes = Object.keys(productTypes).filter((pt) => {
-      return productTypes[pt].state;
-    });
 
     //Updating existing product type counts
     Object.keys(products).forEach((id) => {
@@ -263,6 +265,12 @@ class ProductList extends React.Component {
         };
       }
       for (const i in p.Stock.Stores) {
+        if (!p.Stock.Stores[i].pointOfService) {
+          p.Stock.Stores[i].pointOfService = {
+            name: p.Stock.Stores[i].name,
+            displayName: p.Stock.Stores[i].displayName
+          }
+        }
         const store = p.Stock.Stores[i];
         stores.forEach(s => {
           if (s.storeId === store.pointOfService.name) {
@@ -279,15 +287,16 @@ class ProductList extends React.Component {
       stores: stores,
       loadedProducts: loadedProducts,
       productTypes: productTypes,
-      loading: false,
-      showAllresults: selectedTypes.length > 0 ? false : true
+      loading: false
     });
     this.applyUrlParams();
     this.handleSortChange();
 
-    if (firstLoad && loadedProducts.length < 500) {
-      let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === this.state.timeSpan));
-      this.changeTimeSpan(null, this.timeSpanOptions[timespanIndex + 1].value);
+    if (autoFetch && loadedProducts.length < 200) {
+      let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === this.state.timeSpan)) + 1;
+      if (this.timeSpanOptions[timespanIndex]) {
+        this.changeTimeSpan(null, this.timeSpanOptions[timespanIndex].value, autoFetch);
+      }
     }
   }
 
@@ -300,7 +309,7 @@ class ProductList extends React.Component {
     }
   }
 
-  async setGraph(productId) {
+  setGraph(productId) {
     if (productId === null) {
       this.setState({ highlightedProduct: false, graphIsVisible: false });
       this.onbackPress();
@@ -319,20 +328,18 @@ class ProductList extends React.Component {
     }
   };
 
-  selectAllTypes = (resetUrlParams = true) => {
+  resetFilter = () => {
     let productTypes = this.state.productTypes;
     Object.keys(this.state.productTypes).map(
       (pt) => (productTypes[pt].state = false)
     );
-    this.setState({
-      productTypes: productTypes,
-      showAllresults: true,
-    });
-    if (resetUrlParams) {
-      this.setUrlParams("filter", null);
-    }
-    this.filterProducts();
+    this.filterProducts([], productTypes);
   };
+
+  resetFilterUrl = () => {
+    this.setUrlParams("stores", null);
+    this.setUrlParams("filter", null);
+  }
 
   handleFilterClick = (isSelected, name) => {
     let productTypes = this.state.productTypes;
@@ -345,8 +352,6 @@ class ProductList extends React.Component {
   filterProducts(selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
     let productResult = [];
     let prevSelectedProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state) ?? [];
-
-
     for (let i = 0; i < this.state.loadedProducts.length; i++) {
       const p = this.state.loadedProducts[i];
 
@@ -362,10 +367,8 @@ class ProductList extends React.Component {
       productResult: productResult,
       page: this.state.page > Math.ceil(productResult.length / this.state.pageSize) ? 1 : this.state.page,
       productTypes: productTypes,
-      selectedStores: selectedStores,
-      showAllresults: Object.keys(productTypes).find(pt => productTypes[pt].state) ? false : true
-    });
-    this.createFilter();
+      selectedStores: selectedStores
+    }, () => this.createFilter());
   }
 
   displayProducts = () => {
@@ -403,13 +406,9 @@ class ProductList extends React.Component {
     return date.toISOString().slice(0, 10);
   };
 
-  async handleStoreUpdate(storeList) {
+  handleStoreUpdate(storeList) {
     let productTypes = this.state.productTypes;
     Object.keys(productTypes).map(pt => productTypes[pt].products = {});
-    this.setState({
-      storeList: storeList,
-      productTypes: productTypes
-    });
     this.setUrlParams("stores", storeList);
     this.filterProducts(storeList, productTypes);
   };
@@ -437,8 +436,7 @@ class ProductList extends React.Component {
     this.setState({
       loadedProducts: list,
       sort: option
-    });
-    this.filterProducts();
+    }, () => this.filterProducts(this.state.selectedStores, this.state.productTypes));
   };
 
   stockFilter = (p, selectedStores) => {
@@ -448,20 +446,26 @@ class ProductList extends React.Component {
       isOnline = !(p.ProductStatusSaleName && ["Midlertidig utsolgt", "Utsolgt", "Utgått"].includes(p.ProductStatusSaleName));
     }
 
-    if (isOnline || (selectedStores.includes("0") || p.Stock.Stores.find((s) => selectedStores.includes(s.pointOfService.name)))) {
+    if (isOnline || (selectedStores.length === 0 || p.Stock.Stores.find((s) => selectedStores.includes(s.pointOfService.name)))) {
       return true;
     }
 
     return false;
   }
 
-  changeTimeSpan = (event, timespan) => {
+  changeTimeSpan = (event, timespan, autoFetch = false) => {
     let option = event?.target?.value || timespan;
-    this.setState({ timeSpan: option, loading: true });
-    if (event) {
-      this.setUrlParams("timespan", option);
-    }
-    this.getProductData(option);
+    this.setState({
+      timeSpan: option,
+      loading: true
+    },
+      () => {
+        if (event) {
+          this.setUrlParams("timespan", option);
+        }
+        this.getProductData(autoFetch);
+      }
+    );
   };
 
   setPage = (page) => {
@@ -478,7 +482,7 @@ class ProductList extends React.Component {
         <div className="filterSaverWrapper">
           {(!currentFilterExists && !loading && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
             <div className="filterSaver">
-              <button className="bigGoldBtn clickable" onClick={(e) => { this.SaveUserFilter(e) }}>Lagre filter</button>
+              <button className="bigGoldBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
               <div>
                 <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
                 {user && !user.notifications.onFilters &&
@@ -502,9 +506,9 @@ class ProductList extends React.Component {
               {!this.state.filterVisibility ? ("Filter") : (<FontAwesomeIcon title="Lukk filter" icon={faTimes} />)}
             </button>
             <fieldset disabled={!this.state.filterVisibility && isMobileOnly}>
-              <button disabled={this.state.showAllresults}
-                className={"clickable bigGreenBtn resetFilter show " + (this.state.showAllresults ? "inactive" : "active")}
-                onClick={() => this.selectAllTypes()}>
+              <button disabled={filter.stores.length === 0 && filter.productTypes.length === 0}
+                className={"clickable bigGreenBtn resetFilter show " + (filter.stores.length === 0 && filter.productTypes.length === 0 ? "inactive" : "active")}
+                onClick={() => { this.resetFilter(); this.resetFilterUrl(); }}>
                 Nullstill
               </button>
               <div className="ProductTypes">{this.displayProductTypes()}</div>
@@ -516,7 +520,7 @@ class ProductList extends React.Component {
                 <div className="DiscountFilter">
                   <a
                     className={"clickable " + (this.state.change === "lowered" ? "active" : "")}
-                    href={"?change=lowered"}
+                    href={"/"}
                   >Ned i pris</a>
                   <a
                     className={"clickable " + (this.state.change === "raised" ? "active" : "")}

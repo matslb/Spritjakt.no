@@ -6,6 +6,7 @@ import firebase from "firebase/app";
 import "firebase/analytics";
 import NotificationSettings from "./NotificationSettings";
 import LoginPage from "./LoginPage";
+import LoginForm from "./LoginForm";
 
 class Homepage extends React.Component {
     constructor(props) {
@@ -28,10 +29,11 @@ class Homepage extends React.Component {
     }
 
     toggleLoginSection = () => {
-        this.LoginPage.current.toggleLoginSection();
+        this.LoginPage.current.setFormType(LoginForm.formTypes.register);
     }
     applyUserFilter = () => {
-        this.ProductList.current.updateUrlParams();
+        this.ProductList.current.resetFilter();
+        this.ProductList.current.applyUrlParams(queryString.parse(window.location.search, { arrayFormat: 'comma' }));
     }
 
     render() {
