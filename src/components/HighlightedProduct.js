@@ -92,7 +92,7 @@ class HighlightedProduct extends React.Component {
       backgroundImage: "url(https://bilder.vinmonopolet.no/cache/100x100/" + product.Id + "-1.jpg)",
     };
     var priceIsLower = product.LatestPrice < product.ComparingPrice;
-    var showDiff = product.SortingDiscount !== 100;
+    var showDiff = product.Discount !== 100;
 
     return (
       <div
@@ -113,18 +113,21 @@ class HighlightedProduct extends React.Component {
         <div className="product_img" style={background}></div>
         {showDiff &&
           <span className="percentage_change">
-            {(priceIsLower ? "" : "+") + (product.SortingDiscount - 100).toFixed(1)}%
+            {(priceIsLower ? "" : "+") + (product.Discount - 100).toFixed(1)}%
           </span>
         }
         <div className="product_details">
           <h2 className="name">{product.Name}</h2>
-          <span className="price">Kr. {product.LatestPrice}</span>
+          <span className="price">Kr {product.LatestPrice}</span>
+          <span className="old_price">Kr {product.ComparingPrice}</span>
           <span className="details">
             {product.SubType}, {product.Country}
             <br />
             {(product.Volume * 100).toFixed(1)}
             cl, Alk. {product.Alcohol}%
           </span>
+          <span className="liter_price">Kr {product.Literprice.toFixed(0)} per liter</span>
+          <span className="liter_price_alchohol">Kr {product.LiterPriceAlcohol.toFixed(0)} per liter alkohol</span>
           {product.Description && (
             <span className="description">
               <p className="colour">
@@ -141,6 +144,7 @@ class HighlightedProduct extends React.Component {
               </p>
             </span>
           )}
+
         </div>
         <a
           rel="noopener noreferrer"

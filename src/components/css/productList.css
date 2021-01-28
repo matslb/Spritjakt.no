@@ -333,7 +333,7 @@ ul.ProductList {
     .productNavigation {
         background: #49908d;
         border: none;
-        margin: auto;
+        margin: -5px 0 0;
     }
 
 

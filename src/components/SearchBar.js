@@ -50,8 +50,8 @@ class SearchBar extends React.Component {
           }
         }
         return s;
-      })
-      return p;
+      });
+      return this.SpritjaktClient.CalculateProductDiscount(p);
     })
     this.setState({ loading: false, productResult: productResult });
     firebase.analytics().logEvent("product_search", { value: searchString });

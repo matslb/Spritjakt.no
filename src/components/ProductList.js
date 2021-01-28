@@ -45,7 +45,9 @@ class ProductList extends React.Component {
 
     this.sortOptions = [
       { label: "Nyeste", value: "LastUpdated_desc" },
-      { label: "Prisendring", value: "SortingDiscount" },
+      { label: "Prisendring", value: "Discount" },
+      { label: "Literpris", value: "Literprice_asc" },
+      { label: "Student (literpris alkohol)", value: "LiterPriceAlcohol_asc" },
       { label: "Navn (A-Å)", value: "Name_asc" },
       { label: "Navn (Å-A)", value: "Name_desc" },
       { label: "Pris (lav-høy)", value: "LatestPrice_asc" },
@@ -56,7 +58,8 @@ class ProductList extends React.Component {
       { label: "Siste 7 dager", value: 7 },
       { label: "Siste 14 dager", value: 14 },
       { label: "Siste 30 dager", value: 30 },
-      { label: "Siste 90 dager", value: 90 }
+      { label: "Siste 90 dager", value: 90 },
+      { label: "Siste 6 måneder", value: 180 }
     ];
     this.spritjaktClient = new SpritjaktClient();
     this.Notification = React.createRef();
@@ -413,26 +416,27 @@ class ProductList extends React.Component {
     this.filterProducts(storeList, productTypes);
   };
 
-  handleSortChange = (event) => {
-    let option = this.state.sort;
-    if (event && event.target) {
-      option = event.target.value;
+  handleSortChange = (event = null) => {
+    let option = event?.target?.value || this.state.sort;
+    if (event) {
       this.setUrlParams("sort", option);
     }
     let sortingCriteria = option.split("_");
     let sortField = sortingCriteria[0];
     let sortOrder = sortingCriteria[1];
 
-    if (sortField === "SortingDiscount") {
-      sortOrder = this.state.change === "raised" ? "desc" : "asc";
+    var discountOrder = this.state.change === "raised" ? "desc" : "asc";
+    if (sortField === "Discount") {
+      sortOrder = discountOrder;
     }
 
     let list = this.state.loadedProducts;
 
     SortArray(list, {
-      by: [sortField, "Name"],
-      order: [sortOrder, "asc"],
+      by: [sortField, "Discount"],
+      order: [sortOrder, discountOrder],
     });
+
     this.setState({
       loadedProducts: list,
       sort: option

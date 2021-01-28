@@ -4,7 +4,7 @@ import "firebase/firestore";
 
 const allTimeEarliestDate = 1594166400000;
 
-const allowedTimeSpans = [1, 7, 14, 30, 90];
+const allowedTimeSpans = [1, 7, 14, 30, 90, 180];
 
 const getTimeFromNow = (n) => {
   const d = new Date();
@@ -65,7 +65,7 @@ class SpritjaktClient {
 
               p = this.CalculateProductDiscount(p, startPoint);
 
-              if (p.SortingDiscount && (p.SortingDiscount >= 101 || p.SortingDiscount <= 99) && !this.loadedProducts.find(lp => lp.Id === p.Id)) {
+              if (p.Discount && (p.Discount >= 101 || p.Discount <= 99) && !this.loadedProducts.find(lp => lp.Id === p.Id) && p.Type !== "Alkoholfritt") {
                 this.loadedProducts.push(p);
               }
             });
@@ -83,12 +83,13 @@ class SpritjaktClient {
   CalculateProductDiscount(p, startPoint = Date.now()) {
     let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(priceDate => (priceDate <= startPoint && parseInt(priceDate) !== parseInt(p.LastUpdated)));
     p.ComparingPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
-    p.SortingDiscount = (p.LatestPrice / p.ComparingPrice * 100);
+    p.Discount = (p.LatestPrice / p.ComparingPrice * 100);
+    p.Literprice = Math.ceil(p.LatestPrice / (p.Volume * 100) * 100);
+    p.LiterPriceAlcohol = Math.ceil((100 / p.Alcohol) * p.Literprice);
     if (p.ComparingPrice === undefined) {
-      p.SortingDiscount = 100;
+      p.Discount = 100;
     }
-
-    return p
+    return p;
   }
 
   async SearchProducts(searchString) {

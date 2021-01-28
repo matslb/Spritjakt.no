@@ -53,7 +53,7 @@ class ProductComp extends React.Component {
         product.Id +
         "-1.jpg)",
     };
-    let showDiff = product.SortingDiscount !== 100;
+    let showDiff = product.Discount !== 100;
     let priceIsLower = product.LatestPrice < product.ComparingPrice;
     let lastChangedDate = dateFormater.format(product.LastUpdated);
     let stock = 0;
@@ -95,7 +95,7 @@ class ProductComp extends React.Component {
         <div onClick={() => this.props.setGraph(product.Id)} className={"product_img " + (isSoldOut ? " soldOut" : "")} style={background}></div>
         {showDiff &&
           <span className="percentage_change">
-            {(priceIsLower ? "" : "+") + (product.SortingDiscount - 100).toFixed(1)}%
+            {(priceIsLower ? "" : "+") + (product.Discount - 100).toFixed(1)}%
           </span>
         }
         <span className="productWatchBtns">
@@ -110,7 +110,6 @@ class ProductComp extends React.Component {
           }
         </span>
         <div onClick={() => this.props.setGraph(product.Id)} className="product_details">
-          <h2 className="name">{product.Name}</h2>
           <span className="type">{product.SubType}</span>
           {isSoldOut &&
             <span className={"soldOutSticker"}>
@@ -121,31 +120,15 @@ class ProductComp extends React.Component {
             {stock}
             <FontAwesomeIcon icon={faBoxes} />
           </span>
-          <span className="volume">
-            {(product.Volume * 100).toFixed(1)}
-            cl
-          </span>
-          <span className="alcohol">Alk. {product.Alcohol}%</span>
-          <span className="price">Kr. {product.LatestPrice}</span>
+          <h2 className="name">{product.Name}</h2>
+          <span className="price">Kr {product.LatestPrice}</span>
           {showDiff && (
-            <span className="old_price">Kr. {product.ComparingPrice}</span>
+            <span className="old_price secondary">Kr {product.ComparingPrice}</span>
           )}
-          {product.Description && (
-            <span className="description">
-              <p className="colour">
-                <span>Farge</span>
-                {product.Description.characteristics.colour}
-              </p>
-              <p className="odour">
-                <span>Lukt</span>
-                {product.Description.characteristics.odour}
-              </p>
-              <p className="taste">
-                <span>Smak</span>
-                {product.Description.characteristics.taste}
-              </p>
-            </span>
-          )}
+          <span className="volume secondary">
+            {(product.Volume * 100).toFixed(1)} cl
+          </span>
+          <span className="alcohol secondary">Alk. {product.Alcohol}%</span>
         </div>
       </li >
     );

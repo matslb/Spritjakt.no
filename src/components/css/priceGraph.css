@@ -17,7 +17,6 @@
 @media(max-width: 768px) {
     .expandedProduct {
         top: 0;
-        margin: 0;
         height: 100%;
     }
 }

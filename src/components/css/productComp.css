@@ -46,7 +46,7 @@ li.ProductComp > button {
 
 .ProductComp .product_details {
     display: grid;
-    grid-template-areas: "typ sto" "nam nam" "pri alk" "opr vol";
+    grid-template-areas: "typ sto" "nam nam" "pri alc" "opr vol";
 }
 
 span.change_time {
@@ -57,7 +57,7 @@ span.change_time {
 }
 
 .ProductComp .alcohol {
-    grid-area: alk;
+    grid-area: alc;
     text-align: right;
 }
 
@@ -89,7 +89,6 @@ span.change_time {
     margin-left: 5px;
 }
 
-
 .ProductComp .soldOutSticker {
     color: #7a3b3b;
     font-size: 1.5rem;
@@ -110,7 +109,6 @@ span.change_time {
 .ProductComp .price {
     grid-area: pri;
     font-size: 1.2rem;
-    align-self: end;
     text-align: left;
 }
 
@@ -118,6 +116,9 @@ span.change_time {
     grid-area: opr;
     align-self: end;
     text-align: left;
+    text-decoration: line-through;
+    font-size: 1rem;
+    display: block;
 }
 
 .ProductComp .name {
@@ -125,6 +126,17 @@ span.change_time {
     margin: 0.25rem 0;
     font-size: 1rem;
     text-align: left;
+}
+
+.ProductComp .liter_price_alchohol {
+    grid-area: prialc;
+    border-bottom: 0.5px solid black;
+    padding-bottom: 5px;
+}
+
+.ProductComp .liter_price {
+    grid-area: liPri;
+    margin-top: 5px;
 }
 
 .ProductComp a {
@@ -143,11 +155,7 @@ span.change_time {
     left: 0;
 }
 
-.ProductComp span.old_price {
-    text-decoration: line-through;
-    font-size: 1rem;
-    display: block;
-}
+.ProductComp span.old_price {}
 
 @media(max-width: 768px) {
     .ProductComp .name {
