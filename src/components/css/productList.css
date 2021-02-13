@@ -180,10 +180,24 @@ ul.ProductList {
     cursor: default;
 }
 
-.ProductTypes {
+.filter-items {
     grid-area: pts;
     display: grid;
     grid-template-columns: 1fr;
+}
+
+.filter-items.hidden .filter-item.false {
+    display: none;
+}
+
+.filter-heading {
+    font-weight: 400;
+    margin-bottom: 5px;
+    padding-bottom: 0.5rem;
+    border-bottom: 5px solid #d0b55e;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 .Productlist .filter fieldset {
@@ -259,9 +273,10 @@ ul.ProductList {
         font-size: 1.5rem;
     }
 
-    .ProductTypes {
+    .filter-items {
         overflow: scroll;
     }
+
 
     .Productlist .filter {
         position: fixed;

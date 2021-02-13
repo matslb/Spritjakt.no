@@ -1,6 +1,7 @@
 import rp from "request-promise";
 import firebase from "firebase/app";
 import "firebase/firestore";
+import SortArray from "sort-array";
 
 const allTimeEarliestDate = 1594166400000;
 
@@ -115,6 +116,9 @@ class SpritjaktClient {
     const storesRef = firebase.firestore().collection("Constants").doc("Stores");
     let storeObject = storesRef.get();
     storeObject = (await storeObject).data();
+    SortArray(storeObject.Stores, {
+      by: ["storeName"]
+    });
     return storeObject.Stores;
   }
 

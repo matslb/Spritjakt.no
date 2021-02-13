@@ -68,16 +68,16 @@ class HighlightedProduct extends React.Component {
     stores.map((store) =>
       list.push(
         <li key={store.pointOfService.name}>
-          <strong>{store.pointOfService.displayName}:</strong>
+          <span>{store.pointOfService.displayName}:</span>
           {store.stockInfo.stockLevel} stk
         </li>
       )
     );
     list.push(
       <li key={"0"}>
-        <strong>
+        <span>
           Nettbutikk:
-            </strong>
+            </span>
         {product.ProductStatusSaleName ?
           product.ProductStatusSaleName : "Kan bestilles"
         }

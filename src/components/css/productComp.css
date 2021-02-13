@@ -155,8 +155,6 @@ span.change_time {
     left: 0;
 }
 
-.ProductComp span.old_price {}
-
 @media(max-width: 768px) {
     .ProductComp .name {
         font-size: 0.8rem;

@@ -1,10 +1,4 @@
-.ProductType {
-    text-align: center;
-    border-radius: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
+.filter-item {
     color: #1f2b33;
     cursor: pointer;
     padding: 2px 0;
@@ -13,7 +7,11 @@
     position: relative;
 }
 
-label.clickable.ProductType:after {
+.filter-item:first-of-type {
+    border-top: 0;
+}
+
+label.clickable.filter-item:after {
     content: "";
     position: absolute;
     bottom: 0;
@@ -24,30 +22,30 @@ label.clickable.ProductType:after {
     z-index: -1;
     max-height: 0.1px;
     opacity: 0;
-    transition: max-height 0.2s ease, opacity 0.2s 0s;
-}
-label.clickable.ProductType.true:after {
-    max-height: 10rem;
-    opacity: 1;
-    transition: max-height 0.2s ease, opacity 0s 0s;
 }
 
-label.ProductType.true {
+label.clickable.filter-item.true:after {
+    max-height: 10rem;
+    opacity: 1;
+}
+
+label.filter-item.true {
     color: white;
 }
 
-label.ProductType:hover,
-label.ProductType:focus-within {
+label.filter-item:hover,
+label.filter-item:focus-within {
     background: #d0b55e7c;
     max-height: 10rem;
 }
 
-.ProductType span.name {
+.filter-item span.name {
     padding: 0.2rem 0.5rem;
     text-align: left;
     width: 100%;
 }
-.ProductType span.count {
+
+.filter-item span.count {
     margin: 0;
     border-left: 0.5px solid rgba(255, 255, 255, 1);
     padding: 0.2rem 0.5rem;
@@ -58,14 +56,16 @@ label.ProductType:focus-within {
     min-width: 1rem;
     display: block;
 }
-label.ProductType input {
+
+label.filter-item input {
     width: 0;
     margin: 0;
     opacity: 0;
 }
+
 @media(max-width: 768px) {
-    .ProductType span.count,
-    .ProductType span.name {
+    .filter-item span.count,
+    .filter-item span.name {
         padding: 0.3rem 0.5rem;
     }
 }

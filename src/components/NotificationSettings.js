@@ -130,13 +130,11 @@ class NotificationSettings extends React.Component {
     }
 
     applyFilter = (filter) => {
-        let urlParams = { stores: ["0"] };
+        let urlParams = {};
 
-        if (filter.stores.length > 0) {
-            filter.stores.map(s => s = s.storeId);
-            urlParams.stores = filter.stores;
-        }
-        urlParams.filter = filter.productTypes;
+        urlParams.stores = filter.stores;
+        urlParams.types = filter.productTypes;
+        urlParams.countries = filter.countries;
 
         let query = queryString.stringify(urlParams, { arrayFormat: 'comma' });
         window.history.replaceState('', '', '?' + query);
@@ -149,7 +147,7 @@ class NotificationSettings extends React.Component {
         for (const filter of this.state.userData.filters) {
 
             let storeNames = [];
-            if (this.state.stores) {
+            if (this.state.stores && filter.stores) {
                 filter.stores.forEach(id => {
                     storeNames.push(this.state.stores.find(s => s.storeId === id)?.storeName);
                 });
@@ -167,6 +165,7 @@ class NotificationSettings extends React.Component {
                 <div className="details">
                     <div className="stores">{storeNames.length > 0 ? storeNames.join().replace(/,/g, ", ") : "Alle"}</div>
                     <div className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
+                    <div className="countries">{filter.countries?.length > 0 ? filter.countries?.join().replace(/,/g, ", ") : "Alle"}</div>
                 </div>
                 <div className="operations">
                     <button aria-label="Slett filter" className="iconBtn dark" onClick={(e) => {
@@ -248,7 +247,8 @@ class NotificationSettings extends React.Component {
                                         </div>
                                         <div className="details">
                                             <div className="stores">Butikker</div>
-                                            <div className="productTypes">Varetyper</div>
+                                            <div className="productTypes">Typer</div>
+                                            <div className="productTypes">Land</div>
                                         </div>
                                         <div className="operations">
                                         </div>

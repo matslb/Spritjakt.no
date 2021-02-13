@@ -33,12 +33,11 @@ module.exports = class NotificationClient {
         users.forEach(user => {
             if (user.filters && user.filters.length > 0 && user.notifications.onFilters) {
                 user.filters.forEach(filter => {
-                    let filterMatchedProducts = products.filter(p =>
-                        (!filter.productTypes === undefined || filter.productTypes.length === 0 || filter.productTypes.includes(p.SubType))
-                        && (filter.stores === undefined ||
-                            filter.stores.length === 0 ||
-                            p.Stock.Stores.find(s => s.pointOfService && filter.stores.includes(s.pointOfService.name)
-                                || (filter.stores.includes("online") && !["Utgått", "Utsolgt"].includes(p.ProductStatusSaleName)))));
+                    let filterMatchedProducts = products.filter(p => (
+                        this.ProductHasFilterType(p, filter)
+                        && this.ProductHasCountry(p, filter)
+                        && this.ProductIsInFilterStore(p, filter)
+                    ));
                     if (filterMatchedProducts.length > 0) {
                         userFilterMatches.push({
                             user: user,
@@ -92,6 +91,23 @@ module.exports = class NotificationClient {
 
     }
 
+    static ProductHasFilterType(product, filter) {
+        return filter.productTypes === undefined
+            || filter.productTypes.length === 0
+            || filter.productTypes.includes(product.SubType);
+    }
+    static ProductHasCountry(product, filter) {
+        return filter.countries === undefined
+            || filter.countries.length === 0
+            || filter.countries.includes(product.Country);
+    }
+    static ProductIsInFilterStore(product, filter) {
+        return filter.stores === undefined
+            || filter.stores.length === 0
+            || product.Stock.Stores.find(s => s.pointOfService && filter.stores.includes(s.pointOfService.name)
+                || (filter.stores.includes("online") && !["Utgått", "Utsolgt"].includes(product.ProductStatusSaleName)));
+    }
+
     static CreateNewsLetterEmail(products) {
         let greeting = greetings[Math.floor(Math.random() * greetings.length)];
         let subheader = "Det er nye tilbud i dag, og det er jo artig!";
@@ -143,7 +159,7 @@ module.exports = class NotificationClient {
 
         let message = {
             notification: {
-                title: "Filteret ditt har fått nye " + userFilterMatch.products.length + " tilbud!",
+                title: "Filteret ditt har fått " + userFilterMatch.products.length + " nye tilbud!",
                 body: "Klikk her for å lese mer.",
                 image: "https://spritjakt.no/logo.png"
             },

@@ -32,8 +32,7 @@ class Homepage extends React.Component {
         this.LoginPage.current.setFormType(LoginForm.formTypes.register);
     }
     applyUserFilter = () => {
-        this.ProductList.current.resetFilter();
-        this.ProductList.current.applyUrlParams(queryString.parse(window.location.search, { arrayFormat: 'comma' }));
+        this.ProductList.current.filterProducts();
     }
 
     render() {

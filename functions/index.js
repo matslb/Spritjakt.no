@@ -65,7 +65,7 @@ exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).p
   }
 });
 
-exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 8 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("30 7 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreStocksToFetch = true;
   let freshStocks = [];
   let tries = 0;
@@ -84,9 +84,7 @@ exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pub
     tries++;
   }
 
-  if (freshStocks.length > 0) {
-    await FirebaseClient.SetStockUpdateList(freshStocks, true);
-  }
+  await FirebaseClient.SetStockUpdateList(freshStocks, true);
 });
 
 exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).https.onRequest(async (req, oldRes) => {
@@ -167,20 +165,15 @@ exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).ht
 });
 
 exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
-  // Exit when the data is deleted.
+
   if (!change.after.exists()) {
     return null;
   }
-
   const newValue = change.after.val();
-
-  const count = newValue.length > 500 ? 500 : newValue.length;
-  console.log(newValue.length);
+  const count = newValue.length > 150 ? 150 : newValue.length;
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
-      newValue[i].Stores = await VmpClient.FetchStoreStock(
-        newValue[i].productId
-      );
+      newValue[i].Stores = await VmpClient.FetchStoreStock(newValue[i].productId);
       await FirebaseClient.UpdateProductStock(newValue[i]);
     }
     newValue.splice(i, 1);

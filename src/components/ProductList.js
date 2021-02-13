@@ -1,10 +1,10 @@
 import React from "react";
 import ProductComp from "./ProductComp";
-import ProductType from "./ProductType";
+import ProductType from "./FilterItem";
 import Pagination from "./Pagination";
 import "./css/productList.css";
 import SpritjaktClient from "../services/spritjaktClient";
-import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faMinus, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SortArray from "sort-array";
 import ProductPopUp from "./ProductPopUp";
@@ -26,6 +26,7 @@ class ProductList extends React.Component {
       loading: true,
       sort: "LastUpdated_desc",
       productTypes: {},
+      productCountries: {},
       highlightedProduct: false,
       graphIsVisible: false,
       timeSpan: 1,
@@ -39,7 +40,8 @@ class ProductList extends React.Component {
       filterName: "",
       filter: {
         productTypes: [],
-        stores: []
+        stores: [],
+        countries: []
       }
     };
 
@@ -95,16 +97,29 @@ class ProductList extends React.Component {
         case "product":
           this.setGraph(param);
           break;
-        case "filter":
+        case "types":
           if (Array.isArray(param)) {
-            param.forEach(pt => {
-              if (this.state.productTypes && this.state.productTypes[pt]) {
-                this.handleFilterClick(true, pt)
+            param.forEach(id => {
+              if (this.state.productTypes && this.state.productTypes[id]) {
+                this.handleFilterClick(true, id, this.state.productTypes, "types");
               }
             })
           } else {
             if (this.state.productTypes && this.state.productTypes[param]) {
-              this.handleFilterClick(true, param);
+              this.handleFilterClick(true, param, this.state.productTypes, "types");
+            };
+          }
+          break;
+        case "countries":
+          if (Array.isArray(param)) {
+            param.forEach(id => {
+              if (this.state.productCountries && this.state.productCountries[id]) {
+                this.handleFilterClick(true, id, this.state.productCountries, "countries");
+              }
+            })
+          } else {
+            if (this.state.productCountries && this.state.productCountries[param]) {
+              this.handleFilterClick(true, param, this.state.productCountries, "countries");
             };
           }
           break;
@@ -113,16 +128,15 @@ class ProductList extends React.Component {
           break;
         case "stores":
           if (Array.isArray(param)) {
-            this.handleStoreUpdate(param);
+            this.filterProducts(param);
           } else {
-            this.handleStoreUpdate([param]);
+            this.filterProducts([param]);
           }
           break;
         case "sort":
           this.setState({ sort: param });
           break;
         case "page":
-
           this.setState({ page: param });
           break;
         case "change":
@@ -176,20 +190,12 @@ class ProductList extends React.Component {
     });
 
     this.spritjaktClient.FetchStores().then(stores => {
-      SortArray(stores, {
-        by: ["city", "storeName"],
-        computed: {
-          city: s => s.address.city
-        }
-      });
       this.setState({ stores: stores });
-    }).then(
-      this.spritjaktClient.FetchProductTypes().then((productTypes) => {
-      }).then(() => {
-        this.applyUrlParams(queryString.parse(window.location.search, { arrayFormat: 'comma' }));
-        this.getProductData(this.state.timeSpan, true);
-      })
-    );
+    }).then(() => {
+      let query = queryString.parse(window.location.search, { arrayFormat: 'comma' });
+      this.applyUrlParams(query);
+      this.getProductData(query.timespan == undefined);
+    });
   }
 
   saveUserFilter(e) {
@@ -210,10 +216,21 @@ class ProductList extends React.Component {
         productTypesInFilter.push(pt);
       }
     })
+    let countries = [];
+    Object.keys(this.state.productCountries).forEach(pt => {
+      if (this.state.productCountries[pt].state) {
+        countries.push(pt);
+      }
+    })
+
+    if (!Array.isArray(selectedStores)) {
+      selectedStores = [selectedStores];
+    }
 
     let newFilter = {
       productTypes: productTypesInFilter,
-      stores: selectedStores
+      stores: selectedStores,
+      countries: countries
     }
 
     let filterExists = false;
@@ -247,7 +264,8 @@ class ProductList extends React.Component {
       return;
     }
     let loadedProducts = [];
-    let productTypes = this.state.productTypes;
+    let productTypes = this.state.productTypes || {};
+    let productCountries = this.state.productCountries || {};
     let stores = this.state.stores;
 
     stores.map(s => delete s.count);
@@ -263,6 +281,12 @@ class ProductList extends React.Component {
       loadedProducts.push(p);
       if (productTypes[p.SubType] === undefined) {
         productTypes[p.SubType] = {
+          state: false,
+          products: {}
+        };
+      }
+      if (productCountries[p.Country] === undefined) {
+        productCountries[p.Country] = {
           state: false,
           products: {}
         };
@@ -290,6 +314,7 @@ class ProductList extends React.Component {
       stores: stores,
       loadedProducts: loadedProducts,
       productTypes: productTypes,
+      productCountries: productCountries,
       loading: false
     });
     this.applyUrlParams();
@@ -336,33 +361,58 @@ class ProductList extends React.Component {
     Object.keys(this.state.productTypes).map(
       (pt) => (productTypes[pt].state = false)
     );
-    this.filterProducts([], productTypes);
+    let productCountries = this.state.productCountries;
+    Object.keys(this.state.productCountries).map(
+      (pt) => (productCountries[pt].state = false)
+    );
+    this.filterProducts([], productTypes, productCountries);
   };
 
   resetFilterUrl = () => {
     this.setUrlParams("stores", null);
-    this.setUrlParams("filter", null);
+    this.setUrlParams("types", null);
+    this.setUrlParams("countries", null);
   }
 
-  handleFilterClick = (isSelected, name) => {
-    let productTypes = this.state.productTypes;
-    productTypes[name].state = isSelected;
-    let activeProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state);
-    this.setUrlParams("filter", activeProductTypes);
-    this.filterProducts(this.state.selectedStores, productTypes);
+  handleFilterClick = (isSelected, id, allProps, propSlug) => {
+    allProps[id].state = isSelected;
+    let activeProps = Object.keys(allProps).filter(p => allProps[p].state);
+    this.setUrlParams(propSlug, activeProps);
   };
 
-  filterProducts(selectedStores = this.state.selectedStores, productTypes = this.state.productTypes) {
+  handleCountryFilterClick = (isSelected, id) => {
+    this.handleFilterClick(isSelected, id, this.state.productCountries, "countries");
+    this.filterProducts();
+  };
+  handleTypeFilterClick = (isSelected, id) => {
+    this.handleFilterClick(isSelected, id, this.state.productTypes, "types");
+    this.filterProducts();
+  };
+
+  filterProducts(selectedStores = [], productTypes = this.state.productTypes, productCountries = this.state.productCountries) {
     let productResult = [];
-    let prevSelectedProductTypes = Object.keys(productTypes).filter(pt => productTypes[pt].state) ?? [];
+    let query = queryString.parse(window.location.search, { arrayFormat: 'comma' });
+    selectedStores = query?.stores || selectedStores;
+    Object.keys(productTypes).map(pt => {
+      productTypes[pt].state = query.types?.includes(pt) || false;
+      productTypes[pt].products = {}
+    });
+    Object.keys(productCountries).map(c => {
+      productCountries[c].state = query.countries?.includes(c) || false;
+      productCountries[c].products = {}
+    });
+
     for (let i = 0; i < this.state.loadedProducts.length; i++) {
       const p = this.state.loadedProducts[i];
 
-      if (this.stockFilter(p, selectedStores)) {
-        if (prevSelectedProductTypes.includes(p.SubType) || prevSelectedProductTypes.length === 0) {
-          productResult.push(p);
-        }
+      if (this.storeFilter(p, selectedStores)) {
         productTypes[p.SubType].products[p.Id] = true;
+        if (query.types?.includes(p.SubType) || query.types === undefined) {
+          productCountries[p.Country].products[p.Id] = true;
+          if ((query.countries?.includes(p.Country) || query.countries === undefined)) {
+            productResult.push(p);
+          }
+        }
       }
     }
 
@@ -370,6 +420,7 @@ class ProductList extends React.Component {
       productResult: productResult,
       page: this.state.page > Math.ceil(productResult.length / this.state.pageSize) ? 1 : this.state.page,
       productTypes: productTypes,
+      productCountries: productCountries,
       selectedStores: selectedStores
     }, () => this.createFilter());
   }
@@ -392,9 +443,9 @@ class ProductList extends React.Component {
   displayProductTypes = () => {
     let list = [];
     let productTypes = this.state.productTypes;
-    Object.keys(productTypes).forEach((ptKey) => {
+    Object.keys(productTypes).forEach((key) => {
       list.push(
-        <ProductType key={ptKey} store={this.state.selectedStores} handleFilterClick={this.handleFilterClick.bind(this)} name={ptKey} productType={productTypes[ptKey]}
+        <ProductType key={key} handleFilterClick={this.handleTypeFilterClick.bind(this)} name={key} item={productTypes[key]}
         />
       );
     });
@@ -404,16 +455,28 @@ class ProductList extends React.Component {
     return list;
   };
 
+  displayProductCountries = () => {
+    let list = [];
+    let countries = this.state.productCountries;
+    Object.keys(countries).forEach((key) => {
+      list.push(
+        <ProductType key={key} handleFilterClick={this.handleCountryFilterClick.bind(this)} name={key} item={countries[key]}
+        />
+      );
+    });
+    SortArray(list, {
+      by: "key"
+    })
+    return list;
+  };
   formatDate = (date) => {
     date.setHours(date.getHours() + 2);
     return date.toISOString().slice(0, 10);
   };
 
   handleStoreUpdate(storeList) {
-    let productTypes = this.state.productTypes;
-    Object.keys(productTypes).map(pt => productTypes[pt].products = {});
     this.setUrlParams("stores", storeList);
-    this.filterProducts(storeList, productTypes);
+    this.filterProducts(storeList);
   };
 
   handleSortChange = (event = null) => {
@@ -443,7 +506,7 @@ class ProductList extends React.Component {
     }, () => this.filterProducts(this.state.selectedStores, this.state.productTypes));
   };
 
-  stockFilter = (p, selectedStores) => {
+  storeFilter = (p, selectedStores) => {
     let isOnline = undefined;
 
     if (selectedStores.includes("online")) {
@@ -478,7 +541,19 @@ class ProductList extends React.Component {
   };
   render() {
 
-    let { currentFilterExists, loading, pageSize, page, productResult, stores, selectedStores, filter, user } = this.state;
+    let {
+      currentFilterExists,
+      loading,
+      pageSize,
+      page,
+      productResult,
+      stores,
+      selectedStores,
+      filter,
+      user,
+      showCountries = true,
+      showTypes = true
+    } = this.state;
 
     return (
       <div key="Productlist" className="Productlist" >
@@ -510,12 +585,19 @@ class ProductList extends React.Component {
               {!this.state.filterVisibility ? ("Filter") : (<FontAwesomeIcon title="Lukk filter" icon={faTimes} />)}
             </button>
             <fieldset disabled={!this.state.filterVisibility && isMobileOnly}>
-              <button disabled={filter.stores.length === 0 && filter.productTypes.length === 0}
-                className={"clickable bigGreenBtn resetFilter show " + (filter.stores.length === 0 && filter.productTypes.length === 0 ? "inactive" : "active")}
-                onClick={() => { this.resetFilter(); this.resetFilterUrl(); }}>
+              <button disabled={filter.stores.length === 0 && filter.productTypes.length === 0 && filter.countries.length === 0}
+                className={"clickable bigGreenBtn resetFilter show " + (filter.stores.length === 0 && filter.productTypes.length === 0 && filter.countries.length === 0 ? "inactive" : "active")}
+                onClick={() => { this.resetFilterUrl(); this.resetFilter(); }}>
                 Nullstill
               </button>
-              <div className="ProductTypes">{this.displayProductTypes()}</div>
+              <h4 className="dark filter-heading" onClick={() => { this.setState({ showTypes: !showTypes }) }}>
+                Type <FontAwesomeIcon title="Ekspandér produkttyper" icon={showTypes ? faMinus : faPlus} />
+              </h4>
+              <div className={"filter-items " + (showTypes ? "visible" : "hidden")}>{this.displayProductTypes()}</div>
+              <h4 className="dark filter-heading" onClick={() => { this.setState({ showCountries: !showCountries }) }}>
+                Land <FontAwesomeIcon title="Ekspandér produktland" icon={showCountries ? faMinus : faPlus} />
+              </h4>
+              <div className={"filter-items " + (showCountries ? "visible" : "hidden")} >{this.displayProductCountries()}</div>
             </fieldset>
           </aside>
           <main>

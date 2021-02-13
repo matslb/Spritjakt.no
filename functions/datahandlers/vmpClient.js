@@ -75,25 +75,46 @@ class VmpClient {
       });
   }
   static async FetchStoreStock(productId) {
-    let options = {
-      uri: "https://www.vinmonopolet.no/api/products/" + productId + "/stock",
-      qs: {
-        pageSize: 1000,
-        currentPage: 0,
-        fields: "BASIC",
-        latitude: 50.3,
-        longitude: 10.2,
-      },
-      jar: true,
-      json: true,
-    };
-    return await rp(options)
-      .then(function (res) {
-        return res === undefined ? [] : res.stores;
-      })
-      .catch(function (err) {
-        console.error("Store stock fetch failed: " + err);
-      });
+    let stores = [];
+    let geoPoint = { latitude: 72, longitude: 26 };
+    let totalResults = 100;
+    let tries = 0;
+    while (stores.length < totalResults && (geoPoint.longitude >= 7 || geoPoint.latitude >= 58)) {
+      let options = {
+        uri: "https://www.vinmonopolet.no/api/products/" + productId + "/stock",
+        qs: {
+          pageSize: 1000,
+          currentPage: 0,
+          fields: "BASIC",
+          latitude: geoPoint.latitude,
+          longitude: geoPoint.longitude,
+        },
+        jar: true,
+        json: true
+      };
+
+      await rp(options)
+        .then(async function (res) {
+          res.stores.forEach(newStore => {
+            if (!stores.some(oldStore => oldStore.pointOfService.id === newStore.pointOfService.id)) {
+              stores.push(newStore);
+            }
+          });
+          geoPoint.latitude -= 2;
+          geoPoint.longitude -= 1;
+          totalResults = res.pagination.totalResults;
+          tries++;
+          await new Promise(r => setTimeout(r, 100));
+        })
+        .catch(function (err) {
+          console.error("Store stock fetch failed: " + err);
+          totalResults = 0;
+        });
+    }
+    console.log("Expected: " + totalResults);
+    console.log("Retrieved: " + stores.length);
+    console.log("Tries: " + tries);
+    return stores;
   }
   static async FetchStores() {
     let options = vmpOptions();

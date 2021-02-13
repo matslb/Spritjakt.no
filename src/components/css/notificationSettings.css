@@ -77,6 +77,7 @@
 
 .list .filter .details > div {
     width: 50%;
+    margin-left: 5px;
 }
 
 .changeName {
@@ -161,8 +162,8 @@
     .notificationSettings {
         padding: 1rem 0.5rem;
     }
-    
-.notificationSettings .toolbar {
+
+    .notificationSettings .toolbar {
         margin: -1rem -0.5rem 1rem;
     }
 }

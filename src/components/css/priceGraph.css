@@ -26,14 +26,15 @@
 }
 
 .expandedProduct .title {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
+    font-weight: 400;
 }
 
 .expandedProduct .graph {
-    height: 15rem;
+    height: 12rem;
     max-height: 30vh;
     grid-area: gra;
-    margin: -0.5rem -1rem;
+    margin: -0.6rem;
 }
 
 .expandedProduct .ProductComp,
