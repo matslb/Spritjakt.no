@@ -54,7 +54,7 @@ class Pagination extends React.Component {
         <ul className="pagelist">{this.renderPageButtons()}</ul>
         <span>
           {loading &&
-            <div className="prouctList-loader">
+            <div className="product-list-loader">
               <FontAwesomeIcon icon={faCircleNotch} />
             </div>
           }

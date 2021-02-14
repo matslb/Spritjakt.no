@@ -1,5 +1,6 @@
 import React from "react";
 import Select from 'react-select'
+import sortArray from "sort-array";
 
 class StoreSelector extends React.Component {
   constructor() {
@@ -11,18 +12,19 @@ class StoreSelector extends React.Component {
     if (storeOptions && storeOptions.length > 0) {
       storeOptions.map(s => list.push(s.value));
     }
-    this.props.handleStoreUpdate(list);
+    this.props.handleStoreUpdate("stores", list);
   }
 
   render() {
     const { stores, selectedStores } = this.props;
-    let storeOptions = [{ label: "vinmonopolet.no", value: "online" }];
+    let storeOptions = [];
     let selectedOptions = [];
     stores.forEach(s => {
+      let count = s.products ? Object.keys(s.products)?.length : 0;
       let option = {
         value: s.storeId,
-        label: s.storeName + " (" + (s.count ? s.count : 0) + ")",
-        disabled: s.count === undefined
+        label: s.storeName + " (" + count + ")",
+        noResults: count === 0
       }
       storeOptions.push(option);
       if (selectedStores.includes(option.value) && !selectedOptions.find(so => so.value === option.value)) {
@@ -32,18 +34,21 @@ class StoreSelector extends React.Component {
     if (selectedStores.includes("online") && !selectedOptions.find(so => so.value === "online")) {
       selectedOptions.push(storeOptions[0]);
     }
+    sortArray(storeOptions, {
+      by: ["noResults", "label"],
+    })
 
     return (
       <div className="stores" >
         <label>
-          <span>Butikker</span>
+          <span>Butikk</span>
           <Select
             value={selectedOptions}
             onChange={this.handleStoreUpdate}
             isMulti
             options={storeOptions}
             noOptionsMessage={() => "Fant niks og nada"}
-            placeholder={'Velg butikker'}
+            placeholder={'Filtrer på Butikk'}
             classNamePrefix="select"
             theme={theme => ({
               ...theme,

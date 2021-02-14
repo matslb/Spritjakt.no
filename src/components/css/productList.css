@@ -1,9 +1,3 @@
-.main {
-    display: grid;
-    grid-template-columns: 1fr 5fr;
-    gap: 2rem;
-}
-
 .Productlist {
     padding: 1rem;
     max-width: 1200px;
@@ -16,18 +10,18 @@
     text-align: center;
 }
 
-.before_products {
+.before-products {
     display: flex;
     justify-content: space-between;
 }
 
-.before_products p,
-.before_products select {
+.before-products p,
+.before-products select {
     margin: 2.5px 0;
     font-size: 0.85rem;
 }
 
-ul.ProductList {
+ul.product-list {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -65,7 +59,7 @@ ul.ProductList {
     right: 0;
 }
 
-.ProductList .fa-circle-notch {
+.product-list .fa-circle-notch {
     opacity: 0.4;
     position: absolute;
     left: 0;
@@ -113,27 +107,28 @@ ul.ProductList {
 
 .nav {
     display: grid;
-    grid-template-areas: "dis dis" "sto sto" "sor tim";
+    grid-template-areas: "discount discount" "filtersaver filtersaver" "types countries" "stores stores" "sorting time";
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     align-items: baseline;
     width: 100%;
 }
 
-.nav .timeSpan {
-    grid-area: tim;
+.nav .timespan {
+    grid-area: time;
 }
 
-.nav .DiscountFilter {
-    grid-area: dis;
+.nav .discount-filter {
+    grid-area: discount;
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     position: relative;
+    height: 4rem;
 }
 
-.nav .DiscountFilter .clickable {
+.nav .discount-filter .clickable {
     padding: 1rem 0.5rem;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -147,43 +142,41 @@ ul.ProductList {
     border-bottom: 5px solid rgba(0, 0, 0, 0.562);
 }
 
-.nav .DiscountFilter .clickable.active {
+.nav .discount-filter .clickable.active {
     border-bottom: 5px solid #d0b55e;
 }
 
-.nav .DiscountFilter .clickable:active,
-.nav .DiscountFilter .clickable:hover {
+.nav .discount-filter .clickable:active,
+.nav .discount-filter .clickable:hover {
     border-bottom: 5px solid #d0b55e79;
 }
 
 .nav .stores,
 .nav .sorting,
-.nav .timeSpan {
+.nav .timespan {
     width: 100%;
     min-width: 16rem;
 }
 
-.nav .timeSpan {
-    justify-self: end;
-}
-
 .nav .stores {
-    grid-area: sto;
+    grid-area: stores;
 }
 
 .nav .sorting {
-    grid-area: sor;
+    grid-area: sorting;
+}
+
+.filter.countries {
+    grid-area: countries;
+}
+
+.filter.types {
+    grid-area: types;
 }
 
 .resetFilter.inactive {
     opacity: 0.3;
     cursor: default;
-}
-
-.filter-items {
-    grid-area: pts;
-    display: grid;
-    grid-template-columns: 1fr;
 }
 
 .filter-items.hidden .filter-item.false {
@@ -194,34 +187,10 @@ ul.ProductList {
     font-weight: 400;
     margin-bottom: 5px;
     padding-bottom: 0.5rem;
-    border-bottom: 5px solid #d0b55e;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.87);
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-}
-
-.Productlist .filter fieldset {
-    display: contents;
-}
-
-.Productlist .filter .toggleFilter {
-    display: none;
-    outline: none;
-}
-
-.Productlist .filter {
-    display: flex;
-    flex-direction: column;
-}
-
-.Productlist .filter legend {
-    grid-area: leg;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-.filter_backdrop.inactive {
-    display: none;
 }
 
 .filterSaver {
@@ -230,19 +199,17 @@ ul.ProductList {
     padding: 1rem;
     color: white;
     align-items: center;
-    margin: 0 0 1rem;
+    grid-area: filtersaver;
+    height: 4rem;
+    box-sizing: border-box;
 }
 
 .filterSaver > div {
     margin-left: 2rem;
 }
 
-.filterSaverWrapper {
-    min-height: 4.5rem;
-}
-
 @media(max-width: 1024px) {
-    ul.ProductList {
+    ul.product-list {
         grid-template-columns: 1fr 1fr 1fr;
     }
 }
@@ -253,7 +220,7 @@ ul.ProductList {
         display: block;
     }
 
-    ul.ProductList {
+    ul.product-list {
         grid-gap: 5px;
     }
 
@@ -261,82 +228,35 @@ ul.ProductList {
         text-align: left;
     }
 
-    .before_products {
+    .before-products {
         flex-direction: column-reverse;
-    }
-
-    .nav {
-        grid-template-areas: "dis dis" "sto sto" "stock stock" "fil il" "sor tim";
     }
 
     .filter legend {
         font-size: 1.5rem;
     }
 
-    .filter-items {
-        overflow: scroll;
+    .filter-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        position: relative;
     }
 
-
-    .Productlist .filter {
-        position: fixed;
-        width: 46%;
-        transition: 0.2s 0.05s ease;
-        border-right: 6px solid #92496e;
-        background: white;
-        box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4);
-        padding: 1rem;
-        z-index: 5;
-        bottom: 0;
-        top: 0;
-        display: flex;
-        flex-direction: column;
-        border-top-right-radius: 2px;
-        border-bottom-right-radius: 2px;
-    }
-
-    .Productlist .filter .toggleFilter {
-        display: block;
-        content: "Filter";
-        background: #92496e;
+    .filter-items.visible {
+        overflow-y: scroll;
         position: absolute;
-        right: -61px;
-        padding: 0.25rem 0.5rem 0.25rem 1rem;
-        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        color: white;
-        border-top-right-radius: 5px;
-        border-bottom-right-radius: 5px;
-        text-align: center;
-        cursor: pointer;
-        top: 5rem;
-        border: none;
-        width: 3.6rem;
-        font-size: 1rem;
-    }
-
-    .Productlist .filter {
-        right: 100%;
-    }
-
-    .Productlist .filter.active {
-        right: 45%;
-        z-index: 11;
-    }
-
-    .filter_backdrop.active {
-        display: block;
-        position: fixed;
-        top: 0;
+        background: white;
+        z-index: 2;
         left: 0;
-        bottom: 0;
         right: 0;
-        z-index: 10;
-        background: rgba(0, 0, 0, 0.2);
+        box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
+        max-height: 50vh;
     }
 
     .nav .stores,
     .nav .sorting,
-    .nav .timeSpan {
+    .nav .timespan {
         width: 100%;
         min-width: unset;
     }
@@ -350,12 +270,10 @@ ul.ProductList {
         border: none;
         margin: -5px 0 0;
     }
-
-
 }
 
 @media(max-width: 540px) {
-    ul.ProductList {
+    ul.product-list {
         grid-template-columns: 1fr 1fr;
     }
 }

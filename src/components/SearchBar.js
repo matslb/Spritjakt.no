@@ -131,7 +131,7 @@ class SearchBar extends React.Component {
             >
               <FontAwesomeIcon icon={faTimes} />
             </button>
-            <ul ref={this.productList} className="ProductList">
+            <ul ref={this.productList} className="product-list">
               {this.state.loading ? (
                 <FontAwesomeIcon icon={faCircleNotch} size="5x" />
               ) : (

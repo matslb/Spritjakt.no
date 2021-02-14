@@ -1,20 +1,18 @@
 import React from "react";
 import ProductComp from "./ProductComp";
-import ProductType from "./FilterItem";
 import Pagination from "./Pagination";
 import "./css/productList.css";
 import SpritjaktClient from "../services/spritjaktClient";
-import { faCircleNotch, faMinus, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import SortArray from "sort-array";
+import sortArray from "sort-array";
 import ProductPopUp from "./ProductPopUp";
-import { isMobileOnly } from "react-device-detect";
 import firebase from "firebase/app";
 import StoreSelector from "./StoreSelector";
 import { Select } from '@material-ui/core';
 import queryString from "query-string";
 import Notification from "./Notification";
-
+import Filter from "./Filter";
 
 class ProductList extends React.Component {
   constructor() {
@@ -22,27 +20,25 @@ class ProductList extends React.Component {
     this.state = {
       loadedProducts: [],
       stores: [],
-      selectedStores: [],
       loading: true,
       sort: "LastUpdated_desc",
       productTypes: {},
       productCountries: {},
       highlightedProduct: false,
       graphIsVisible: false,
-      timeSpan: 1,
+      timespan: 1,
       productResult: [],
       page: 1,
       pageSize: 24,
       change: "lowered",
       filterVisibility: false,
       user: null,
-      urlParameters: {},
       filterName: "",
       filter: {
         productTypes: [],
         stores: [],
         countries: []
-      }
+      },
     };
 
     this.sortOptions = [
@@ -55,7 +51,7 @@ class ProductList extends React.Component {
       { label: "Pris (lav-høy)", value: "LatestPrice_asc" },
       { label: "Pris (høy-lav)", value: "LatestPrice_desc" }
     ];
-    this.timeSpanOptions = [
+    this.timespanOptions = [
       { label: "Siste døgn", value: 1 },
       { label: "Siste 7 dager", value: 7 },
       { label: "Siste 14 dager", value: 14 },
@@ -75,7 +71,7 @@ class ProductList extends React.Component {
   }
 
   setUrlParams = (field, value = null) => {
-    let urlParameters = this.state.urlParameters;
+    let urlParameters = this.getQuery();
     urlParameters[field] = value;
 
     if (value === null) {
@@ -89,7 +85,7 @@ class ProductList extends React.Component {
     window.history.replaceState('', '', '?' + query);
   }
 
-  applyUrlParams = (urlParameters = this.state.urlParameters) => {
+  applyUrlParams = (urlParameters) => {
     this.setState({ urlParameters: urlParameters });
     Object.keys(urlParameters).forEach(field => {
       const param = urlParameters[field];
@@ -97,59 +93,26 @@ class ProductList extends React.Component {
         case "product":
           this.setGraph(param);
           break;
-        case "types":
-          if (Array.isArray(param)) {
-            param.forEach(id => {
-              if (this.state.productTypes && this.state.productTypes[id]) {
-                this.handleFilterClick(true, id, this.state.productTypes, "types");
-              }
-            })
-          } else {
-            if (this.state.productTypes && this.state.productTypes[param]) {
-              this.handleFilterClick(true, param, this.state.productTypes, "types");
-            };
-          }
-          break;
-        case "countries":
-          if (Array.isArray(param)) {
-            param.forEach(id => {
-              if (this.state.productCountries && this.state.productCountries[id]) {
-                this.handleFilterClick(true, id, this.state.productCountries, "countries");
-              }
-            })
-          } else {
-            if (this.state.productCountries && this.state.productCountries[param]) {
-              this.handleFilterClick(true, param, this.state.productCountries, "countries");
-            };
-          }
-          break;
         case "page":
           this.setPage(parseInt(param));
           break;
-        case "stores":
-          if (Array.isArray(param)) {
-            this.filterProducts(param);
-          } else {
-            this.filterProducts([param]);
-          }
-          break;
         case "sort":
           this.setState({ sort: param });
-          break;
-        case "page":
-          this.setState({ page: param });
           break;
         case "change":
           this.setState({ change: param });
           break;
         case "timespan":
-          this.setState({ timeSpan: parseInt(param) });
+          this.setState({ timespan: parseInt(param) });
           break;
         default:
           break;
       }
     });
+    this.filterProducts();
   }
+
+  getQuery = () => (queryString.parse(window.location.search, { arrayFormat: 'comma' }));
 
   componentDidMount() {
     window.onpopstate = (e) => this.onbackPress(e);
@@ -173,8 +136,7 @@ class ProductList extends React.Component {
               filter.productTypes.forEach(productType => {
                 if (!productTypes[productType]) {
                   productTypes[productType] = {
-                    products: {},
-                    state: false,
+                    products: {}
                   }
                 }
               });
@@ -192,9 +154,9 @@ class ProductList extends React.Component {
     this.spritjaktClient.FetchStores().then(stores => {
       this.setState({ stores: stores });
     }).then(() => {
-      let query = queryString.parse(window.location.search, { arrayFormat: 'comma' });
+      let query = this.getQuery();
       this.applyUrlParams(query);
-      this.getProductData(query.timespan == undefined);
+      this.getProductData(query.timespan === undefined);
     });
   }
 
@@ -209,33 +171,27 @@ class ProductList extends React.Component {
 
   }
 
-  createFilter(selectedStores = this.state.selectedStores) {
-    let productTypesInFilter = [];
-    Object.keys(this.state.productTypes).forEach(pt => {
-      if (this.state.productTypes[pt].state) {
-        productTypesInFilter.push(pt);
-      }
-    })
-    let countries = [];
-    Object.keys(this.state.productCountries).forEach(pt => {
-      if (this.state.productCountries[pt].state) {
-        countries.push(pt);
-      }
-    })
-
-    if (!Array.isArray(selectedStores)) {
-      selectedStores = [selectedStores];
-    }
+  createFilter() {
+    let query = this.getQuery();
 
     let newFilter = {
-      productTypes: productTypesInFilter,
-      stores: selectedStores,
-      countries: countries
+      productTypes: Array.isArray(query.types) ? query.types : query.types ? [query.types] : [],
+      stores: Array.isArray(query.stores) ? query.stores : query.stores ? [query.stores] : [],
+      countries: Array.isArray(query.countries) ? query.countries : query.countries ? [query.countries] : []
     }
 
     let filterExists = false;
 
-    if (this.state.user && this.state.user.filters.find(f => this.arraysAreEqual(f.stores, newFilter.stores) && this.arraysAreEqual(f.productTypes, newFilter.productTypes))) {
+    if ((newFilter.stores.length === 0
+      && newFilter.productTypes.length === 0
+      && newFilter.countries.length === 0)
+      || (this.state.user
+        && this.state.user.filters.find(f =>
+          this.arraysAreEqual(f.stores, newFilter.stores)
+          && this.arraysAreEqual(f.productTypes, newFilter.productTypes)
+          && this.arraysAreEqual(f.countries, newFilter.countries)
+        )
+      )) {
       filterExists = true;
     }
 
@@ -256,7 +212,7 @@ class ProductList extends React.Component {
 
   getProductData(autoFetch = false) {
     const change = this.state.change;
-    this.spritjaktClient.FetchProducts(this.state.timeSpan, change === "lowered").then(products => this.updateProductResults(products, autoFetch));
+    this.spritjaktClient.FetchProducts(this.state.timespan, change === "lowered").then(products => this.updateProductResults(products, autoFetch));
   }
 
   updateProductResults(products, autoFetch = false) {
@@ -268,7 +224,6 @@ class ProductList extends React.Component {
     let productCountries = this.state.productCountries || {};
     let stores = this.state.stores;
 
-    stores.map(s => delete s.count);
 
     Object.keys(productTypes).map(
       (ptkey) =>
@@ -281,13 +236,11 @@ class ProductList extends React.Component {
       loadedProducts.push(p);
       if (productTypes[p.SubType] === undefined) {
         productTypes[p.SubType] = {
-          state: false,
           products: {}
         };
       }
       if (productCountries[p.Country] === undefined) {
         productCountries[p.Country] = {
-          state: false,
           products: {}
         };
       }
@@ -298,15 +251,6 @@ class ProductList extends React.Component {
             displayName: p.Stock.Stores[i].displayName
           }
         }
-        const store = p.Stock.Stores[i];
-        stores.forEach(s => {
-          if (s.storeId === store.pointOfService.name) {
-            if (s.count === undefined) {
-              s.count = 0;
-            }
-            s.count++;
-          }
-        });
       }
     });
 
@@ -317,13 +261,13 @@ class ProductList extends React.Component {
       productCountries: productCountries,
       loading: false
     });
-    this.applyUrlParams();
+    this.applyUrlParams(this.getQuery());
     this.handleSortChange();
 
     if (autoFetch && loadedProducts.length < 200) {
-      let timespanIndex = this.timeSpanOptions.indexOf(this.timeSpanOptions.find(ts => ts.value === this.state.timeSpan)) + 1;
-      if (this.timeSpanOptions[timespanIndex]) {
-        this.changeTimeSpan(null, this.timeSpanOptions[timespanIndex].value, autoFetch);
+      let timespanIndex = this.timespanOptions.indexOf(this.timespanOptions.find(ts => ts.value === this.state.timespan)) + 1;
+      if (this.timespanOptions[timespanIndex]) {
+        this.changeTimeSpan(null, this.timespanOptions[timespanIndex].value, autoFetch);
       }
     }
   }
@@ -365,7 +309,7 @@ class ProductList extends React.Component {
     Object.keys(this.state.productCountries).map(
       (pt) => (productCountries[pt].state = false)
     );
-    this.filterProducts([], productTypes, productCountries);
+    this.filterProducts();
   };
 
   resetFilterUrl = () => {
@@ -374,46 +318,50 @@ class ProductList extends React.Component {
     this.setUrlParams("countries", null);
   }
 
-  handleFilterClick = (isSelected, id, allProps, propSlug) => {
-    allProps[id].state = isSelected;
-    let activeProps = Object.keys(allProps).filter(p => allProps[p].state);
-    this.setUrlParams(propSlug, activeProps);
-  };
-
-  handleCountryFilterClick = (isSelected, id) => {
-    this.handleFilterClick(isSelected, id, this.state.productCountries, "countries");
-    this.filterProducts();
-  };
-  handleTypeFilterClick = (isSelected, id) => {
-    this.handleFilterClick(isSelected, id, this.state.productTypes, "types");
+  handleFilterClick = (propSlug, items) => {
+    this.setUrlParams(propSlug, items);
     this.filterProducts();
   };
 
-  filterProducts(selectedStores = [], productTypes = this.state.productTypes, productCountries = this.state.productCountries) {
+  filterProducts() {
+    let query = this.getQuery();
+    let productTypes = this.state.productTypes;
+    let productCountries = this.state.productCountries;
+    let stores = this.state.stores;
     let productResult = [];
-    let query = queryString.parse(window.location.search, { arrayFormat: 'comma' });
-    selectedStores = query?.stores || selectedStores;
-    Object.keys(productTypes).map(pt => {
-      productTypes[pt].state = query.types?.includes(pt) || false;
-      productTypes[pt].products = {}
-    });
-    Object.keys(productCountries).map(c => {
-      productCountries[c].state = query.countries?.includes(c) || false;
-      productCountries[c].products = {}
-    });
+    let selectedStores = Array.isArray(query.stores) ? query.stores : query.stores ? [query.stores] : [];
+
+    Object.keys(productTypes).forEach(pt => productTypes[pt].products = {});
+    Object.keys(productCountries).forEach(c => productCountries[c].products = {});
+    stores.map(s => s.products = {});
 
     for (let i = 0; i < this.state.loadedProducts.length; i++) {
       const p = this.state.loadedProducts[i];
 
-      if (this.storeFilter(p, selectedStores)) {
-        productTypes[p.SubType].products[p.Id] = true;
-        if (query.types?.includes(p.SubType) || query.types === undefined) {
-          productCountries[p.Country].products[p.Id] = true;
-          if ((query.countries?.includes(p.Country) || query.countries === undefined)) {
-            productResult.push(p);
-          }
-        }
+      let isInStore = this.storeFilter(p, selectedStores);
+      let isOfType = query.types?.includes(p.SubType) || query.types === undefined;
+      let isOfCountry = query.countries?.includes(p.Country) || query.countries === undefined;
+
+      if (isOfCountry && isOfType && isInStore) {
+        productResult.push(p);
       }
+      if (isInStore && isOfCountry) {
+        productTypes[p.SubType].products[p.Id] = true;
+      }
+      if (isInStore && isOfType) {
+        productCountries[p.Country].products[p.Id] = true;
+      }
+      if (isOfCountry && isOfType) {
+        stores = stores.map(s => {
+
+          if ((p.Stock.Stores.find(ps => ps.pointOfService.name == s.storeId)
+            || (s.storeId === "online" && !(p.ProductStatusSaleName && ["Midlertidig utsolgt", "Utsolgt", "Utgått"].includes(p.ProductStatusSaleName))))) {
+            s.products[p.Id] = true;
+          }
+          return s;
+        });
+      }
+
     }
 
     this.setState({
@@ -421,7 +369,7 @@ class ProductList extends React.Component {
       page: this.state.page > Math.ceil(productResult.length / this.state.pageSize) ? 1 : this.state.page,
       productTypes: productTypes,
       productCountries: productCountries,
-      selectedStores: selectedStores
+      stores: stores
     }, () => this.createFilter());
   }
 
@@ -433,50 +381,16 @@ class ProductList extends React.Component {
       const p = productResult[i];
       if (productDisplay.length < this.state.pageSize) {
         productDisplay.push(
-          <ProductComp key={p.Id} showDiff={true} product={p} notification={this.Notification} selectedStores={this.state.selectedStores} setGraph={this.setGraph.bind(this)} />
+          <ProductComp key={p.Id} showDiff={true} product={p} notification={this.Notification} selectedStores={this.state.filter.stores} setGraph={this.setGraph.bind(this)} />
         );
       }
     }
     return productDisplay;
   }
 
-  displayProductTypes = () => {
-    let list = [];
-    let productTypes = this.state.productTypes;
-    Object.keys(productTypes).forEach((key) => {
-      list.push(
-        <ProductType key={key} handleFilterClick={this.handleTypeFilterClick.bind(this)} name={key} item={productTypes[key]}
-        />
-      );
-    });
-    SortArray(list, {
-      by: "key"
-    })
-    return list;
-  };
-
-  displayProductCountries = () => {
-    let list = [];
-    let countries = this.state.productCountries;
-    Object.keys(countries).forEach((key) => {
-      list.push(
-        <ProductType key={key} handleFilterClick={this.handleCountryFilterClick.bind(this)} name={key} item={countries[key]}
-        />
-      );
-    });
-    SortArray(list, {
-      by: "key"
-    })
-    return list;
-  };
   formatDate = (date) => {
     date.setHours(date.getHours() + 2);
     return date.toISOString().slice(0, 10);
-  };
-
-  handleStoreUpdate(storeList) {
-    this.setUrlParams("stores", storeList);
-    this.filterProducts(storeList);
   };
 
   handleSortChange = (event = null) => {
@@ -495,7 +409,7 @@ class ProductList extends React.Component {
 
     let list = this.state.loadedProducts;
 
-    SortArray(list, {
+    sortArray(list, {
       by: [sortField, "Discount"],
       order: [sortOrder, discountOrder],
     });
@@ -503,7 +417,7 @@ class ProductList extends React.Component {
     this.setState({
       loadedProducts: list,
       sort: option
-    }, () => this.filterProducts(this.state.selectedStores, this.state.productTypes));
+    }, () => this.filterProducts());
   };
 
   storeFilter = (p, selectedStores) => {
@@ -523,7 +437,7 @@ class ProductList extends React.Component {
   changeTimeSpan = (event, timespan, autoFetch = false) => {
     let option = event?.target?.value || timespan;
     this.setState({
-      timeSpan: option,
+      timespan: option,
       loading: true
     },
       () => {
@@ -534,88 +448,61 @@ class ProductList extends React.Component {
       }
     );
   };
-
   setPage = (page) => {
     this.setState({ page: page });
     this.setUrlParams("page", page);
-  };
+  }
   render() {
 
     let {
-      currentFilterExists,
       loading,
       pageSize,
       page,
       productResult,
       stores,
-      selectedStores,
+      productTypes,
+      productCountries,
       filter,
       user,
-      showCountries = true,
-      showTypes = true
+      currentFilterExists,
     } = this.state;
 
     return (
       <div key="Productlist" className="Productlist" >
-
-        <div className="filterSaverWrapper">
-          {(!currentFilterExists && !loading && filter && (filter.productTypes.length > 0 || filter.stores.length > 0)) &&
-            <div className="filterSaver">
-              <button className="bigGoldBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
-              <div>
-                <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
-                {user && !user.notifications.onFilters &&
-                  <div>
-                    <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
+        <div className="main">
+          <main>
+            <div className="before-products">
+              <div className="nav">
+                {currentFilterExists &&
+                  <div className="discount-filter">
+                    <a
+                      className={"clickable " + (this.state.change === "lowered" ? "active" : "")}
+                      href={"/"}
+                    >Ned i pris</a>
+                    <a
+                      className={"clickable " + (this.state.change === "raised" ? "active" : "")}
+                      href={"?change=raised"}
+                    >Opp i pris</a>
                   </div>
                 }
-              </div>
-            </div>
-          }
-        </div>
-
-        <div className="main">
-          <aside className={"filter " + (this.state.filterVisibility ? "active" : "inactive")}>
-            <button className="toggleFilter"
-              onClick={() => {
-                this.setState({
-                  filterVisibility: !this.state.filterVisibility,
-                });
-              }}>
-              {!this.state.filterVisibility ? ("Filter") : (<FontAwesomeIcon title="Lukk filter" icon={faTimes} />)}
-            </button>
-            <fieldset disabled={!this.state.filterVisibility && isMobileOnly}>
-              <button disabled={filter.stores.length === 0 && filter.productTypes.length === 0 && filter.countries.length === 0}
-                className={"clickable bigGreenBtn resetFilter show " + (filter.stores.length === 0 && filter.productTypes.length === 0 && filter.countries.length === 0 ? "inactive" : "active")}
-                onClick={() => { this.resetFilterUrl(); this.resetFilter(); }}>
-                Nullstill
-              </button>
-              <h4 className="dark filter-heading" onClick={() => { this.setState({ showTypes: !showTypes }) }}>
-                Type <FontAwesomeIcon title="Ekspandér produkttyper" icon={showTypes ? faMinus : faPlus} />
-              </h4>
-              <div className={"filter-items " + (showTypes ? "visible" : "hidden")}>{this.displayProductTypes()}</div>
-              <h4 className="dark filter-heading" onClick={() => { this.setState({ showCountries: !showCountries }) }}>
-                Land <FontAwesomeIcon title="Ekspandér produktland" icon={showCountries ? faMinus : faPlus} />
-              </h4>
-              <div className={"filter-items " + (showCountries ? "visible" : "hidden")} >{this.displayProductCountries()}</div>
-            </fieldset>
-          </aside>
-          <main>
-            <div className="before_products">
-              <div className="nav">
-                <div className="DiscountFilter">
-                  <a
-                    className={"clickable " + (this.state.change === "lowered" ? "active" : "")}
-                    href={"/"}
-                  >Ned i pris</a>
-                  <a
-                    className={"clickable " + (this.state.change === "raised" ? "active" : "")}
-                    href={"?change=raised"}
-                  >Opp i pris</a>
-                </div>
-                {this.state.stores.length > 0 &&
-                  <StoreSelector handleStoreUpdate={this.handleStoreUpdate.bind(this)} change={this.state.change} selectedStores={selectedStores} stores={stores} />
+                {(!currentFilterExists && !loading && filter) &&
+                  <div className="filterSaver">
+                    <button className="bigGoldBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
+                    <div>
+                      <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
+                      {user && !user.notifications.onFilters &&
+                        <div>
+                          <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
+                        </div>
+                      }
+                    </div>
+                  </div>
                 }
+                {this.state.stores.length > 0 &&
+                  <StoreSelector handleStoreUpdate={this.handleFilterClick.bind(this)} selectedStores={filter.stores} stores={stores} />
+                }
+                <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
+                <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
                 <div className="sorting">
                   <label htmlFor="sorting">Sortering
                 <Select
@@ -633,18 +520,18 @@ class ProductList extends React.Component {
                     </Select>
                   </label>
                 </div>
-                <div className="timeSpan">
+                <div className='timespan'>
                   <label htmlFor="timespan">Tidsperiode
                 <Select
                       native
-                      value={this.state.timeSpan}
+                      value={this.state.timespan}
                       onChange={this.changeTimeSpan}
                       inputProps={{
-                        name: 'timeSpan',
-                        id: 'timeSpan',
+                        name: 'timespan',
+                        id: 'timespan',
                       }}
                     >
-                      {this.timeSpanOptions.map(option => (
+                      {this.timespanOptions.map(option => (
                         <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
                     </Select>
@@ -652,7 +539,6 @@ class ProductList extends React.Component {
                 </div>
               </div>
             </div>
-
             <Pagination
               total={productResult.length}
               page={this.state.page}
@@ -660,9 +546,9 @@ class ProductList extends React.Component {
               pageSize={pageSize}
               loading={this.state.loading}
             />
-            <ul className="ProductList">
+            <ul className="product-list">
               {loading && productResult.length === 0 &&
-                <div className="prouctList-loader">
+                <div className="product-list-loader">
                   <FontAwesomeIcon icon={faCircleNotch} size="5x" />
                 </div>
               }
@@ -688,7 +574,7 @@ class ProductList extends React.Component {
             <ProductPopUp product={this.state.highlightedProduct} notification={this.Notification} graphIsVisible={this.state.graphIsVisible} nextProduct={this.nextProduct.bind(this)} setGraph={this.setGraph.bind(this)} />
             <div
               className={
-                "filter_backdrop " +
+                "filter-backdrop " +
                 (this.state.filterVisibility ? "active" : "inactive")
               }
               onClick={() => this.setState({ filterVisibility: false })}

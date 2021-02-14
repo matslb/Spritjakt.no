@@ -119,6 +119,10 @@ class SpritjaktClient {
     SortArray(storeObject.Stores, {
       by: ["storeName"]
     });
+    storeObject.Stores.unshift({
+      storeId: "online",
+      storeName: "Vinmonopolet.no"
+    });
     return storeObject.Stores;
   }
 

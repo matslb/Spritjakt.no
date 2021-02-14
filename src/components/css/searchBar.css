@@ -6,28 +6,34 @@
     margin: 1rem auto 0;
     padding: 2rem 0 1rem;
 }
+
 .searchbox {
     text-align: center;
 }
-.SearchBar .wrapper ul.ProductList {
+
+.SearchBar .wrapper ul.product-list {
     grid-template-columns: 1fr 1fr 1fr 1fr;
     max-width: 1100px;
     padding: 1rem;
     min-height: 50px;
     position: relative;
 }
-.SearchBar .wrapper ul.ProductList li {
+
+.SearchBar .wrapper ul.product-list li {
     background: white;
 }
+
 .SearchBar label span {
     width: 0;
     height: 0;
     overflow: hidden;
     display: block;
 }
+
 .SearchBar > p {
     margin: 0 0 1rem;
 }
+
 .SearchBar button.close {
     margin: 0.5rem auto auto;
     display: flex;
@@ -38,17 +44,19 @@
     align-items: center;
     border: 1px solid rgba(0, 0, 0, 0.2);
 }
+
 .SearchBar .wrapper {
     width: 100%;
 }
 
 @media(max-width: 1024px) {
-    .SearchBar .wrapper ul.ProductList {
+    .SearchBar .wrapper ul.product-list {
         grid-template-columns: 1fr 1fr 1fr;
     }
 }
+
 @media(max-width: 768px) {
-    .SearchBar .wrapper ul.ProductList {
+    .SearchBar .wrapper ul.product-list {
         grid-template-columns: 1fr 1fr;
     }
 }
