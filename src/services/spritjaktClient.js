@@ -121,7 +121,7 @@ class SpritjaktClient {
     });
     storeObject.Stores.unshift({
       storeId: "online",
-      storeName: "Vinmonopolet.no"
+      storeName: "Nettlager"
     });
     return storeObject.Stores;
   }

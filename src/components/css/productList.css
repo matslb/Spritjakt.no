@@ -125,7 +125,7 @@ ul.product-list {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     position: relative;
-    height: 4rem;
+    height: 4.5rem;
 }
 
 .nav .discount-filter .clickable {
@@ -200,12 +200,12 @@ ul.product-list {
     color: white;
     align-items: center;
     grid-area: filtersaver;
-    height: 4rem;
+    height: 4.5rem;
     box-sizing: border-box;
 }
 
 .filterSaver > div {
-    margin-left: 2rem;
+    margin-left: 1rem;
 }
 
 @media(max-width: 1024px) {
@@ -261,15 +261,6 @@ ul.product-list {
         min-width: unset;
     }
 
-    .priceGraphWrapper {
-        margin: 0;
-    }
-
-    .productNavigation {
-        background: #49908d;
-        border: none;
-        margin: -5px 0 0;
-    }
 }
 
 @media(max-width: 540px) {

@@ -12,7 +12,7 @@ export default class Notification extends React.Component {
     setNotification = (event, message, theme) => {
         let target = event.currentTarget.getBoundingClientRect();
         let state = this.state;
-        let key = Math.floor(Math.random() * 10000);
+        let key = Date.now();
         state[key] = {
             showMessage: true,
             target: {

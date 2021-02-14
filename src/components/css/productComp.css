@@ -34,10 +34,11 @@ li.ProductComp > button {
 }
 
 .ProductComp .product_img {
-    min-height: 200px;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+    text-align: center;
+}
+
+.ProductComp .product_img img {
+    height: 200px;
 }
 
 .ProductComp .product_img.soldOut {

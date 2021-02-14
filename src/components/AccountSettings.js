@@ -1,5 +1,5 @@
 import React from "react";
-import "./css/notificationSettings.css";
+import "./css/accountSettings.css";
 import SpritjaktClient from "../services/spritjaktClient";
 import MiniProduct from "./MiniProduct";
 import { faTrash, faTimesCircle, faBars, faFilter, faPen, faCircleNotch } from "@fortawesome/free-solid-svg-icons";
@@ -30,7 +30,7 @@ const startState = {
     }
 };
 
-class NotificationSettings extends React.Component {
+class AccountSettings extends React.Component {
     constructor(props) {
         super(props);
         this.state = startState;
@@ -227,7 +227,7 @@ class NotificationSettings extends React.Component {
                     </div>
                 }
                 {user && userData &&
-                    <div className={"notificationSettings " + (this.state.isActive ? " active " : "")} >
+                    <div className={"account-settings " + (this.state.isActive ? " active " : "")} >
                         <div className="sectionHeader toolbar">
                             <button aria-label="Skjul innstillinger" name="Togglesettings" onClick={() => this.toggleSection(!this.state.isActive)} className="iconBtn toggleSettings">
                                 <FontAwesomeIcon size="lg" icon={faTimesCircle} />
@@ -339,4 +339,4 @@ class NotificationSettings extends React.Component {
     }
 }
 
-export default NotificationSettings;
+export default AccountSettings;

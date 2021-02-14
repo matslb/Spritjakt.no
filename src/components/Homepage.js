@@ -4,7 +4,7 @@ import SearchBar from "./SearchBar";
 import queryString from "query-string";
 import firebase from "firebase/app";
 import "firebase/analytics";
-import NotificationSettings from "./NotificationSettings";
+import AccountSettings from "./AccountSettings";
 import LoginPage from "./LoginPage";
 import LoginForm from "./LoginForm";
 
@@ -41,7 +41,7 @@ class Homepage extends React.Component {
             <div className="homepage">
                 <SearchBar />
                 <LoginPage ref={this.LoginPage} />
-                <NotificationSettings applyUserFilter={this.applyUserFilter.bind(this)} />
+                <AccountSettings applyUserFilter={this.applyUserFilter.bind(this)} />
                 <ProductList toggleLoginSection={this.toggleLoginSection.bind(this)} ref={this.ProductList} />
             </div>
         );

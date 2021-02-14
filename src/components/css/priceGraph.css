@@ -1,24 +1,16 @@
 .expandedProduct {
     background: white;
-    box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
+    box-shadow: 2px 2px 9px rgb(0 0 0 / 50%);
     border-radius: 3px;
     max-width: 25rem;
     z-index: 9999;
     padding: 1rem;
     grid-gap: 1rem;
     overflow: auto;
-    max-height: calc(100vh - 90px);
+    max-height: calc(100vh - 120px);
     position: relative;
-    top: 0;
     bottom: 0;
     margin: auto;
-}
-
-@media(max-width: 768px) {
-    .expandedProduct {
-        top: 0;
-        height: 100%;
-    }
 }
 
 .fa-external-link-alt {

@@ -1,4 +1,4 @@
-.notificationSettings {
+.account-settings {
     background: #90495d;
     max-width: 50rem;
     padding: 1rem 1.5rem;
@@ -18,7 +18,7 @@
     box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
 }
 
-.notificationSettings.active {
+.account-settings.active {
     right: 0;
 }
 
@@ -127,12 +127,12 @@
     margin-left: 1rem;
 }
 
-.notificationSettings .toggleSettings {
+.account-settings .toggleSettings {
     font-size: 1.5rem;
     margin-left: -1rem;
 }
 
-.notificationSettings .toolbar {
+.account-settings .toolbar {
     background: rgba(0, 0, 0, 0.3);
     margin: -1rem -1.5rem 1rem;
     padding: 0.5rem 1.5rem;
@@ -159,11 +159,11 @@
 }
 
 @media(max-width: 768px) {
-    .notificationSettings {
+    .account-settings {
         padding: 1rem 0.5rem;
     }
 
-    .notificationSettings .toolbar {
+    .account-settings .toolbar {
         margin: -1rem -0.5rem 1rem;
     }
 }

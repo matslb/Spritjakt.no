@@ -112,7 +112,19 @@ class ProductList extends React.Component {
     this.filterProducts();
   }
 
-  getQuery = () => (queryString.parse(window.location.search, { arrayFormat: 'comma' }));
+  getQuery = () => {
+    let query = queryString.parse(window.location.search, { arrayFormat: 'comma' });
+    query.types = this.cleanForMissingValues(this.toArray(query.types), this.state.productTypes);
+    query.stores = this.cleanForMissingStores(this.toArray(query.stores), this.state.stores);
+    query.countries = this.cleanForMissingValues(this.toArray(query.countries), this.state.productCountries);
+    return query;
+  }
+
+  toArray = (value) => (Array.isArray(value) ? value : value ? [value] : [])
+
+  cleanForMissingValues = (array, master) => (array.filter(x => master[x]))
+
+  cleanForMissingStores = (array, master) => (array.filter(x => master.some(s => s.storeId === x)))
 
   componentDidMount() {
     window.onpopstate = (e) => this.onbackPress(e);
@@ -175,9 +187,9 @@ class ProductList extends React.Component {
     let query = this.getQuery();
 
     let newFilter = {
-      productTypes: Array.isArray(query.types) ? query.types : query.types ? [query.types] : [],
-      stores: Array.isArray(query.stores) ? query.stores : query.stores ? [query.stores] : [],
-      countries: Array.isArray(query.countries) ? query.countries : query.countries ? [query.countries] : []
+      productTypes: query.types,
+      stores: query.stores,
+      countries: query.countries
     }
 
     let filterExists = false;
@@ -300,18 +312,6 @@ class ProductList extends React.Component {
     }
   };
 
-  resetFilter = () => {
-    let productTypes = this.state.productTypes;
-    Object.keys(this.state.productTypes).map(
-      (pt) => (productTypes[pt].state = false)
-    );
-    let productCountries = this.state.productCountries;
-    Object.keys(this.state.productCountries).map(
-      (pt) => (productCountries[pt].state = false)
-    );
-    this.filterProducts();
-  };
-
   resetFilterUrl = () => {
     this.setUrlParams("stores", null);
     this.setUrlParams("types", null);
@@ -329,7 +329,7 @@ class ProductList extends React.Component {
     let productCountries = this.state.productCountries;
     let stores = this.state.stores;
     let productResult = [];
-    let selectedStores = Array.isArray(query.stores) ? query.stores : query.stores ? [query.stores] : [];
+    let selectedStores = query.stores;
 
     Object.keys(productTypes).forEach(pt => productTypes[pt].products = {});
     Object.keys(productCountries).forEach(c => productCountries[c].products = {});
@@ -339,8 +339,8 @@ class ProductList extends React.Component {
       const p = this.state.loadedProducts[i];
 
       let isInStore = this.storeFilter(p, selectedStores);
-      let isOfType = query.types?.includes(p.SubType) || query.types === undefined;
-      let isOfCountry = query.countries?.includes(p.Country) || query.countries === undefined;
+      let isOfType = query.types?.includes(p.SubType) || query.types.length === 0;
+      let isOfCountry = query.countries?.includes(p.Country) || query.countries.length === 0;
 
       if (isOfCountry && isOfType && isInStore) {
         productResult.push(p);
