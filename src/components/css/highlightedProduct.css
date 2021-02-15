@@ -107,6 +107,9 @@
 }
 
 .HighlightedProduct .productWatchBtns {
-    margin-top: -0.5rem;
-    margin-right: -0.5rem;
+    position: absolute;
+    top: 5px;
+    right: 0;
+    text-align: right;
+    transform: scale(1.1);
 }

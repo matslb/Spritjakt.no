@@ -270,7 +270,6 @@ button {
     padding: 0.2rem 0.5rem;
     font-weight: 400;
     opacity: 0.8;
-    width: 3rem;
     display: block;
     text-align: center;
     border-radius: 3px;
@@ -287,12 +286,12 @@ button.link {
 }
 
 .price_raised .percentage_change {
-    background: rgba(184, 91, 87, 0.8);
+    background: rgb(184, 91, 87);
     color: white;
 }
 
 .price_lowered .percentage_change {
-    background: rgba(97, 160, 85, 0.8);
+    background: rgb(97, 160, 85);
     color: white;
 }
 

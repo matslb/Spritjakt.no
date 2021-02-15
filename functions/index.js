@@ -173,8 +173,12 @@ exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
   const count = newValue.length > 150 ? 150 : newValue.length;
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
-      newValue[i].Stores = await VmpClient.FetchStoreStock(newValue[i].productId);
-      await FirebaseClient.UpdateProductStock(newValue[i]);
+
+      let storeStock = await VmpClient.FetchStoreStock(newValue[i].productId);
+      if (storeStock !== null) {
+        newValue[i].Stores = storeStock;
+        await FirebaseClient.UpdateProductStock(newValue[i]);
+      }
     }
     newValue.splice(i, 1);
   }

@@ -86,7 +86,11 @@ class AccountSettings extends React.Component {
         }
         let query = queryString.stringify(parsed, { arrayFormat: 'comma' });
         this.setState({ isActive: isActive });
-        window.history.replaceState('', '', '?' + query);
+        if (isActive) {
+            window.history.pushState('', '', '?' + query);
+        } else {
+            window.history.replaceState('', '', '?' + query);
+        }
     }
 
     logout = () => {

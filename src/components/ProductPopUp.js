@@ -13,7 +13,6 @@ class PopupProduct extends React.Component {
                     in={this.props.graphIsVisible}
                     timeout={100}
                     className="toggle"
-                    onExited={() => this.props.setGraph(null, null)}
                 >
                     <div>
                         {this.props.product && (

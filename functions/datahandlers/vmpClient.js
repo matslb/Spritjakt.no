@@ -101,14 +101,15 @@ class VmpClient {
             }
           });
           geoPoint.latitude -= 2;
-          geoPoint.longitude -= 1;
+          geoPoint.longitude -= 0.5;
           totalResults = res.pagination.totalResults;
           tries++;
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise(r => setTimeout(r, 50));
         })
         .catch(function (err) {
           console.error("Store stock fetch failed: " + err);
           totalResults = 0;
+          stores = null;
         });
     }
     console.log("Expected: " + totalResults);

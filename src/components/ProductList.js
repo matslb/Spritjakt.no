@@ -63,12 +63,6 @@ class ProductList extends React.Component {
     this.Notification = React.createRef();
   }
 
-  onbackPress = (e) => {
-    if (this.state.highlightedProduct) {
-      this.setState({ highlightedProduct: false, graphIsVisible: false });
-      this.setUrlParams("product");
-    }
-  }
 
   setUrlParams = (field, value = null) => {
     let urlParameters = this.getQuery();
@@ -117,6 +111,9 @@ class ProductList extends React.Component {
     query.types = this.cleanForMissingValues(this.toArray(query.types), this.state.productTypes);
     query.stores = this.cleanForMissingStores(this.toArray(query.stores), this.state.stores);
     query.countries = this.cleanForMissingValues(this.toArray(query.countries), this.state.productCountries);
+    if (query.timespan) {
+      query.timespan = this.timespanOptions.some(ts => ts.value === parseInt(query.timespan)) ? parseInt(query.timespan) : this.state.timespan;
+    }
     return query;
   }
 
@@ -127,7 +124,6 @@ class ProductList extends React.Component {
   cleanForMissingStores = (array, master) => (array.filter(x => master.some(s => s.storeId === x)))
 
   componentDidMount() {
-    window.onpopstate = (e) => this.onbackPress(e);
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         firebase.firestore().collection("Users").doc(user.uid)
@@ -242,7 +238,6 @@ class ProductList extends React.Component {
         (productTypes[ptkey].products = {})
     );
 
-    //Updating existing product type counts
     Object.keys(products).forEach((id) => {
       let p = products[id];
       loadedProducts.push(p);
@@ -296,7 +291,7 @@ class ProductList extends React.Component {
   setGraph(productId) {
     if (productId === null) {
       this.setState({ highlightedProduct: false, graphIsVisible: false });
-      this.onbackPress();
+      this.setUrlParams("product");
     } else {
       this.setUrlParams("product", productId);
       let product = this.state.loadedProducts.find((p) => p.Id === productId);
@@ -354,7 +349,7 @@ class ProductList extends React.Component {
       if (isOfCountry && isOfType) {
         stores = stores.map(s => {
 
-          if ((p.Stock.Stores.find(ps => ps.pointOfService.name == s.storeId)
+          if ((p.Stock.Stores.find(ps => ps.pointOfService.name === s.storeId)
             || (s.storeId === "online" && !(p.ProductStatusSaleName && ["Midlertidig utsolgt", "Utsolgt", "Utgått"].includes(p.ProductStatusSaleName))))) {
             s.products[p.Id] = true;
           }

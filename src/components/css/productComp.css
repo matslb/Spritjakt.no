@@ -102,7 +102,7 @@ span.change_time {
     transform: rotateZ(27deg);
     text-transform: uppercase;
     background: rgba(255, 255, 255, 0.6);
-    border: 5px solid;
+    border: 3px solid;
     border-radius: 9px;
     padding: 5px;
 }
@@ -152,8 +152,8 @@ span.change_time {
 
 .ProductComp .percentage_change {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 3px;
+    left: 3px;
 }
 
 @media(max-width: 768px) {

@@ -47,12 +47,6 @@ class ProductComp extends React.Component {
 
   render() {
     let { product, selectedStores = [] } = this.props;
-    let background = {
-      backgroundImage:
-        "url(https://bilder.vinmonopolet.no/cache/100x100/" +
-        product.Id +
-        "-1.jpg)",
-    };
     let showDiff = product.Discount !== 100;
     let priceIsLower = product.LatestPrice < product.ComparingPrice;
     let lastChangedDate = dateFormater.format(product.LastUpdated);
@@ -93,7 +87,7 @@ class ProductComp extends React.Component {
           {product.Name}
         </button>
         <div onClick={() => this.props.setGraph(product.Id)} className={"product_img " + (isSoldOut ? " soldOut" : "")} /*style={background}*/>
-          <img loading={'lazy'} alt={product.Name} src={"https://bilder.vinmonopolet.no/cache/100x100/" + product.Id + "-1.jpg"} />
+          <img loading={'lazy'} alt={product.Name} src={"https://bilder.vinmonopolet.no/cache/150x100/" + product.Id + "-1.jpg"} />
         </div>
         {showDiff &&
           <span className="percentage_change">

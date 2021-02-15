@@ -14,17 +14,26 @@ class Homepage extends React.Component {
         this.ProductList = React.createRef();
         this.LoginPage = React.createRef();
         this.Notification = React.createRef();
+        this.AccountSettings = React.createRef();
     }
 
     componentDidMount() {
         this.registerSource();
+        window.onpopstate = (e) => this.onbackPress(e);
+
+    }
+
+    onbackPress = (e) => {
+        let query = queryString.parse(window.location.search, { arrayFormat: 'comma' });
+        this.ProductList.current.setGraph(query.product || null);
+        this.AccountSettings.current.toggleSection(query.settings === true);
     }
 
     registerSource = () => {
         let parsed = queryString.parse(window.location.search);
         if (parsed?.source) {
             firebase.analytics().logEvent(parsed.source + "_referral");
-            window.history.pushState('', '', '/');
+            window.history.replaceState('', '', '/');
         }
     }
 
@@ -41,7 +50,7 @@ class Homepage extends React.Component {
             <div className="homepage">
                 <SearchBar />
                 <LoginPage ref={this.LoginPage} />
-                <AccountSettings applyUserFilter={this.applyUserFilter.bind(this)} />
+                <AccountSettings applyUserFilter={this.applyUserFilter.bind(this)} ref={this.AccountSettings} />
                 <ProductList toggleLoginSection={this.toggleLoginSection.bind(this)} ref={this.ProductList} />
             </div>
         );
