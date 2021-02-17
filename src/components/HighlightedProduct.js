@@ -119,7 +119,7 @@ class HighlightedProduct extends React.Component {
         <div className="product_details">
           <h2 className="name">{product.Name}</h2>
           <span className="price">Kr {product.LatestPrice}</span>
-          <span className="old_price">Kr {product.ComparingPrice}</span>
+          <span className="old_price">{product.ComparingPrice && "Kr " + product.ComparingPrice}</span>
           <span className="details">
             {product.SubType}, {product.Country}
             <br />

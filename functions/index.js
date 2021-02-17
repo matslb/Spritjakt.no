@@ -112,56 +112,28 @@ exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).ht
       .split(" ")
       .filter((s) => s.length > 1);
 
-    p.numberOfMatches = 0;
+    p.searchmatch = 0;
     for (i in stringList) {
       if (nameList.includes(stringList[i])) {
-        p.numberOfMatches++;
+        p.searchmatch++;
         if (i !== 0 && nameList.includes(stringList[i - 1])) {
-          p.numberOfMatches++;
+          p.searchmatch++;
         }
       }
       if (nameList[i] === stringList[i]) {
-        p.numberOfMatches++;
+        p.searchmatch++;
       }
     }
-
-    highestScore =
-      p.numberOfMatches > highestScore ? p.numberOfMatches : highestScore;
 
     matchingProducts.push(p);
   });
 
   SortArray(matchingProducts, {
-    by: ["numberOfMatches", "Name"],
+    by: ["searchmatch", "Name"],
     order: "desc",
   });
-  matchingProducts = matchingProducts
-    .splice(0, 20)
-    .filter((p) => p.numberOfMatches >= highestScore - 3);
 
-  matchingProducts.map((p) => {
-    p.PriceHistorySorted = SortArray(Object.keys(p.PriceHistory), {
-      order: "desc",
-    });
-
-    p.LatestPrice = p.PriceHistory[p.PriceHistorySorted[0]];
-
-    let priceHistorySortedAndFiltered = p.PriceHistorySorted.filter(
-      (priceDate) =>
-        priceDate !== p.PriceHistorySorted[0]
-    );
-    if (priceHistorySortedAndFiltered.length !== 0) {
-      let oldestPrice = p.PriceHistory[priceHistorySortedAndFiltered[0]];
-      p.ComparingPrice = oldestPrice;
-      p.SortingDiscount = (p.LatestPrice / oldestPrice) * 100;
-      p.Discount = (p.SortingDiscount - 100).toFixed(1);
-    } else {
-      p.SortingDiscount = 100;
-    }
-    p = FirebaseClient.PrepProduct(p);
-  });
-
-  return res.send(matchingProducts.splice(0, 20));
+  return res.send(matchingProducts.splice(0, 1500));
 });
 
 exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
@@ -170,10 +142,9 @@ exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
     return null;
   }
   const newValue = change.after.val();
-  const count = newValue.length > 150 ? 150 : newValue.length;
+  const count = newValue.length > 100 ? 100 : newValue.length;
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
-
       let storeStock = await VmpClient.FetchStoreStock(newValue[i].productId);
       if (storeStock !== null) {
         newValue[i].Stores = storeStock;

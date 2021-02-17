@@ -195,13 +195,15 @@ input[type="password"] {
     background: rgba(230, 230, 230, 0.85);
     padding: 0.5rem 0.2rem;
     width: 100%;
-    max-width: 13rem;
 }
 
 input[type="text"]:active,
 input[type="email"]:active,
-input[type="password"]:active {
-    border-bottom: 2px solid #d0b55e79;
+input[type="password"]:active,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-bottom: 2px solid #d0b55e;
 }
 
 button {

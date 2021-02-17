@@ -13,6 +13,7 @@ import { Select } from '@material-ui/core';
 import queryString from "query-string";
 import Notification from "./Notification";
 import Filter from "./Filter";
+import SearchBar from "./SearchBar";
 
 class ProductList extends React.Component {
   constructor() {
@@ -221,6 +222,21 @@ class ProductList extends React.Component {
   getProductData(autoFetch = false) {
     const change = this.state.change;
     this.spritjaktClient.FetchProducts(this.state.timespan, change === "lowered").then(products => this.updateProductResults(products, autoFetch));
+  }
+
+  searchProducts(searchString = null) {
+    this.setState({ loading: true, page: 1 });
+    if (searchString !== null) {
+      this.setState({ isSearch: true });
+      this.setUrlParams("sort", "searchmatch_desc");
+      this.spritjaktClient.SearchProducts(searchString).then(products => this.updateProductResults(products, false));
+
+    } else {
+      this.setState({ isSearch: false });
+      this.setUrlParams("sort", this.sortOptions[0].value);
+      this.sortOptions[7] = undefined;
+      this.getProductData();
+    }
   }
 
   updateProductResults(products, autoFetch = false) {
@@ -460,6 +476,7 @@ class ProductList extends React.Component {
       filter,
       user,
       currentFilterExists,
+      isSearch = false
     } = this.state;
 
     return (
@@ -493,9 +510,7 @@ class ProductList extends React.Component {
                     </div>
                   </div>
                 }
-                {this.state.stores.length > 0 &&
-                  <StoreSelector handleStoreUpdate={this.handleFilterClick.bind(this)} selectedStores={filter.stores} stores={stores} />
-                }
+                <StoreSelector handleStoreUpdate={this.handleFilterClick.bind(this)} selectedStores={filter.stores} stores={stores} />
                 <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
                 <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
                 <div className="sorting">
@@ -509,9 +524,14 @@ class ProductList extends React.Component {
                         id: 'sorting',
                       }}
                     >
-                      {this.sortOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
+                      {this.sortOptions.map(option => {
+                        if (option !== undefined) {
+                          return <option key={option?.value} value={option?.value}>{option?.label}</option>
+                        }
+                      })}
+                      {isSearch &&
+                        <option key={"searchmatch_desc"} value={"searchmatch_desc"}>{"Beste treff"}</option>
+                      }
                     </Select>
                   </label>
                 </div>
@@ -532,6 +552,7 @@ class ProductList extends React.Component {
                     </Select>
                   </label>
                 </div>
+                <SearchBar searchProducts={this.searchProducts.bind(this)} loading={loading} />
               </div>
             </div>
             <Pagination

@@ -48,7 +48,6 @@ class Homepage extends React.Component {
 
         return (
             <div className="homepage">
-                <SearchBar />
                 <LoginPage ref={this.LoginPage} />
                 <AccountSettings applyUserFilter={this.applyUserFilter.bind(this)} ref={this.AccountSettings} />
                 <ProductList toggleLoginSection={this.toggleLoginSection.bind(this)} ref={this.ProductList} />

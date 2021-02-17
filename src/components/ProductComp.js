@@ -87,7 +87,7 @@ class ProductComp extends React.Component {
           {product.Name}
         </button>
         <div onClick={() => this.props.setGraph(product.Id)} className={"product_img " + (isSoldOut ? " soldOut" : "")} /*style={background}*/>
-          <img loading={'lazy'} alt={product.Name} src={"https://bilder.vinmonopolet.no/cache/150x100/" + product.Id + "-1.jpg"} />
+          <img loading={'lazy'} alt={product.Name} height="200px" width="auto" src={"https://bilder.vinmonopolet.no/cache/80x80/" + product.Id + "-1.jpg"} />
         </div>
         {showDiff &&
           <span className="percentage_change">
@@ -118,7 +118,7 @@ class ProductComp extends React.Component {
           </span>
           <h2 className="name">{product.Name}</h2>
           <span className="price">Kr {product.LatestPrice}</span>
-          {showDiff && (
+          {product.ComparingPrice && (
             <span className="old_price secondary">Kr {product.ComparingPrice}</span>
           )}
           <span className="volume secondary">

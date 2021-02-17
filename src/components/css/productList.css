@@ -105,7 +105,7 @@ ul.product-list {
 
 .nav {
     display: grid;
-    grid-template-areas: "discount discount" "filtersaver filtersaver" "types countries" "stores stores" "sorting time";
+    grid-template-areas: "discount discount" "filtersaver filtersaver" "search stores" "types countries" "sorting time";
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     align-items: baseline;
