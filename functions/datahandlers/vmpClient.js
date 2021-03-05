@@ -74,48 +74,52 @@ class VmpClient {
         return { totalCount: 0, stocks: [], error: true };
       });
   }
-  static async FetchStoreStock(productId) {
-    let stores = [];
-    let geoPoint = { latitude: 72, longitude: 26 };
-    let totalResults = 100;
+  static async FetchStoreStock(productId, stores = []) {
+    let storeStocks = [];
+    let expectedResults = 1;
+    let fail = false;
     let tries = 0;
-    while (stores.length < totalResults && (geoPoint.longitude >= 7 || geoPoint.latitude >= 58)) {
+    while (storeStocks.length < expectedResults && stores.length > 0 && tries < 50) {
       let options = {
         uri: "https://www.vinmonopolet.no/api/products/" + productId + "/stock",
         qs: {
           pageSize: 1000,
           currentPage: 0,
           fields: "BASIC",
-          latitude: geoPoint.latitude,
-          longitude: geoPoint.longitude,
+          latitude: stores[0].address.gpsCoord.split(";")[0],
+          longitude: stores[0].address.gpsCoord.split(";")[1],
         },
         jar: true,
         json: true
       };
-
+      stores.shift();
+      tries++;
       await rp(options)
         .then(async function (res) {
           res.stores.forEach(newStore => {
-            if (!stores.some(oldStore => oldStore.pointOfService.id === newStore.pointOfService.id)) {
-              stores.push(newStore);
+            if (!storeStocks.some(oldStore => oldStore.pointOfService.id === newStore.pointOfService.id)) {
+              delete newStore.pointOfService.address;
+              delete newStore.pointOfService.formattedDistance;
+              delete newStore.pointOfService.geoPoint;
+              storeStocks.push(newStore);
+              stores = stores.filter(s => s.storeId !== newStore.pointOfService.id);
             }
           });
-          geoPoint.latitude -= 2;
-          geoPoint.longitude -= 0.5;
-          totalResults = res.pagination.totalResults;
-          tries++;
-          await new Promise(r => setTimeout(r, 50));
+          expectedResults = res.pagination.totalResults;
         })
         .catch(function (err) {
           console.error("Store stock fetch failed: " + err);
-          totalResults = 0;
-          stores = null;
+          expectedResults = 0;
+          fail = true;
         });
     }
-    console.log("Expected: " + totalResults);
-    console.log("Retrieved: " + stores.length);
-    console.log("Tries: " + tries);
-    return stores;
+    console.log("Expected: " + expectedResults);
+    console.log("Retrieved: " + storeStocks.length);
+    console.log("tries: " + tries);
+    if (fail) {
+      return null;
+    }
+    return storeStocks;
   }
   static async FetchStores() {
     let options = vmpOptions();

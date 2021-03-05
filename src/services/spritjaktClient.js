@@ -1,6 +1,7 @@
 import rp from "request-promise";
 import firebase from "firebase/app";
 import "firebase/firestore";
+import "firebase/analytics";
 import SortArray from "sort-array";
 
 const allTimeEarliestDate = 1594166400000;
@@ -109,39 +110,14 @@ class SpritjaktClient {
       .catch(function (err) {
         console.log(err);
       });
-
-    let stringList = searchString.toLowerCase().split(" ").filter((s) => s.length > 1);
     let results = [];
-    this.loadedProducts.forEach(p => {
-      p.searchmatch = 0;
-      for (var i in stringList) {
-        if (p.SearchWords.includes(stringList[i])) {
-          p.searchmatch++;
-          if (i !== 0 && p.SearchWords.includes(stringList[i - 1])) {
-            p.searchmatch++;
-          }
-        }
-        if (p.SearchWords[i] === stringList[i]) {
-          p.searchmatch++;
-        }
-      }
-
-      results.push(p);
-    });
-
     res.forEach((p) => {
-      p = this.CalculateProductDiscount(p, getTimeFromNow(allowedTimeSpans[allowedTimeSpans.length - 1]));
+      p = this.CalculateProductDiscount(p, getTimeFromNow(allowedTimeSpans[3]));
       if (!results.find(lp => lp.Id === p.Id) && p.Type !== "Alkoholfritt") {
         results.push(p);
       }
     });
-
-    SortArray(results, {
-      by: ["searchmatch", "Name"],
-      order: "desc",
-    });
-
-    return res === undefined ? [] : res;
+    return results;
   }
 
   async FetchStores() {
@@ -190,12 +166,14 @@ class SpritjaktClient {
     await usersRef.update({
       name: name
     });
+    firebase.analytics().logEvent("user_change_username");
   }
 
   async DeleteUserDoc(uid) {
     const usersRef = firebase.firestore().collection("Users").doc(uid);
     await this.PurgeUserNotificationTokens();
     await usersRef.delete();
+    firebase.analytics().logEvent("user_delete_profile");
   }
 
   async UpdateUserNotifications(notifications) {
@@ -206,6 +184,7 @@ class SpritjaktClient {
       notifications: notifications,
       notificationsConsentDate: new Date()
     });
+    firebase.analytics().logEvent("user_update_notifications");
   }
 
   async FetchProductsById(productIds) {
@@ -233,10 +212,10 @@ class SpritjaktClient {
   async SetUserNotificationToken(token) {
     const user = firebase.auth().currentUser;
     if (!user) return;
-    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       notificationTokens: firebase.firestore.FieldValue.arrayUnion(token)
     });
+    const usersRef = firebase.firestore().collection("Users").doc(user.uid);
   }
 
   async PurgeUserNotificationTokens() {
@@ -255,6 +234,7 @@ class SpritjaktClient {
     await usersRef.update({
       filters: firebase.firestore.FieldValue.arrayUnion(filter)
     });
+    firebase.analytics().logEvent("user_save_filter");
   }
 
   async RemoveUserFilter(filter) {
@@ -264,6 +244,7 @@ class SpritjaktClient {
     await usersRef.update({
       filters: firebase.firestore.FieldValue.arrayRemove(filter)
     });
+    firebase.analytics().logEvent("user_delete_filter");
   }
 
   async AddProductToUser(productId) {
@@ -273,6 +254,7 @@ class SpritjaktClient {
     await usersRef.update({
       products: firebase.firestore.FieldValue.arrayUnion(productId)
     });
+    firebase.analytics().logEvent("user_add_favorite");
   }
 
   async RemoveProductFromUser(productId) {
@@ -282,6 +264,7 @@ class SpritjaktClient {
     await usersRef.update({
       products: firebase.firestore.FieldValue.arrayRemove(productId)
     });
+    firebase.analytics().logEvent("user_delete_favorite");
   }
 }
 

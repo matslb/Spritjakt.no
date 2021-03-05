@@ -34,6 +34,7 @@ class ProductList extends React.Component {
       change: "lowered",
       filterVisibility: false,
       user: null,
+      currentFilterExists: true,
       filterName: "",
       filter: {
         productTypes: [],
@@ -225,18 +226,20 @@ class ProductList extends React.Component {
   }
 
   searchProducts(searchString = null) {
-    this.setState({ loading: true, page: 1 });
-    if (searchString !== null) {
-      this.setState({ isSearch: true });
-      this.setUrlParams("sort", "searchmatch_desc");
-      this.spritjaktClient.SearchProducts(searchString).then(products => this.updateProductResults(products, false));
+    this.setState({ loading: true, page: 1 }, () => {
+      this.setUrlParams("page", 1);
+      if (searchString !== null) {
+        this.setState({ isSearch: true });
+        this.setUrlParams("sort", "searchmatch_desc");
+        this.spritjaktClient.SearchProducts(searchString).then(products => this.updateProductResults(products, false));
 
-    } else {
-      this.setState({ isSearch: false });
-      this.setUrlParams("sort", this.sortOptions[0].value);
-      this.sortOptions[7] = undefined;
-      this.getProductData();
-    }
+      } else {
+        this.setState({ isSearch: false });
+        this.setUrlParams("sort", this.sortOptions[0].value);
+        this.sortOptions[7] = undefined;
+        this.getProductData();
+      }
+    });
   }
 
   updateProductResults(products, autoFetch = false) {
@@ -289,7 +292,7 @@ class ProductList extends React.Component {
 
     if (autoFetch && loadedProducts.length < 200) {
       let timespanIndex = this.timespanOptions.indexOf(this.timespanOptions.find(ts => ts.value === this.state.timespan)) + 1;
-      if (this.timespanOptions[timespanIndex]) {
+      if (this.timespanOptions[timespanIndex] && this.timespanOptions[timespanIndex].value <= 30) {
         this.changeTimeSpan(null, this.timespanOptions[timespanIndex].value, autoFetch);
       }
     }
@@ -319,7 +322,7 @@ class ProductList extends React.Component {
       } else {
         this.setState({ highlightedProduct: product, graphIsVisible: true });
       }
-
+      firebase.analytics().logEvent("highlight_product");
     }
   };
 
@@ -552,7 +555,7 @@ class ProductList extends React.Component {
                     </Select>
                   </label>
                 </div>
-                <SearchBar searchProducts={this.searchProducts.bind(this)} loading={loading} />
+                <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} />
               </div>
             </div>
             <Pagination

@@ -54,9 +54,8 @@ class LoginForm extends React.Component {
 
         firebase.auth().createUserWithEmailAndPassword(email, pass)
             .then(async () => {
-
                 await this.spritjaktClient.CreateUserDoc(name, notifications);
-
+                firebase.analytics().logEvent("user_registration");
                 this.setState({ status: true, message: "Registrering vellykket" });
             })
             .catch((error) => {
@@ -73,6 +72,7 @@ class LoginForm extends React.Component {
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => {
                 this.setState({ status: true, message: "Innlogging vellykket" });
+                firebase.analytics().logEvent("user_login");
             })
             .catch((error) => {
                 this.setState({ status: false, message: "Feil e-postadresse eller passord" });
@@ -87,6 +87,7 @@ class LoginForm extends React.Component {
         firebase.auth().sendPasswordResetEmail(email).then(() => {
         }).catch((error) => {
         });
+        firebase.analytics().logEvent("user_reset_password");
         this.setState({ status: true, message: "Vi har send deg en link på e-post hvor du kan tilbakestille passordet ditt." });
     }
 

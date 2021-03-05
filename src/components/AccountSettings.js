@@ -10,6 +10,7 @@ import ProductPopUp from "./ProductPopUp";
 import queryString from "query-string";
 import NotificationService from "../services/notificationService";
 import Notification from "./Notification";
+import LoginForm from "./LoginForm";
 
 const startState = {
     isActive: false,
@@ -56,6 +57,8 @@ class AccountSettings extends React.Component {
                                 this.spritjaktClient.FetchProductsById(userData.products).then(products => {
                                     this.setState({ productResult: products, isLoading: false });
                                 });
+                            } else {
+                                this.setState({ productResult: [] });
                             }
 
                             this.spritjaktClient.FetchStores().then(stores => {
@@ -73,6 +76,8 @@ class AccountSettings extends React.Component {
                             } else {
                                 this.spritjaktClient.PurgeUserNotificationTokens();
                             }
+                        } else {
+                            await this.spritjaktClient.CreateUserDoc(user.email, startState.notifications);
                         }
                     });
             }
@@ -143,6 +148,7 @@ class AccountSettings extends React.Component {
         let query = queryString.stringify(urlParams, { arrayFormat: 'comma' });
         window.history.replaceState('', '', '?' + query);
         this.props.applyUserFilter();
+        firebase.analytics().logEvent("user_apply_filter");
     }
 
 

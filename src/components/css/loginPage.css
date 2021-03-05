@@ -5,9 +5,11 @@
     left: 0;
     right: 0;
 }
+
 .loginPage.active {
     bottom: 0;
 }
+
 .loginPage.active .overlay {
     position: fixed;
     z-index: -1;
@@ -19,13 +21,14 @@
     margin: auto;
     transition: 0.4s 0.1s ease;
 }
+
 .loginSection {
     max-width: 40rem;
     min-height: 30rem;
     margin: auto;
-    position: absolute;
+    position: fixed;
     background: #90495d;
-    top: 10vh;
+    top: 5vh;
     left: 0;
     right: 0;
     text-align: center;
@@ -33,6 +36,7 @@
     box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
     border-radius: 3px;
 }
+
 .loginSection a {
     text-decoration: underline;
     cursor: pointer;

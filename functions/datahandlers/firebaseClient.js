@@ -89,8 +89,6 @@ module.exports = class FirebaseClient {
         }
       }
     }
-    this.writeRealtimeDataSection(statusReport, "/productUpdateReport");
-
   }
 
   static PrepProduct(p) {
@@ -269,8 +267,6 @@ module.exports = class FirebaseClient {
       .catch(function (error) {
         console.error("could not add email: ", error);
       });
-    let emails = await this.GetEmails();
-    this.writeRealtimeDataSection(emails.length, "/NewsletterStats");
     return result;
   }
 
@@ -287,7 +283,6 @@ module.exports = class FirebaseClient {
         result = false;
       });
     let emails = await this.GetEmails();
-    this.writeRealtimeDataSection(emails.length, "/NewsletterStats");
     return result;
   }
 

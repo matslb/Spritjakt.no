@@ -54,8 +54,8 @@ exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).p
     if ((totalCount === freshProducts.length || products.length === 0) && !error) {
       moreProductsToFetch = false;
     } else if (error) {
-      console.info("Could not fetch Products, waiting 10 seconds until retry");
-      await new Promise(r => setTimeout(r, 10000));
+      console.info("Could not fetch Products, waiting 1 second until retry");
+      await new Promise(r => setTimeout(r, 1000));
     }
     tries++;
   }
@@ -83,7 +83,7 @@ exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pub
     }
     tries++;
   }
-
+  freshStocks = freshStocks.length > 3000 ? freshStocks.slice(0, 2999) : freshStocks;
   await FirebaseClient.SetStockUpdateList(freshStocks, true);
 });
 
@@ -98,13 +98,10 @@ exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).ht
   ) {
     return res.status(400).send();
   }
-
   searchString = req.query.searchString.toLowerCase();
   let stringList = searchString.split(" ").filter((s) => s.length > 1);
   var products = await FirebaseClient.ProductSearchAdvanced(stringList);
-
   let matchingProducts = [];
-  let highestScore = 0;
   Object.keys(products).forEach((id) => {
     let p = products[id];
 
@@ -124,7 +121,6 @@ exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).ht
         p.searchmatch++;
       }
     }
-
     matchingProducts.push(p);
   });
 
@@ -133,7 +129,7 @@ exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).ht
     order: "desc",
   });
 
-  return res.send(matchingProducts.splice(0, 1500));
+  return res.send(matchingProducts.splice(0, 2500));
 });
 
 exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
@@ -141,11 +137,12 @@ exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
   if (!change.after.exists()) {
     return null;
   }
+  let stores = await FirebaseClient.getConstant("Stores");
   const newValue = change.after.val();
-  const count = newValue.length > 100 ? 100 : newValue.length;
+  const count = newValue.length > 50 ? 50 : newValue.length;
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
-      let storeStock = await VmpClient.FetchStoreStock(newValue[i].productId);
+      let storeStock = await VmpClient.FetchStoreStock(newValue[i].productId, stores);
       if (storeStock !== null) {
         newValue[i].Stores = storeStock;
         await FirebaseClient.UpdateProductStock(newValue[i]);
