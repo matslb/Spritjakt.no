@@ -51,7 +51,7 @@ exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).p
     console.log(totalCount);
     console.info("freshProducts: " + freshProducts.length);
 
-    if ((totalCount === freshProducts.length || products.length === 0) && !error) {
+    if (!error && (totalCount === freshProducts.length || products.length === 0)) {
       moreProductsToFetch = false;
     } else if (error) {
       console.info("Could not fetch Products, waiting 1 second until retry");
@@ -61,7 +61,7 @@ exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).p
   }
 
   if (freshProducts.length > 0) {
-    await FirebaseClient.PricesToBeFetched(freshProducts);
+    await FirebaseClient.SetPriceUpdateList(freshProducts);
   }
 });
 
@@ -150,7 +150,7 @@ exports.priceUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
     newValue.splice(i, 1);
   }
 
-  return await FirebaseClient.SetStockUpdateList(newValue);
+  return await FirebaseClient.SetPriceUpdateList(newValue);
 });
 
 

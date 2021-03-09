@@ -1,4 +1,5 @@
 const rp = require("request-promise");
+const axios = require("axios");
 const config = require("../configs/vmp.json");
 const vmpOptions = () => {
   return {
@@ -30,7 +31,7 @@ class VmpClient {
           ); // Gaveartikler og tilbehør
         });
         var items = [];
-        raw.foreach((p) => {
+        raw.map((p) => {
           if (!items.includes(p.basic.productId)) {
             items.push(p.basic.productId)
           }
@@ -44,6 +45,11 @@ class VmpClient {
       })
       .catch(function (err) {
         console.error("vmp fetch failed: " + err);
+        return {
+          totalCount: null,
+          products: null,
+          error: true
+        };
       });
   }
 
@@ -147,31 +153,31 @@ class VmpClient {
         console.error("Store failed: " + err);
       });
   }
-}
 
-async function FetchProductPrice(productId) {
-
-  await axios.get("https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL")
-    .then(async function (res) {
-      return CreateProduct(res.data);
-    })
-    .catch(function (err) {
-      console.error("Could not fetch price: " + err);
-    });
+  static async FetchProductPrice(productId) {
+    return await axios.get("https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL")
+      .then(async function (res) {
+        return CreateProduct(res.data);
+      })
+      .catch(function (err) {
+        console.error("Could not fetch price: " + err);
+        return null;
+      });
+  }
 }
 
 function CreateProduct(productData) {
   return {
     Id: productData.code,
     Name: productData.name,
-    Volume: productData.volume.value,
-    Alcohol: productData.alcohol.value,
-    Sugar: productData.sugar,
-    Acid: productData.acid,
+    Volume: productData.volume ? productData.volume.value : null,
+    Alcohol: productData.alcohol ? productData.alcohol.value : null,
+    Sugar: productData.sugar ? productData.sugar : "",
+    Acid: productData.acid ? productData.acid : "",
     Country: productData.main_country.name,
     Type: productData.main_category,
-    SubType: productData.main_category,
-    Producer: productData.main_producer,
+    SubType: productData.main_category.name,
+    Producer: productData.main_producer.name,
     Description: {
       characteristics: {
         color: productData.color,
@@ -179,11 +185,10 @@ function CreateProduct(productData) {
         taste: productData.taste
       }
     },
-    LatestPrice: productData.price.value,
+    LatestPrice: productData.price ? productData.price.value : null,
     SearchWords: productData.name.toLowerCase().split(" "),
-    ProductStatusSaleName: productData.availability.deliveryAvailability.mainText
+    ProductStatusSaleName: productData.availability.deliveryAvailability.available ? "" : productData.availability.deliveryAvailability.mainText.split(": ")[1]
   }
 }
-
 
 module.exports = VmpClient;

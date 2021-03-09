@@ -124,7 +124,7 @@ module.exports = class FirebaseClient {
     sectionRef.set(data);
   }
 
-  static async SetStockUpdateList(ids) {
+  static async SetPriceUpdateList(ids) {
     firebase.database().ref("/PricesToBeFetched/").set(ids);
   }
 
