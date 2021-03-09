@@ -8,7 +8,7 @@ const allTimeEarliestDate = new Date(1594166400000);
 
 module.exports = class FirebaseClient {
 
-  static async UpdateProductPrices(updatedProducts) {
+  static async UpdateProductPrice(p) {
     let d = new Date();
     d.setDate(d.getDate() - 1);
     d.setHours(22);
@@ -17,76 +17,54 @@ module.exports = class FirebaseClient {
     d.setMilliseconds(0);
 
     var today = d.getTime();
+    const productRef = firebase.firestore().collection("Products").doc(p.Id);
+    const productDoc = await productRef.get();
+    let sp = productDoc.data();
+    if (sp === undefined) {
+      sp = p;
+      sp.PriceHistory = {
+        [today]: sp.LatestPrice,
+      };
+      sp.PriceHistorySorted = [today];
+      sp.LastUpdated = today;
+      try {
+        await productRef.set(this.PrepProduct(sp));
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      sp.ProductStatusSaleName = p.ProductStatusSaleName;
+      sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
+        order: "desc",
+      });
+      let LatestPrice = p.LatestPrice;
+      let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
+      if (ComparingPrice === undefined) {
+        ComparingPrice = LatestPrice;
+      }
 
-    console.log("Products to update: " + updatedProducts.length);
-    let statusReport = {
-      time: new Date(),
-      total: updatedProducts.length,
-      priceChanged: 0,
-      created: 0
-    }
+      let SortingDiscount = (LatestPrice / ComparingPrice) * 100;
 
-    for (let i = 0; i < updatedProducts.length; i++) {
-      const p = updatedProducts[i];
+      if (SortingDiscount !== 100) {
 
-      const productRef = firebase.firestore().collection("Products").doc(p.Id);
-      const productDoc = await productRef.get();
-      let sp = productDoc.data();
-      if (sp === undefined) {
-        sp = p;
-
-        sp.PriceHistory = {
-          [today]: sp.LatestPrice,
-        };
-        sp.PriceHistorySorted = [today];
-        sp.LastUpdated = today;
-
-        try {
-          await productRef.set(this.PrepProduct(sp));
-          statusReport.created++;
-        } catch (error) {
-          console.log(error);
+        if (SortingDiscount <= 98 || SortingDiscount >= 102) {
+          sp.PriceIsLowered = SortingDiscount < 100;
+        } else {
+          sp.PriceIsLowered = null;
         }
-      } else {
-        sp.ProductStatusSaleName = p.ProductStatusSaleName;
-        sp.SearchWords = p.SearchWords;
-        sp.Description = p.Description;
-        sp.ManufacturerName = p.ManufacturerName;
-        sp.Type = p.Type;
+
+        sp.PriceHistory[today] = LatestPrice;
+        sp.LastUpdated = today;
+        sp.LatestPrice = LatestPrice;
         sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
           order: "desc",
         });
-        let LatestPrice = p.LatestPrice;
-        let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
-        if (ComparingPrice === undefined) {
-          ComparingPrice = LatestPrice;
-        }
+      }
 
-        let SortingDiscount = (LatestPrice / ComparingPrice) * 100;
-
-        if (SortingDiscount !== 100) {
-
-          if (SortingDiscount <= 98 || SortingDiscount >= 102) {
-            sp.PriceIsLowered = SortingDiscount < 100;
-            statusReport.priceChanged++;
-          } else {
-            sp.PriceIsLowered = null;
-          }
-
-          sp.PriceHistory[today] = LatestPrice;
-          sp.LastUpdated = today;
-          sp.LatestPrice = LatestPrice;
-          sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
-            order: "desc",
-          });
-        }
-
-        try {
-          await productRef.update(this.PrepProduct(sp));
-          console.log(sp.Id);
-        } catch (error) {
-          console.log(error);
-        }
+      try {
+        await productRef.update(this.PrepProduct(sp));
+      } catch (error) {
+        console.log(error);
       }
     }
   }
@@ -144,6 +122,10 @@ module.exports = class FirebaseClient {
   static async writeRealtimeDataSection(data, section) {
     let sectionRef = firebase.database().ref(section);
     sectionRef.set(data);
+  }
+
+  static async SetStockUpdateList(ids) {
+    firebase.database().ref("/PricesToBeFetched/").set(ids);
   }
 
   static async SetStockUpdateList(Stocks, addOnSaleProductsIfMissing = false) {
@@ -253,37 +235,6 @@ module.exports = class FirebaseClient {
     }
 
     return users;
-  }
-
-  static async RegisterUser(email) {
-    let result = false;
-    await firebase.firestore().collection("Users").add({
-      Email: email
-    })
-      .then(function (docRef) {
-        console.log("email added with ID: ", docRef.id);
-        result = true;
-      })
-      .catch(function (error) {
-        console.error("could not add email: ", error);
-      });
-    return result;
-  }
-
-  static async RemoveUser(email) {
-    var result = true;
-    await firebase.firestore().collection("Users").where("Email", "==", email)
-      .get()
-      .then(function (querySnapshot) {
-        querySnapshot.forEach(async function (doc) {
-          await firebase.firestore().collection("Users").doc(doc.id).delete();
-        })
-      }).catch(error => {
-        console.log("Error removing user: ", error);
-        result = false;
-      });
-    let emails = await this.GetEmails();
-    return result;
   }
 
 };

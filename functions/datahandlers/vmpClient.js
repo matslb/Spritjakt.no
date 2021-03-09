@@ -17,7 +17,7 @@ class VmpClient {
     options.uri += "products/v0/details-normal/";
     options.resolveWithFullResponse = true;
     options.qs = {
-      //  changedSince: today.toISOString().slice(0, 10),
+      changedSince: today.toISOString().slice(0, 10),
       start: start,
       maxResults: 5000,
     };
@@ -30,7 +30,11 @@ class VmpClient {
           ); // Gaveartikler og tilbehør
         });
         var items = [];
-        raw.map((p) => items.push(CreateProduct(p)));
+        raw.foreach((p) => {
+          if (!items.includes(p.basic.productId)) {
+            items.push(p.basic.productId)
+          }
+        });
         console.info("Fetched products " + items.length + " from Vinmonopolet");
         return {
           totalCount: parseInt(res.headers["x-total-count"]),
@@ -42,6 +46,7 @@ class VmpClient {
         console.error("vmp fetch failed: " + err);
       });
   }
+
   static async FetchFreshStocks(start) {
     var today = new Date();
     let options = vmpOptions();
@@ -74,6 +79,7 @@ class VmpClient {
         return { totalCount: 0, stocks: [], error: true };
       });
   }
+
   static async FetchStoreStock(productId, stores = []) {
     let storeStocks = [];
     let expectedResults = 1;
@@ -121,6 +127,7 @@ class VmpClient {
     }
     return storeStocks;
   }
+
   static async FetchStores() {
     let options = vmpOptions();
     options.uri += "stores/v0/details";
@@ -142,21 +149,41 @@ class VmpClient {
   }
 }
 
-function CreateProduct(rawProduct) {
+async function FetchProductPrice(productId) {
+
+  await axios.get("https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL")
+    .then(async function (res) {
+      return CreateProduct(res.data);
+    })
+    .catch(function (err) {
+      console.error("Could not fetch price: " + err);
+    });
+}
+
+function CreateProduct(productData) {
   return {
-    Id: rawProduct.basic.productId,
-    Name: rawProduct.basic.productLongName,
-    Volume: rawProduct.basic.volume,
-    Alcohol: rawProduct.basic.alcoholContent,
-    Country: rawProduct.origins.origin.country,
-    Type: rawProduct.classification.mainProductTypeName,
-    SubType: rawProduct.classification.subProductTypeName,
-    ManufacturerName: rawProduct.logistics.manufacturerName,
-    Description: rawProduct.description,
-    LatestPrice: rawProduct.prices[0].salesPrice,
-    SearchWords: rawProduct.basic.productLongName.toLowerCase().split(" "),
-    ProductStatusSaleName: rawProduct.basic.productStatusSaleName
+    Id: productData.code,
+    Name: productData.name,
+    Volume: productData.volume.value,
+    Alcohol: productData.alcohol.value,
+    Sugar: productData.sugar,
+    Acid: productData.acid,
+    Country: productData.main_country.name,
+    Type: productData.main_category,
+    SubType: productData.main_category,
+    Producer: productData.main_producer,
+    Description: {
+      characteristics: {
+        color: productData.color,
+        odour: productData.smell,
+        taste: productData.taste
+      }
+    },
+    LatestPrice: productData.price.value,
+    SearchWords: productData.name.toLowerCase().split(" "),
+    ProductStatusSaleName: productData.availability.deliveryAvailability.mainText
   }
 }
+
 
 module.exports = VmpClient;

@@ -165,7 +165,7 @@ module.exports = class NotificationClient {
             },
             webpush: {
                 fcm_options: {
-                    link: "https://spritjakt.no?source=push" + urlParams
+                    link: "https://spritjakt.no?source=push&" + urlParams
                 }
             },
             topic: userFilterMatch.user.id
@@ -258,7 +258,7 @@ module.exports = class NotificationClient {
             productItem = productItem.replace(/&OldPrice&/g, product.ComparingPrice);
             productItem = productItem.replace(/&Discount&/g, (product.SortingDiscount - 100).toFixed(1));
             productItem = productItem.replace(/&ProductImageLink&/g, "https://bilder.vinmonopolet.no/cache/100x100/" + product.Id + "-1.jpg");
-            productItem = productItem.replace(/&ProductLink&/g, "https://www.vinmonopolet.no/p/" + product.Id);
+            productItem = productItem.replace(/&ProductLink&/g, "https://spritjakt.no/?product=" + product.Id);
             productItem = productItem.replace(/&ProductDescription&/g, product.SubType);
             html += productItem;
         }

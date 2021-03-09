@@ -2,7 +2,7 @@ import React from "react";
 import "./css/searchBar.css";
 import "firebase/analytics";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch, faThumbsDown, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import firebase from "firebase/app";
 import "firebase/analytics";
 

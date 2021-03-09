@@ -61,7 +61,7 @@ exports.updateProducts = functions.region("europe-west1").runWith(runtimeOpts).p
   }
 
   if (freshProducts.length > 0) {
-    await FirebaseClient.UpdateProductPrices(freshProducts);
+    await FirebaseClient.PricesToBeFetched(freshProducts);
   }
 });
 
@@ -69,21 +69,22 @@ exports.updateStocks = functions.region("europe-west1").runWith(runtimeOpts).pub
   let moreStocksToFetch = true;
   let freshStocks = [];
   let tries = 0;
-  while (moreStocksToFetch && tries < 20) {
-    let { totalCount, stocks, error } = await VmpClient.FetchFreshStocks(freshStocks.length);
-
-    freshStocks = freshStocks.concat(stocks);
-    console.info("freshStocks: " + freshStocks.length);
-
-    if ((totalCount === freshStocks.length || stocks.length === 0) && !error) {
-      moreStocksToFetch = false;
-    } else if (error) {
-      console.info("Could not fetch stocks, waiting 10 seconds until retry");
-      await new Promise(r => setTimeout(r, 10000));
-    }
-    tries++;
-  }
-  freshStocks = freshStocks.length > 3000 ? freshStocks.slice(0, 2999) : freshStocks;
+  /* while (moreStocksToFetch && tries < 20) {
+     let { totalCount, stocks, error } = await VmpClient.FetchFreshStocks(freshStocks.length);
+ 
+     freshStocks = freshStocks.concat(stocks);
+     console.info("freshStocks: " + freshStocks.length);
+ 
+     if ((totalCount === freshStocks.length || stocks.length === 0) && !error) {
+       moreStocksToFetch = false;
+     } else if (error) {
+       console.info("Could not fetch stocks, waiting 10 seconds until retry");
+       await new Promise(r => setTimeout(r, 10000));
+     }
+     tries++;
+   }
+   freshStocks = freshStocks.length > 3000 ? freshStocks.slice(0, 2999) : freshStocks; 
+   */
   await FirebaseClient.SetStockUpdateList(freshStocks, true);
 });
 
@@ -131,6 +132,27 @@ exports.productSearch = functions.region("europe-west1").runWith(runtimeOpts).ht
 
   return res.send(matchingProducts.splice(0, 2500));
 });
+
+exports.priceUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/PricesToBeFetched/").onWrite(async (change, context) => {
+
+  if (!change.after.exists()) {
+    return null;
+  }
+  const newValue = change.after.val();
+  const count = newValue.length > 500 ? 500 : newValue.length;
+  for (let i = 0; i < count; i++) {
+    if (newValue[i] !== undefined) {
+      let product = await VmpClient.FetchProductPrice(newValue[i]);
+      if (product !== null) {
+        await FirebaseClient.UpdateProductPrice(product);
+      }
+    }
+    newValue.splice(i, 1);
+  }
+
+  return await FirebaseClient.SetStockUpdateList(newValue);
+});
+
 
 exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
 

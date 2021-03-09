@@ -45,6 +45,7 @@ class App extends React.Component {
           </span>
           <span data-nosnippet="true">© {date.getFullYear()} <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
           </span>
+          <p>Spritjakt.no er ikke tilknyttet Vinmonopolet på noen måte.</p>
         </footer>
 
       </div>
