@@ -1,0 +1,71 @@
+nav.Pagination ul li {
+    list-style: none;
+    margin-right: 0.5rem;
+}
+
+nav.Pagination .pageButton {
+    padding: 0.5rem;
+    background: white;
+    min-width: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 2px 2px 0 rgb(234 224 218 / 30%);
+}
+
+
+nav.Pagination .pageButton.active {
+    background: #fdb542;
+    color: white;
+}
+
+nav.Pagination .pageButton.dummy {
+    background: none;
+    box-shadow: none;
+}
+
+nav.Pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    position: relative;
+}
+
+nav.Pagination span {
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+}
+
+nav.Pagination .fa-circle-notch {
+    opacity: 0.9;
+    margin: 0 1rem;
+}
+
+nav.Pagination ul {
+    padding: 0;
+    display: flex;
+    margin: 1.5rem 0 0;
+    flex-wrap: wrap;
+}
+
+@media(max-width: 768px) {
+    nav.Pagination {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav.Pagination ul {
+        margin: 2rem 0 1rem;
+        display: grid;
+        grid-template-columns: repeat(9, 1fr);
+        gap: 5px;
+        width: 100%;
+    }
+
+    nav.Pagination .pageButton {
+        width: 100%;
+    }
+
+    nav.Pagination ul li {
+        margin: 0;
+    }
+}

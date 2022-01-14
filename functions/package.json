@@ -1,0 +1,32 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "dependencies": {
+    "@types/tough-cookie": "^4.0.1",
+    "axios": "^0.21.4",
+    "axios-cookiejar-support": "^1.0.1",
+    "firebase": "^9.6.2",
+    "firebase-admin": "^10.0.1",
+    "firebase-functions": "^3.16.0",
+    "mailgun-js": "^0.22.0",
+    "node-html-parser": "^3.3.6",
+    "nodemailer": "^6.7.2",
+    "sort-array": "^4.1.4",
+    "tough-cookie": "^4.0.0",
+    "typesense": "^1.0.2"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.3"
+  },
+  "private": true
+}

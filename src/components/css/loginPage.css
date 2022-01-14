@@ -1,0 +1,118 @@
+.loginPage {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.loginPage.active {
+    bottom: 0;
+}
+
+.loginPage.active .overlay {
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    margin: auto;
+    transition: 0.4s 0.1s ease;
+}
+
+.loginSection {
+    max-width: 40rem;
+    min-height: 30rem;
+    margin: auto;
+    position: absolute;
+    top: 1rem;
+    left: 5px;
+    right: 5px;
+    color: #222222;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.loginSection.active {
+    box-shadow: 2px 2px 9px rgb(0 0 0 / 30%);
+    background: white;
+}
+
+.loginSection a {
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.selectLoginProvider {
+    display: grid;
+    grid-template-areas: "google facebook" "epost epost";
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.facebook {
+    grid-area: facebook;
+}
+
+.google {
+    grid-area: google;
+}
+
+.loginProvider.epost {
+    grid-area: epost;
+    font-size: 0.8rem;
+    max-height: 5rem;
+    margin: 4vh auto 0;
+    padding: 0.5rem;
+}
+
+.loginProvider.epost img {
+    height: 40px;
+}
+
+.loginProvider {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+    min-height: 10rem;
+    max-height: 50vh;
+    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(100 100 100 / 30%);
+    border-radius: 16px;
+    background: white;
+    transition: 0.2s ease;
+    cursor: pointer;
+    padding: 2rem 1rem;
+    max-width: 14rem;
+    width: 80%;
+    margin: auto;
+}
+
+.loginProvider button {
+    height: 2rem;
+}
+
+.loginProvider svg {
+    color: #444;
+    height: 100px;
+}
+
+.loginProvider:hover,
+.loginProvider:focus-within {
+    box-shadow: 2px 2px 12px rgb(0 0 0 / 80%);
+
+}
+
+@media(max-width: 768px) {
+    .loginProvider {
+        padding: 1rem;
+        height: 40vh;
+    }
+
+    .selectLoginProvider {
+        gap: 0.5rem;
+    }
+}

@@ -1,0 +1,193 @@
+.ProductComp {
+    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
+    padding: 0.5rem;
+    list-style: none;
+    text-align: left;
+    position: relative;
+    transition: 0.2s 0.05s;
+    text-align: left;
+    overflow: hidden;
+    background: white;
+    border-radius: 16px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.ProductComp:focus-within,
+.ProductComp:hover {
+    box-shadow: 2px 2px 12px rgb(0 0 0 / 40%);
+}
+
+.ProductComp .changeDate {
+    font-size: 0.8rem;
+}
+
+.ProductComp > button {
+    cursor: pointer;
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    height: 0;
+}
+
+.ProductComp .product_img {
+    text-align: center;
+}
+
+.ProductComp .product_img img {
+    height: 200px;
+    width: auto;
+}
+
+.ProductComp .product_img.soldOut {
+    filter: grayscale();
+}
+
+.ProductComp .product_details {
+    display: grid;
+    grid-template-areas: "detailsline detailsline" "nam nam" "pri alc" "opr vol";
+}
+
+span.change_time {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    text-align: right;
+}
+
+.ProductComp .alcohol {
+    grid-area: alc;
+    text-align: right;
+}
+
+.ProductComp .volume {
+    grid-area: vol;
+    text-align: right;
+}
+
+.ProductComp .type {
+    grid-area: typ;
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    text-align: left;
+    width: 33%;
+}
+
+.ProductComp .stock {
+    grid-area: sto;
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    text-align: right;
+    text-transform: capitalize;
+    width: 33%;
+}
+
+.ProductComp .stock svg {
+    opacity: 0.5;
+    margin-left: 5px;
+}
+
+.ProductComp .soldOutSticker {
+    color: #7a3b3b;
+    font-size: 1.2rem;
+    position: absolute;
+    top: 30%;
+    left: 25%;
+    right: 25%;
+    text-align: center;
+    font-weight: bold;
+    transform: rotateZ(27deg);
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.6);
+    border: 3px solid;
+    border-radius: 9px;
+    padding: 5px;
+}
+
+.ProductComp .price {
+    grid-area: pri;
+    font-size: 1.2rem;
+    text-align: left;
+}
+
+.ProductComp .old_price {
+    grid-area: opr;
+    align-self: end;
+    text-align: left;
+    text-decoration: line-through;
+    font-size: 1rem;
+    display: block;
+}
+
+.ProductComp .name {
+    grid-area: nam;
+    margin: 0.25rem 0;
+    font-size: 1rem;
+    text-align: left;
+}
+
+.ProductComp .liter_price_alchohol {
+    grid-area: prialc;
+    border-bottom: 0.5px solid #464646;
+    padding-bottom: 5px;
+}
+
+.ProductComp .liter_price {
+    grid-area: liPri;
+    margin-top: 5px;
+}
+
+.ProductComp a {
+    color: black;
+    text-decoration: none;
+}
+
+.ProductComp span.description {
+    position: absolute;
+    top: 100%;
+}
+
+.ProductComp .percentage_change {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.ProductComp .detailsLine {
+    grid-area: detailsline;
+    border-top: 0.5px solid #464646;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.ProductComp .rating {
+    height: 1.75rem;
+    margin: -1rem auto;
+    text-align: center;
+    line-height: 1.75rem;
+    background: white;
+    font-weight: 500;
+}
+
+.ProductComp .rating svg {
+    color: #d0b55e;
+}
+
+@media(max-width: 768px) {
+    .ProductComp .name {
+        font-size: 0.9rem;
+    }
+
+    .ProductComp .type,
+    .ProductComp .stock {
+        font-size: 0.8rem;
+    }
+
+
+    .ProductComp .soldOutSticker {
+        left: 10%;
+        right: 10%;
+    }
+}

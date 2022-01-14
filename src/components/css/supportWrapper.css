@@ -1,0 +1,28 @@
+.SupportWrapper {
+    overflow: auto;
+    display: flex;
+}
+
+.SupportWrapper .content {
+    position: relative;
+    background: white;
+    border-radius: 16px;
+    margin: auto;
+    padding: 0.5rem 1rem;
+    max-width: 35rem;
+    text-align: center;
+}
+
+.SupportWrapper img {
+    max-width: 100%;
+}
+
+.SupportWrapper .clickable {
+    background-color: #222222;
+    color: white;
+    border-radius: 24px;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+}

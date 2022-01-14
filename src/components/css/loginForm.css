@@ -1,0 +1,59 @@
+.loginForm {
+    max-width: 25rem;
+    margin: 1rem auto auto;
+}
+
+.loginForm input {
+    margin: 0.5rem 0;
+}
+
+form.loginForm label {
+    text-align: left;
+}
+
+.loginForm h2 {
+    text-align: center;
+}
+
+form.loginForm.resetPass {
+    margin-top: 5rem;
+}
+
+.statusMessage {
+    padding: 1rem;
+    display: flex;
+    border-radius: 3px;
+    font-weight: 400;
+    box-shadow: 2px 2px 9px rgb(0 0 0 / 50%);
+    align-items: center;
+    text-align: left;
+    justify-content: center;
+}
+
+.statusMessage.error {
+    color: black;
+    background: #ffc107;
+}
+
+.statusMessage.success {
+    background: cadetblue;
+}
+
+.statusMessage .svg-inline--fa {
+    margin: 0 0.5rem;
+}
+
+.notificationSection {
+    display: flex;
+    text-align: left;
+}
+
+.notificationSection div {
+    width: 50%;
+}
+
+@media(max-width: 768px) {
+    .loginForm {
+        max-width: 80%;
+    }
+}

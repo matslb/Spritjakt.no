@@ -1,0 +1,18 @@
+.priceGraph,
+.HighlightedProduct .loader-wrapper {
+    width: 100%;
+    max-width: 25rem;
+    margin-top: 1rem;
+}
+
+.HighlightedProduct .loader-wrapper {
+    height: 12rem;
+    max-height: 30vh;
+}
+
+.priceGraph .graph {
+    height: 12rem;
+    max-height: 30vh;
+    grid-area: gra;
+    margin: 0 0.5rem 0 -0.25rem;
+}

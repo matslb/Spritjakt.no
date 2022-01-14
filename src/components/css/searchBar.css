@@ -1,0 +1,58 @@
+.SearchBar {
+    grid-area: search;
+}
+
+input.searchbox {
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.87);
+    background: none;
+    min-height: 38px;
+    font-size: 0.85rem;
+}
+
+input::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: black;
+    opacity: 1; /* Firefox */
+}
+
+input.searchbox:focus {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.SearchBar button.close {
+    background: none;
+    border: none;
+    margin-left: -2rem;
+    outline: none;
+}
+
+.search-hits {
+    position: relative;
+}
+
+ul.hit-list {
+    position: absolute;
+    background: white;
+    z-index: 1;
+    padding: 0.5rem;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    width: calc(100% - 1rem);
+    top: 0;
+    box-shadow: 2px 2px 12px rgb(0 0 0 / 40%);
+    max-height: 10rem;
+    overflow-y: scroll;
+    margin: 0;
+    z-index: 2;
+}
+
+.hideHits {
+    position: absolute;
+    top: -100vh;
+    left: -100vh;
+    right: -100vh;
+    bottom: -100vh;
+    z-index: 1;
+}

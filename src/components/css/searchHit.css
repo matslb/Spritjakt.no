@@ -1,0 +1,31 @@
+li.SearchHit {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #8080804d;
+    cursor: pointer;
+    font-size: 0.85rem;
+
+}
+
+.SearchHit button {
+    visibility: hidden;
+}
+
+.hit-image {
+    padding: 0 1rem;
+    height: 100%;
+    width: 24px;
+    display: flex;
+    justify-content: center;
+    height: 2.5rem;
+}
+
+.hit-image img {
+    height: 100%;
+    width: auto;
+}
+
+li.SearchHit:hover {
+    text-decoration: underline;
+}

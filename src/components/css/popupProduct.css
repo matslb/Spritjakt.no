@@ -1,0 +1,15 @@
+.PopupProductWrapper {
+    position: fixed;
+    margin: auto;
+    top: 0.5rem;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 30rem;
+    width: 100%;
+    left: 0;
+    right: 0;
+}

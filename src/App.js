@@ -1,0 +1,44 @@
+import React from "react";
+import "./App.css";
+import firebase from "firebase/app";
+import "firebase/analytics";
+import "firebase/messaging";
+import Homepage from "./components/Homepage";
+import Header from "./components/Header";
+import '@pwabuilder/pwaupdate';
+
+const firebaseConfig = require("./config.json");
+let date = new Date();
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+
+class App extends React.Component {
+  render() {
+    return (
+      <div className="App" name="appRoot">
+        <Header />
+        <div className="Body">
+          <Homepage />
+        </div>
+        <footer>
+          <p>Spritjakt.no bruker informasjonskapsler for å håndtere brukerinnlogging og for innsamling av anonymisert bruksstatistikk gjennom Google Analytics.<br />
+            Når du oppretter en bruker på spritjakt.no vil navn og e-post lagres og brukes til å sende personaliserte e-postvarsler. <br />
+            Ved innlogging gjennom en tredjepart som Facebook eller Google får Spritjakt.no tilgang til navnet ditt og e-posten din. <br />
+            Når du sletter brukeren din vil dataene også slettes for godt.</p>
+          <p>Spritjakt.no er ikke tilknyttet Vinmonopolet på noen måte.</p>
+          <p>
+            Har du tilbakemeldinger eller funnet noe feil? Opprett gjerne et
+            issue på <a target="_blank" rel="noopener noreferrer" href="https://github.com/matslb/Spritjakt.no">Github</a>
+          </p>
+          <p data-nosnippet="true">© 2020 - {date.getFullYear()} <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
+          </p>
+        </footer>
+        <pwa-update  ></pwa-update>
+      </div>
+    );
+  }
+}
+
+export default App;

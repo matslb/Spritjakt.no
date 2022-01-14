@@ -1,0 +1,48 @@
+  </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top"
+                            style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%;"
+                            class="line">
+                            <hr color="#E0E0E0" align="center" width="100%" size="1" noshade
+                                style="margin: 0; padding: 0;" />
+                        </td>
+                    </tr>
+                    <tr>
+                       <td align="center" valign="top"
+                style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%;padding-top: 20px;padding-bottom: 25px;color: #000000;font-family: sans-serif;"
+                class="paragraph">
+                <strong>Spritjakt har fått masse kul merch!</strong><br />
+                <p>Kjøp ting du ikke trenger, til støtte for spritjakt.no</p>
+                <img src="https://spritjakt.no/images/productimages.jpg" alt="Produktbilder" width="300px" />
+                <br />
+                <br />
+                <a style="background-color: #222222;
+    color: white;
+    border-radius: 24px;
+    font-size: 1rem;
+    text-decoration: none;
+    padding: 0.75rem 1rem;" className="clickable patreon" href="https://butikk.spritjakt.no">Sjekk ut den nye
+                    Spritjaktbutikken</a>
+            </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top"
+                            style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%;padding-top: 20px;padding-bottom: 25px;color: #000000;font-family: sans-serif;"
+                            class="paragraph"> Er jeg masete? <br /><a href="&SignOffURL&" target="_blank"
+                                style="color: #127DB3; font-family: sans-serif; font-size: 17px; font-weight: 400; line-height: 160%;">Endre
+                                varslingsinnstillingene dine her</a> </td>
+                    </tr>
+                </table>
+        <tr>
+            <td align="center" valign="top"
+                style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 13px; font-weight: 400; line-height: 150%; padding-top: 20px; padding-bottom: 20px; color: #999999; font-family: sans-serif;"
+                class="footer"> Hilsen Mats, <a href="https://spritjakt.no?source=email">spritjakt.no</a> </td>
+        </tr>
+        </td>
+        </tr>
+    </table>
+</body>
+
+</html>

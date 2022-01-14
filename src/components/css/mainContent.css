@@ -1,0 +1,267 @@
+.MainContent {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.main > p {
+    margin: 0 0 1rem;
+    text-align: center;
+}
+
+.before-products {
+    position: relative;
+}
+
+.before-products p,
+.before-products select {
+    margin: 2.5px 0;
+    font-size: 0.85rem;
+}
+
+ul.product-list {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    padding: 0;
+    position: relative;
+}
+
+.toggle {
+    opacity: 0;
+    transition: 0.2s;
+    position: relative;
+    z-index: 10;
+}
+
+.toggle.enter-done {
+    opacity: 1;
+    position: relative;
+    z-index: 10;
+}
+
+
+.backdrop label {
+    text-align: center;
+    display: block;
+    z-index: 999999;
+    color: white;
+    top: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-size: 0.8rem;
+}
+
+.backdrop {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    height: 100vh;
+    position: fixed;
+}
+
+.productNavigation {
+    z-index: 99999;
+    width: 100%;
+    max-width: 27rem;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1rem 1.5rem;
+    box-sizing: border-box;
+}
+
+.productNavigation .productNav {
+    font-size: 1.5rem;
+}
+
+.nav {
+    display: grid;
+    grid-template-areas: "search barcode" "types stores" "countries sorting";
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    width: 100%;
+}
+
+.nav .batchsize {
+    grid-area: time;
+}
+
+.nav .discount-filter {
+    grid-area: discount;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    position: relative;
+    height: 4.5rem;
+}
+
+.nav .discount-filter .clickable {
+    padding: 1rem 0.5rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    font-weight: 100;
+    position: relative;
+    opacity: 1;
+    font-size: 1rem;
+    background: white;
+    color: black;
+    border-bottom: 5px solid rgba(0, 0, 0, 0.562);
+}
+
+.nav .discount-filter .clickable.active {
+    border-bottom: 5px solid #d0b55e;
+}
+
+.nav .discount-filter .clickable:active,
+.nav .discount-filter .clickable:hover {
+    border-bottom: 5px solid #d0b55e79;
+}
+
+.nav .stores,
+.nav .sorting,
+.nav .batchsize {
+    width: 100%;
+    min-width: 16rem;
+}
+
+.nav .stores {
+    grid-area: stores;
+    position: relative;
+}
+
+.nav .sorting {
+    grid-area: sorting;
+}
+
+.filter.countries {
+    grid-area: countries;
+}
+
+.filter.types {
+    grid-area: types;
+}
+
+.filter.BarcodeScanner {
+    grid-area: barcode;
+}
+
+.resetFilter.inactive {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.filter-items.hidden .filter-item.false {
+    display: none;
+}
+
+.filter-heading {
+    font-weight: 400;
+    margin-bottom: 5px;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.87);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.filterSaver {
+    display: flex;
+    padding: 0.5rem 1rem;
+    align-items: center;
+    grid-area: filtersaver;
+    box-sizing: border-box;
+    background: white;
+    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
+    border-radius: 16px;
+    max-width: 40rem;
+    margin: auto;
+}
+
+.filterSaver > div {
+    margin-left: 1rem;
+}
+
+.filterSaver > button {
+    margin-left: 1rem;
+}
+
+.stores .filterAddonBtn {
+    position: absolute;
+    top: 40%;
+    right: 2.25rem;
+    bottom: 0;
+}
+
+@media(max-width: 1024px) {
+    ul.product-list {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media(max-width: 768px) {
+
+    .main {
+        display: block;
+    }
+
+    ul.product-list {
+        grid-gap: 10px;
+    }
+
+    .info {
+        text-align: left;
+    }
+
+    .before-products {
+        flex-direction: column-reverse;
+    }
+
+    .filter legend {
+        font-size: 1.5rem;
+    }
+
+    .filter-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        position: relative;
+    }
+
+    .filter-items.visible {
+        overflow-y: scroll;
+        position: absolute;
+        background: white;
+        z-index: 2;
+        left: 0;
+        right: 0;
+        box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
+        max-height: 50vh;
+    }
+
+    .nav .stores,
+    .nav .sorting,
+    .nav .batchsize {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .productNavigation .productNav {
+        font-size: 2rem;
+    }
+}
+
+@media(max-width: 540px) {
+    .nav {
+        grid-template-columns: 1fr;
+        grid-template-areas: "barcode" "search" "types" "stores" "countries" "sorting";
+    }
+
+    ul.product-list {
+        grid-template-columns: 1fr;
+    }
+}

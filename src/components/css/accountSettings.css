@@ -1,0 +1,210 @@
+.account-settings {
+    background: #fafafa;
+    max-width: 50rem;
+    padding: 1rem 1.5rem;
+    margin: auto;
+    color: #222222;
+    transition: 0.5s 0s ease-in-out;
+    position: fixed;
+    right: -60rem;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    max-height: 100%;
+    overflow: auto;
+    width: 100%;
+    max-width: 40rem;
+    box-sizing: border-box;
+    box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
+}
+
+.account-settings.active {
+    right: 0;
+}
+
+.account-settings h2,
+.account-settings h3,
+.account-settings h4 {
+    font-weight: 500;
+}
+
+.resultMessage {
+    background: rgba(97, 160, 85, 0.93);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 5.5rem;
+    margin: auto;
+    width: 13rem;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+    border-radius: 3px;
+    overflow: auto;
+}
+
+.list li {
+    padding: 0.5rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
+    margin: 0.5rem;
+}
+
+.user-name {
+    margin: 0 0.5rem;
+}
+
+.list .filter {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    text-align: left;
+    min-height: 1.5rem;
+    max-height: 10rem;
+    overflow: auto;
+}
+
+.list .filter .details {
+    display: flex;
+    margin-right: 1rem;
+    width: 80%;
+    position: relative;
+    font-size: 0.9rem;
+}
+
+.list .filter .details > div {
+    width: 50%;
+    margin-left: 5px;
+}
+
+.changeName {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
+}
+
+.changeName button {
+    margin-left: 0.5rem;
+}
+
+.list .listHeaders {
+    box-shadow: none;
+    background: none;
+    font-weight: 500;
+}
+
+.list .operations {
+    width: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profileStatusBar {
+    top: 0;
+    right: 0;
+    position: fixed;
+    color: white;
+    text-align: right;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: #4f5e65d1;
+    border-bottom-left-radius: 3px;
+    align-items: center;
+}
+
+.profileStatusBar button,
+.profileStatusBar a {
+    cursor: pointer;
+}
+
+.loginPage.active .profileStatusBar {
+    display: none;
+}
+
+.account-settings .toggleSettings {
+    font-size: 1.5rem;
+    margin-left: -1rem;
+}
+
+.account-settings .toolbar {
+    background: #1c323a;
+    margin: -1rem -1.5rem 1rem;
+    padding: 0.5rem 1.5rem;
+    color: white;
+}
+
+.deleteWarning form {
+    display: flex;
+    background: white;
+    padding: 1rem;
+    align-items: center;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
+}
+
+.switchLoginNotice {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    text-align: right;
+}
+
+.deleteWarning button {
+    margin-left: 1rem;
+}
+
+.loginNotification {
+    position: fixed;
+    top: 10vh;
+    left: 0;
+    right: 0;
+    margin: auto;
+    z-index: 900;
+    max-width: 37rem;
+    padding: 1rem;
+    min-height: 10rem;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+}
+
+.notificationForm {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 2px 2px 9px rgb(0 0 0 / 50%);
+}
+
+@media(max-width: 768px) {
+    .account-settings {
+        padding: 1rem 0.5rem;
+    }
+
+    .account-settings .toolbar {
+        margin: -1rem -0.5rem 1rem;
+    }
+
+    .loginPage.active {
+        overflow-y: scroll;
+        bottom: 1rem;
+    }
+}
