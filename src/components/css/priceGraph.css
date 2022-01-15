@@ -1,16 +1,16 @@
-.priceGraph,
-.HighlightedProduct .loader-wrapper {
+.priceGraph {
     width: 100%;
     max-width: 25rem;
     margin-top: 1rem;
 }
 
-.HighlightedProduct .loader-wrapper {
+.HighlightedProduct .priceGraph.fake {
     height: 12rem;
     max-height: 30vh;
 }
 
-.priceGraph .graph {
+.priceGraph .graph,
+.priceGraph img {
     height: 12rem;
     max-height: 30vh;
     grid-area: gra;

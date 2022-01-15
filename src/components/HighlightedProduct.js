@@ -11,7 +11,7 @@ import PriceGraph from "./PriceGraph";
 import copy from 'copy-to-clipboard';
 import StoreCacher from "../services/storeCache";
 import debounce from "lodash.debounce";
-import roundLogo from "../assets/round-logo.svg";
+import emptyGraph from "../assets/emptyGraph.png";
 import { isMobile } from "react-device-detect";
 
 const HighlightedProduct = ({
@@ -45,7 +45,7 @@ const HighlightedProduct = ({
     debouncedChangeHandler();
   }, [product]);
 
-  const debouncedChangeHandler = useCallback(debounce(() => setShowGraph(true), 50), [product, 50]);
+  const debouncedChangeHandler = useCallback(debounce(() => setShowGraph(true), 200), [product, 200]);
 
   useEffect(() => {
     if (!user)
@@ -233,15 +233,18 @@ const HighlightedProduct = ({
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}
-      {showGraph ?
-        <PriceGraph id={product.Id} priceHistory={product.PriceHistory} />
-        :
-        <div className="loader-wrapper priceGraph">
-          <h4 className="title">Prishistorikk</h4>
-          <img src={roundLogo} height="50" width="50" className="loader" />
-        </div>
-      }
+      <div className="priceHistoryWrapper">
 
+        {showGraph ?
+          <PriceGraph id={product.Id} priceHistory={product.PriceHistory} />
+          :
+          <div className="priceGraph fake">
+            <h4 className="title">Prishistorikk</h4>
+            <img src={emptyGraph} />
+          </div>
+        }
+
+      </div>
       {product.Stores?.length > 0 &&
         <div className="product_stock">
           <h4 className="title" >På lager i følgende butikker: </h4>

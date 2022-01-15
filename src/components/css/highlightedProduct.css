@@ -218,3 +218,9 @@
     gap: 10px;
     font-size: 0.9rem;
 }
+
+.priceHistoryWrapper {
+    height: 100%;
+    max-height: 15.5rem;
+    width: 100%;
+}
