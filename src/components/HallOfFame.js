@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./css/hallOfFame.css";
-import { faChartLine, faCircleNotch, faCrown, faGlassCheers, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
-import Product from "./Product";
+import { faAward, faChartLine, faGlassCheers, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
 import ProductPopUp from "./ProductPopUp";
 import Notification from "./Notification";
 import roundLogo from "../assets/round-logo.svg";
 import SpritjaktClient from "../services/spritjaktClient";
 import TypeSenseClient from "../services/typeSenseClient";
+import FamedProduct from "./FamedProduct";
+import { faThumbsDown, faThumbsUp } from "@fortawesome/free-regular-svg-icons";
 
 const HallOfFame = () => {
 
@@ -38,53 +38,72 @@ const HallOfFame = () => {
 
     return (
         <div className="hall-of-fame">
+            <h2 style={{ textAlign: "center" }}>Hall of fame</h2>
+            <p style={{ textAlign: "center" }}>Her har jeg samlet noen høydepunkter og artig statistikk for spesielt interesserte. <br />Ikke noe revolusjonerende greier, men litt gøyalt.</p>
             {!hallOfFameProducts ?
                 <div className="loader-wrapper">
                     <img src={roundLogo} height="50" width="50" className="loader" />
                 </div>
                 :
-                <ul className="product-list hall-of-fame">
-                    <li className="famed-product cheapestByAlcohol">
-                        <FontAwesomeIcon icon={faGlassCheers} size="3x" />
-                        <h3 className="gold" >Billigste fyll</h3>
-                        {hallOfFameProducts?.cheapestByAlcohol &&
-                            <div>
-                                <p>Bare <strong>{hallOfFameProducts.cheapestByAlcohol.LiterPriceAlcohol} kr</strong> per liter ren alkohol</p>
-                                <Product product={hallOfFameProducts.cheapestByAlcohol} highlightProduct={highlightProduct.bind(this)} />
-                            </div>
-                        }
-                    </li>
-                    <li className="famed-product largestDiscount">
-                        <FontAwesomeIcon icon={faMoneyBillWave} size="3x" />
-                        <h3 className="gold" >Beste tilbud</h3>
-                        {hallOfFameProducts?.largestDiscount &&
-                            <div>
-                                <p>Pris redusert med hele <strong>{(100 - hallOfFameProducts.largestDiscount.PriceChange).toFixed(1)}%</strong></p>
-                                <Product product={hallOfFameProducts.largestDiscount} highlightProduct={highlightProduct.bind(this)} />
-                            </div>
-                        }
-                    </li>
-                    <li className="famed-product mostVolatile">
-                        <FontAwesomeIcon icon={faChartLine} size="3x" />
-                        <h3 className="gold" >Flest prisendringer</h3>
-                        {hallOfFameProducts?.mostVolatile &&
-                            <div>
-                                <p>Gått opp eller ned i pris hele <br /> <strong>{hallOfFameProducts.mostVolatile.PriceChanges} ganger!</strong></p>
-                                <Product product={hallOfFameProducts.mostVolatile} highlightProduct={highlightProduct.bind(this)} />
-                            </div>
-                        }
-                    </li>
-                    <li className="famed-product highestRated">
-                        <FontAwesomeIcon icon={faCrown} size="3x" />
-                        <h3 className="gold" >Høyest vurdert</h3>
-                        {hallOfFameProducts?.highestRated &&
-                            < div >
-                                <p>Best av alle, med <strong>{hallOfFameProducts.highestRated.Rating} av 100</strong></p>
-                                <Product product={hallOfFameProducts.highestRated} highlightProduct={highlightProduct.bind(this)} />
-                            </div>
-                        }
-                    </li>
-                </ul >
+                <div>
+                    <ul className="product-list hall-of-fame">
+                        <FamedProduct
+                            product={hallOfFameProducts.cheapestByAlcohol}
+                            description={<p>Bare <strong>{hallOfFameProducts.cheapestByAlcohol.LiterPriceAlcohol} kr</strong> per liter ren alkohol</p>}
+                            icon={faGlassCheers}
+                            positive={true}
+                            title="Billigste fyll"
+                            highlightProduct={highlightProduct.bind(this)}
+                        />
+                        <FamedProduct
+                            product={hallOfFameProducts.largestDiscount}
+                            description={<p>Pris redusert med hele <strong>{(100 - hallOfFameProducts.largestDiscount.PriceChange).toFixed(1)}%</strong></p>}
+                            icon={faAward}
+                            title="Beste tilbud"
+                            positive={true}
+                            highlightProduct={highlightProduct.bind(this)}
+                        />
+                        <FamedProduct
+                            product={hallOfFameProducts.mostVolatile}
+                            description={<p>Gått opp eller ned i pris hele <br /> <strong>{hallOfFameProducts.mostVolatile.PriceChanges} ganger!</strong></p>}
+                            icon={faChartLine}
+                            positive={true}
+                            highlightProduct={highlightProduct.bind(this)}
+                            title="Flest prisendringer"
+                        />
+                        <FamedProduct
+                            product={hallOfFameProducts.highestRated}
+                            description={<p>Best av alle, med <strong>{hallOfFameProducts.highestRated.Rating} av 100</strong></p>}
+                            icon={faThumbsUp}
+                            title="Høyest vurdert"
+                            positive={true}
+                            highlightProduct={highlightProduct.bind(this)}
+                        />
+                    </ul>
+                    <ul className="product-list hall-of-fame negative">
+                        <FamedProduct
+                            product={hallOfFameProducts.mostExpensiveByAlcohol}
+                            description={<p>Hele <strong>{hallOfFameProducts.mostExpensiveByAlcohol.LiterPriceAlcohol} kr</strong> per liter ren alkohol</p>}
+                            icon={faGlassCheers}
+                            title="Dyreste fyll"
+                            highlightProduct={highlightProduct.bind(this)}
+                        />
+                        <FamedProduct
+                            product={hallOfFameProducts.largestRise}
+                            description={<p>Pris økt med hele <strong>{(hallOfFameProducts.largestRise.PriceChange - 100).toFixed(1)}%</strong></p>}
+                            icon={faMoneyBillWave}
+                            title="Største prisøkning"
+                            highlightProduct={highlightProduct.bind(this)}
+                        />
+                        <FamedProduct
+                            product={hallOfFameProducts.lowestRated}
+                            description={<p>Ganske dårlig altså, med bare <strong>{hallOfFameProducts.lowestRated.Rating} av 100 poeng</strong></p>}
+                            icon={faThumbsDown}
+                            title="Lavest vurdert"
+                            highlightProduct={highlightProduct.bind(this)}
+                        />
+                    </ul>
+                </div>
             }
 
             <ProductPopUp product={highlightedProduct} notification={notification} highlightProduct={highlightProduct.bind(this)} />

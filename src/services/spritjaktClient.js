@@ -10,7 +10,6 @@ class SpritjaktClient {
   static async FetchProductsById(productIds = []) {
     var products = [];
     var productIdsCopy = Object.assign([], productIds);
-    var i = 1;
     while (productIds.length > 0) {
       var batchIds = productIds.splice(0, 10);
       await firebase.firestore().collection("Products")
@@ -23,7 +22,6 @@ class SpritjaktClient {
             products.push(p);
           })
         });
-      i++;
     }
     return products;
   }

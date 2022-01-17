@@ -46,6 +46,18 @@ class TypeSenseClient {
                 {
                     filter_by: "Buyable:=true",
                     sort_by: "Rating:desc",
+                },
+                {
+                    filter_by: "Buyable:=true && Rating:>= 0",
+                    sort_by: "Rating:asc",
+                },
+                {
+                    filter_by: "Buyable:=true",
+                    sort_by: "LiterPriceAlcohol:desc",
+                },
+                {
+                    filter_by: "Buyable:=true",
+                    sort_by: "PriceChange:desc",
                 }
             ]
         }, {
@@ -64,6 +76,10 @@ class TypeSenseClient {
             mostVolatile: null,
             cheapestByAlcohol: result.results[1].hits[0].document,
             highestRated: result.results[2].hits[0].document,
+            lowestRated: result.results[3].hits[0].document,
+            mostExpensiveByAlcohol: result.results[4].hits[0].document,
+            largestRise: result.results[5].hits[0].document,
+
         };
     }
 
@@ -122,8 +138,8 @@ class TypeSenseClient {
         let filterString = "";
         if (filter.searchString == null) {
             filterString += " Buyable:=true";
-            if (filter.sort == "new_discount" || filter.sort == "new_raised")
-                filterString += " && PriceChange:" + (filter.sort == "new_discount" ? "<99.9" : ">100.1");
+            if (filter.sort === "new_discount" || filter.sort === "new_raised")
+                filterString += " && PriceChange:" + (filter.sort === "new_discount" ? "<99.9" : ">100.1");
         }
         if (filter.types.length > 0) {
             filterString += " && Types: [" + filter.types.join() + "]";

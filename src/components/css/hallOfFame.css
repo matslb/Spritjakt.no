@@ -13,6 +13,10 @@ ul.product-list.hall-of-fame {
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
+ul.product-list.hall-of-fame.negative {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
 .famed-product {
     padding: 1rem;
     text-align: center;
@@ -31,6 +35,10 @@ ul.product-list.hall-of-fame {
 
 .famed-product > svg {
     color: #d0b55e;
+}
+
+.negative .famed-product > svg {
+    color: black;
 }
 
 .gold {
@@ -57,14 +65,15 @@ ul.product-list.hall-of-fame {
     }
 }
 
+
 @media(max-width: 1200px) {
     ul.product-list.hall-of-fame {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr !important;
     }
 }
 
 @media(max-width: 768px) {
     ul.product-list.hall-of-fame {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
 }

@@ -61,11 +61,12 @@ exports.updateStores = functions.region("europe-west1").runWith(runtimeOpts).pub
 exports.fetchNewStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 3 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let ids = await FirebaseClient.GetProductIdsForStock();
   let d = new Date();
-  d.setDate(d.getDate() - 1);
+  d.setDate(d.getDate() - 2);
   d.setHours(0);
   let onSaleIds = await FirebaseClient.GetProductsOnSale(d.getTime());
   if (onSaleIds && onSaleIds.length > 0)
     ids = onSaleIds.concat(ids);
+  console.log("Updating " + ids.length + " stocks");
   await FirebaseClient.SetStockUpdateList(ids);
 });
 
