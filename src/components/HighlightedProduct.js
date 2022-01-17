@@ -6,7 +6,7 @@ import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
 import firebase from "firebase/app";
-import { debouncer, getImageUrl, iosCopyToClipboard } from "../utils/utils.js";
+import { getImageUrl } from "../utils/utils.js";
 import PriceGraph from "./PriceGraph";
 import copy from 'copy-to-clipboard';
 import StoreCacher from "../services/storeCache";
@@ -112,7 +112,7 @@ const HighlightedProduct = ({
     if (product.IsGoodFor)
       for (const food of product.IsGoodFor) {
         foods.push(<li className="food" key={food.code}>
-          <div><img src={"https://www.vinmonopolet.no/_ui/responsive/theme-vmp/images/isGoodFor-" + food.code + ".svg"} /></div>
+          <div><img src={"/images/icons/" + food.code + ".png"} /></div>
           {food.name}
         </li>);
       }
