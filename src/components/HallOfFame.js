@@ -73,7 +73,7 @@ const HallOfFame = () => {
                         />
                         <FamedProduct
                             product={hallOfFameProducts.highestRated}
-                            description={<p>Best av alle, med <strong>{hallOfFameProducts.highestRated.Rating} av 100</strong></p>}
+                            description={<p>Best av alle, med <strong>{hallOfFameProducts.highestRated.Rating} av 100</strong> poeng</p>}
                             icon={faThumbsUp}
                             title="Høyest vurdert"
                             positive={true}
@@ -97,7 +97,7 @@ const HallOfFame = () => {
                         />
                         <FamedProduct
                             product={hallOfFameProducts.lowestRated}
-                            description={<p>Ganske dårlig altså, med bare <strong>{hallOfFameProducts.lowestRated.Rating} av 100 poeng</strong></p>}
+                            description={<p>Ganske dårlig altså, med bare <strong>{hallOfFameProducts.lowestRated.Rating} av 100</strong> poeng</p>}
                             icon={faThumbsDown}
                             title="Lavest vurdert"
                             highlightProduct={highlightProduct.bind(this)}

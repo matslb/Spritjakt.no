@@ -11,8 +11,8 @@ const FamedProduct = ({
 }) => {
 
     return (
-        <li className="famed-product">
-            <FontAwesomeIcon icon={icon} size="3x" />
+        <li className={"famed-product " + (positive ? "positive" : "negative")} >
+            <FontAwesomeIcon className={positive ? "gold" : "dark"} icon={icon} size="3x" />
             <h3 className={positive ? "gold" : "dark"} >{title}</h3>
             <div>
                 <p>{description}</p>

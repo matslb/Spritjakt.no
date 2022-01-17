@@ -33,13 +33,10 @@ ul.product-list.hall-of-fame.negative {
 
 }
 
-.famed-product > svg {
+.famed-product.positive svg {
     color: #d0b55e;
 }
 
-.negative .famed-product > svg {
-    color: black;
-}
 
 .gold {
     background: linear-gradient(90deg, rgba(186,148,62,1) 0%, rgba(236,172,32,1) 20%, rgba(186,148,62,1) 39%, rgba(249,244,180,1) 50%, rgba(186,148,62,1) 60%, rgba(236,172,32,1) 80%, rgba(186,148,62,1) 100%);
