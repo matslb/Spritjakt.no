@@ -99,7 +99,7 @@ class TypeSenseClient {
                 this.createFacetSearchParams(Object.assign({}, filter), "Stores", "stores"),
             ]
         };
-        let isIdSearch = filter.searchString?.match(/^(\d{4,})$/);
+        let isIdSearch = filter.searchString?.trim().match(/^(\d{4,})$/);
         let request = await this.client.multiSearch.perform(multiSearchRequest, {
             collection: "Products_v1.2",
             query_by: isIdSearch ? 'Id' : 'Name',

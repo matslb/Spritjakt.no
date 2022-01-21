@@ -44,7 +44,7 @@ exports.fetchNewProducts = functions.region("europe-west1").runWith(runtimeOpts)
   }
 
   if (freshProducts.length > 0) {
-    await FirebaseClient.SetPriceUpdateList(freshProducts, true);
+    await FirebaseClient.SetPriceUpdateList(freshProducts);
   }
 });
 

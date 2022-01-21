@@ -118,10 +118,7 @@ module.exports = class FirebaseClient {
     return sp
   }
 
-  static async SetPriceUpdateList(ids, addHallofFameProducts = false) {
-    if (addHallofFameProducts) {
-      ids = ids.concat(await this.FetchHallOfFameProducts());
-    }
+  static async SetPriceUpdateList(ids) {
     console.log("Updating " + ids.length + " product prices")
     await firebase.database().ref("/PricesToBeFetched/").set(ids);
   }
@@ -316,67 +313,5 @@ module.exports = class FirebaseClient {
         }).catch(e => console.log(e + " " + user.id))
     }
     return users;
-  }
-
-  static async FetchHallOfFameProducts() {
-    let products = []
-    try {
-      await firebase.firestore()
-        .collection("Products")
-        .orderBy("PriceChange")
-        .limit(50)
-        .get()
-        .then((qs) => {
-          if (!qs.empty) {
-            qs.forEach((p) => {
-              p = p.data();
-              products.push(p.Id);
-            });
-          }
-        });
-      await firebase.firestore()
-        .collection("Products")
-        .orderBy("LiterPriceAlcohol", "asc")
-        .limit(50)
-        .get()
-        .then((qs) => {
-          if (!qs.empty) {
-            qs.forEach((p) => {
-              p = p.data();
-              products.push(p.Id);
-            });
-          }
-        });
-      await firebase.firestore()
-        .collection("Products")
-        .orderBy("PriceChanges", "desc")
-        .limit(50)
-        .get()
-        .then((qs) => {
-          if (!qs.empty) {
-            qs.forEach((p) => {
-              p = p.data();
-              products.push(p.Id);
-            });
-          }
-        });
-      await firebase.firestore()
-        .collection("Products")
-        .orderBy("Rating", "desc")
-        .orderBy("PriceChanges", "desc")
-        .limit(50)
-        .get()
-        .then((qs) => {
-          if (!qs.empty) {
-            qs.forEach((p) => {
-              p = p.data();
-              products.push(p.Id);
-            });
-          }
-        });
-    } catch (e) {
-      console.log(e)
-    }
-    return products;
   }
 };
