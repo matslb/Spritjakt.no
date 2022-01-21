@@ -16,18 +16,25 @@ const runtimeOpts = {
   memory: "512MB",
 };
 
-exports.fetchNewProducts = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 1 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.fetchNewProducts = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 6 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let moreProductsToFetch = true;
   let freshProducts = [];
   let tries = 0;
+  let date = new Date();
+  let dayofMonth = date.getDate();
+  let offset = dayofMonth % 2 === 0 ? 17500 : 0
   while (moreProductsToFetch && tries < 20) {
-    let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length);
+    let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length + offset);
 
     freshProducts = freshProducts.concat(products);
     console.log(totalCount);
     console.info("freshProducts: " + freshProducts.length);
 
-    if (!error && (totalCount === freshProducts.length || products.length === 0)) {
+    if (!error && (
+      totalCount === freshProducts.length
+      || products.length === 0
+      || (dayofMonth !== 1 && freshProducts.length >= 17500)
+    )) {
       moreProductsToFetch = false;
     } else if (error) {
       console.info("Could not fetch Products, waiting 1 second until retry");
@@ -35,16 +42,10 @@ exports.fetchNewProducts = functions.region("europe-west1").runWith(runtimeOpts)
     }
     tries++;
   }
-  let existingIds = await FirebaseClient.GetPotentialOutOfSyncProductIds(false);
-  let idsToUpdate = freshProducts.concat(existingIds);
-  if (idsToUpdate.length > 0) {
-    await FirebaseClient.SetPriceUpdateList(idsToUpdate, true);
-  }
-});
 
-exports.fetchNewProductsPartTwo = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 2 * * *").timeZone("Europe/Paris").onRun(async (context) => {
-  let ids = await FirebaseClient.GetPotentialOutOfSyncProductIds(true);
-  await FirebaseClient.SetPriceUpdateList(ids);
+  if (freshProducts.length > 0) {
+    await FirebaseClient.SetPriceUpdateList(freshProducts, true);
+  }
 });
 
 exports.updateStores = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 1 * * *").timeZone("Europe/Paris").onRun(async (context) => {
@@ -58,14 +59,14 @@ exports.updateStores = functions.region("europe-west1").runWith(runtimeOpts).pub
   }
 });
 
-exports.fetchNewStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 3 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.fetchNewStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 11 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let ids = await FirebaseClient.GetProductIdsForStock();
   let d = new Date();
   d.setDate(d.getDate() - 2);
   d.setHours(0);
   let onSaleIds = await FirebaseClient.GetProductsOnSale(d.getTime());
   if (onSaleIds && onSaleIds.length > 0)
-    ids = onSaleIds.concat(ids);
+    ids = [...new Set(onSaleIds.concat(ids))];
   console.log("Updating " + ids.length + " stocks");
   await FirebaseClient.SetStockUpdateList(ids);
 });
@@ -154,7 +155,7 @@ exports.subscribeClientsToTopic = functions.region("europe-west1").firestore.doc
   }
 });
 
-exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("45 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 13 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let d = new Date();
   d.setHours(0);
   d.setMinutes(0);
@@ -184,9 +185,19 @@ exports.checkProductRatings = functions.region("europe-west1").runWith(runtimeOp
   }
 });
 
-exports.fetchProductRating = functions.region("europe-west1").runWith(runtimeOpts).firestore.document('Products/{producId}').onCreate(async (snap, context) => {
+exports.fetchProductRatingAndStockOnCreate = functions.region("europe-west1").runWith(runtimeOpts).firestore.document('Products/{producId}').onCreate(async (snap, context) => {
   const product = snap.data()
   let { rating, comment } = await VmpClient.FetchProductRating(product.Id, product.Name);
   await FirebaseClient.UpdateProductRating(product.Id, rating, comment);
+
+  let stores = await FirebaseClient.GetConstant("Stores");
+  let storeStock = await VmpClient.FetchStoreStock(product.Id, stores);
+  if (storeStock !== null) {
+    let p = {
+      productId: product.Id,
+      Stores: storeStock
+    }
+    await FirebaseClient.UpdateProductStock(p);
+  }
 });
 

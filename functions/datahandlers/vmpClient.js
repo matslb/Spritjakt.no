@@ -25,7 +25,7 @@ class VmpClient {
     options.url += "products/v0/details-normal/";
     options.resolveWithFullResponse = true;
     options.params = {
-      changedSince: date.toISOString().slice(0, 10),
+      changedSince: "2000-01-01",
       start: start,
       maxResults: 5000,
     };
@@ -212,7 +212,8 @@ function CreateProduct(productData) {
     Expired: productData.expired || null,
     Buyable: productData.buyable || null,
     LatestPrice: productData.price ? productData.price.value : null,
-    ProductStatusSaleName: productData.availability.deliveryAvailability.available ? "" : productData.availability.deliveryAvailability.mainText.split(": ")[1]
+    ProductStatusSaleName: productData.availability.deliveryAvailability.available ? "" : productData.availability.deliveryAvailability.mainText.split(": ")[1],
+    Stores: productData.availability.deliveryAvailability.available ? ["online"] : []
   }
 }
 

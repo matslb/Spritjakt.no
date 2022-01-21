@@ -88,7 +88,7 @@ li.nav-element a > .fa-wine-bottle {
 
 
 li.nav-element .fa-lg {
-    margin-right: 0.5rem;
+    margin-right: 0.25rem;
 }
 
 @media(max-width: 768px) {

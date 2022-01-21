@@ -79,7 +79,7 @@ class Homepage extends React.Component {
                         </li>
                         <li className="nav-element">
                             <a className={"clickable"} href="https://butikk.spritjakt.no" >
-                                <FontAwesomeIcon icon={faStore} size="lg" />Spritjaktmerch</a>
+                                <FontAwesomeIcon icon={faStore} size="lg" />Spritjaktbutikken</a>
                         </li>
                     </ul>
                 </nav>

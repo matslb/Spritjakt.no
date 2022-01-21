@@ -26,3 +26,10 @@
     font-size: 1rem;
     font-weight: 400;
 }
+
+.SupportWrapper video {
+    width: 100%;
+    max-width: 15rem;
+    margin: 1rem auto;
+    display: block;
+}

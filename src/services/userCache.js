@@ -1,6 +1,6 @@
 class UserCacher {
     static set(userData) {
-        delete userData.NotificationTokens;
+        delete userData.notificationTokens;
         localStorage.setItem("SPRITJAKT_USER", JSON.stringify(userData))
     }
     static get() {

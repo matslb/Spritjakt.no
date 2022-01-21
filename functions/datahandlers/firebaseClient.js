@@ -15,6 +15,7 @@ module.exports = class FirebaseClient {
     const productRef = firebase.firestore().collection("Products").doc(p.Id);
     const productDoc = await productRef.get();
     let sp = productDoc.data();
+
     if (sp === undefined) {
       sp = p;
       sp.PriceHistory = {
@@ -127,36 +128,6 @@ module.exports = class FirebaseClient {
 
   static async SetStockUpdateList(ids) {
     await firebase.database().ref("/StocksToBeFetched/").set(ids);
-  }
-
-  static async GetPotentialOutOfSyncProductIds(useOffset = true) {
-    let ids = [];
-    var date = new Date();
-    var oneWeekAgo = date.setMonth(date.getDate() - 7);
-    let offset = 0;
-
-    if (useOffset == false)
-      await FirebaseClient.UpdateConstants(0, "LastPriceFetchCount");
-    else
-      offset = await FirebaseClient.GetConstant("LastPriceFetchCount");
-
-    await firebase.firestore()
-      .collection("Products")
-      .where("LastUpdated", "<", oneWeekAgo)
-      .where("Buyable", "==", true)
-      .where("Expired", "==", null)
-      .orderBy("LastUpdated")
-      .offset(offset)
-      .limit(12500)
-      .get().then(function (qs) {
-        if (!qs.empty) {
-          qs.forEach((p) => {
-            ids.push(p.id);
-          });
-        }
-      });
-    await FirebaseClient.UpdateConstants(ids.length, "LastPriceFetchCount");
-    return ids;
   }
 
   static async GetProductIdsForStock() {

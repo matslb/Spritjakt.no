@@ -47,7 +47,8 @@ const StoreSelector = ({
   useEffect(() => {
     let newSelected = storeOptions.filter(so => selectedStores.includes(so.value));
     setSelectedOptions(newSelected);
-    StoreCacher.set(storeOptions);
+    if (storeOptions.length > 0)
+      StoreCacher.set(storeOptions);
   }, [selectedStores, storeOptions]);
 
   const sortStores = (storeOptions, position = userPosition) => {
