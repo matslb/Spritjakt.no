@@ -46,7 +46,7 @@ module.exports = class FirebaseClient {
       sp.Sulfates = p.Sulfates;
       sp.Expired = p.Expired;
       sp.Buyable = p.Buyable;
-
+      sp.RawMaterials = p.RawMaterials;
       if (p.LatestPrice !== null) {
 
         let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];

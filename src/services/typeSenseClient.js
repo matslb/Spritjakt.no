@@ -106,7 +106,7 @@ class TypeSenseClient {
             q: filter.searchString || "*",
             sort_by: sortOptions.find(s => s.value === filter.sort).typeSenseValue,
             max_facet_values: 1000,
-            use_cache: true,
+            //use_cache: true,
             cache_ttl: 300,
             num_typos: isIdSearch ? 0 : 1,
             min_len_1typo: 5,

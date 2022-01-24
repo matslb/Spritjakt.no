@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./css/highlightedProduct.css";
-import SortArray from "sort-array";
-import { faExternalLinkAlt, faHeart, faLink, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faExternalLinkAlt, faHeart, faLink, faSeedling, faStar } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
@@ -118,7 +117,18 @@ const HighlightedProduct = ({
       }
     return foods;
   }
-
+  const renderRawMaterials = () => {
+    let materials = [];
+    if (product.RawMaterials)
+      for (const material of product.RawMaterials) {
+        materials.push(<li className="material" key={material.code}>
+          {materials.length === 0 &&
+            <FontAwesomeIcon icon={faSeedling} size="lg" />}
+          {material.name}, {material.percentage}%
+        </li>);
+      }
+    return materials;
+  }
   const renderTasteProfile = (value, label) => {
     return value ? <li className="pieChartWrapper">
       <div aria-label={value} className="pieChart" style={createPieChartCss(value)}></div>
@@ -213,6 +223,9 @@ const HighlightedProduct = ({
               {renderIsGoodFor()}
             </ul>
           </div>
+          <ul className="rawMaterials">
+            {renderRawMaterials()}
+          </ul>
         </div>
 
       </div>

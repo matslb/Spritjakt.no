@@ -201,6 +201,7 @@ function CreateProduct(productData) {
     Acid: productData.acid ? productData.acid : "",
     Country: productData.main_country ? productData.main_country.name : null,
     Types: types,
+    RawMaterials: productData.raastoff || [],
     Color: productData.color || null,
     Smell: productData.smell || null,
     Taste: productData.taste || null,
