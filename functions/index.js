@@ -22,7 +22,7 @@ exports.fetchNewProducts = functions.region("europe-west1").runWith(runtimeOpts)
   let tries = 0;
   let date = new Date();
   let dayofMonth = date.getDate();
-  let offset = dayofMonth % 2 === 0 ? 17500 : 0
+  let offset = dayofMonth % 2 === 0 ? 20000 : 0
   while (moreProductsToFetch && tries < 20) {
     let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length + offset);
 
@@ -33,7 +33,7 @@ exports.fetchNewProducts = functions.region("europe-west1").runWith(runtimeOpts)
     if (!error && (
       totalCount === freshProducts.length
       || products.length === 0
-      || (dayofMonth !== 1 && freshProducts.length >= 17500)
+      || (dayofMonth !== 1 && freshProducts.length >= 15000)
     )) {
       moreProductsToFetch = false;
     } else if (error) {

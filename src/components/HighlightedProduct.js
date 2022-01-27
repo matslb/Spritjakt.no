@@ -124,7 +124,7 @@ const HighlightedProduct = ({
         materials.push(<li className="material" key={material.code}>
           {materials.length === 0 &&
             <FontAwesomeIcon icon={faSeedling} size="lg" />}
-          {material.name}, {material.percentage}%
+          {material.name}{material.percentage && ", " + material.percentage + "%"}
         </li>);
       }
     return materials;

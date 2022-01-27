@@ -40,12 +40,14 @@ class LoginPage extends React.Component {
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 this.setState({ user: user });
+                this.setFormType(null);
             } else {
                 this.setState({ user: null, userData: null });
             }
         });
+
         let parsed = queryString.parse(window.location.search);
-        if (parsed?.login) {
+        if (parsed?.login && this.state.userData == false) {
             this.setFormType(formTypes.login);
         }
     }
