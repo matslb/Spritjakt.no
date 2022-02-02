@@ -6,7 +6,7 @@ import Scanner from "./Scanner";
 import SpritjaktClient from "../services/spritjaktClient";
 import Quagga from "@ericblade/quagga2";
 import debounce from 'lodash.debounce';
-import firebase from "firebase";
+import firebase from "firebase/app";
 import "firebase/analytics";
 import Notification from "./Notification";
 import ProductPopUp from "./ProductPopUp";

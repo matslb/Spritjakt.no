@@ -112,8 +112,8 @@ const Product = ({
         </div>
         <h2 className="name">{product.Name}</h2>
         <span className="price">Kr {product.LatestPrice}</span>
-        {product.ComparingPrice && (
-          <span className="old_price secondary">Kr {product.ComparingPrice}</span>
+        {product.PriceHistory[product.PriceHistorySorted[1]] && (
+          <span className="old_price secondary">Kr {product.PriceHistory[product.PriceHistorySorted[1]]}</span>
         )}
         <span className="volume secondary">
           {(product.Volume * 100).toFixed(1)} cl
