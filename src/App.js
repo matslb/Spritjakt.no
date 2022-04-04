@@ -27,7 +27,7 @@ class App extends React.Component {
             Når du oppretter en bruker på spritjakt.no vil navn og e-post lagres og brukes til å sende personaliserte e-postvarsler. <br />
             Ved innlogging gjennom en tredjepart som Facebook eller Google får Spritjakt.no tilgang til navnet ditt og e-posten din. <br />
             Når du sletter brukeren din vil dataene også slettes for godt.</p>
-          <p>Spritjakt.no er ikke tilknyttet Vinmonopolet på noen måte.</p>
+          <p>Spritjakt.no er ikke tilknyttet Vinmonopolet på noen måte, og feil kan forekomme.</p>
           <p>
             Har du tilbakemeldinger eller funnet noe feil? Opprett gjerne et
             issue på <a target="_blank" rel="noopener noreferrer" href="https://github.com/matslb/Spritjakt.no">Github</a>

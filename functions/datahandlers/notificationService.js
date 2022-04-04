@@ -5,22 +5,22 @@ const emailHeader = fs.readFileSync(path.resolve(__dirname, "./templates/header.
 const emailFooter = fs.readFileSync(path.resolve(__dirname, "./templates/footer.txt"), 'utf8');
 const emailProductItem = fs.readFileSync(path.resolve(__dirname, "./templates/productItem.txt"), 'utf8');
 const firebaseAdmin = require("firebase-admin");
-const mailgun = require('mailgun-js')({
-    apiKey: emailConfig.mailgun.apiKey,
-    domain: emailConfig.mailgun.domain,
-    host: "api.eu.mailgun.net",
-    //testMode: true
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({
+    username: 'api',
+    key: emailConfig.mailgun.apiKey,
+    url: 'https://api.eu.mailgun.net'
 });
 
 const options = {
-    from: "Spritjakt.no<varsel@spritjakt.no>",
+    from: "Spritjakt.no<varsel@mg.spritjakt.no>",
     to: "",
     subject: "",
     html: "",
     text: "",
-    headers: {
-        "List-Unsubscribe": "https://spritjakt.no?settings=true&login=true"
-    }
+    headers: 'a:1:{s:16:"List-Unsubscribe";s:45:"https://spritjakt.no?settings=true&login=true";}'
 };
 const greetings = ["Tørst?", "Halla Balla!", "Hei Sveis!", "Sjallabais sjef!", "God dag mann, økseskaft!", "Hallo i luken!", "Heisann Sveisann!", "G'day mate!", "Tittei, her er jeg!"];
 
@@ -262,12 +262,10 @@ module.exports = class NotificationClient {
     }
 
     static async SendEmail(email) {
-        await mailgun.messages().send(email, function (error, body) {
-            console.log(body);
-            if (error) {
-                console.log(error);
-            }
-        });
+        mg.messages.create(emailConfig.domain, email)
+            .then(msg => console.log(msg))
+            .catch(err => console.log(err)); // logs any error
+
         await sleep(500);
     }
 

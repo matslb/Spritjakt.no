@@ -29,6 +29,31 @@ module.exports = class FirebaseClient {
         console.log(error);
       }
     } else {
+
+      if (p.Year != "0000") {
+        if (sp.Year !== undefined && sp.Year != p.Year) {
+          var expiredProduct = Object.assign({}, sp);
+          expiredProduct.Expired = true;
+          expiredProduct.Buyable = false;
+          expiredProduct.ProductStatusSaleName = "Utgått";
+          expiredProduct.Id += "x" + expiredProduct.Year;
+          try {
+            console.log("New vintage detected for product " + sp.Id + ". Creating new product " + expiredProduct.Id);
+            await firebase.firestore().collection("Products").doc(expiredProduct.Id).set(expiredProduct);
+            sp = p;
+            sp.PriceHistory = {
+              [today]: sp.LatestPrice,
+            };
+            sp.PriceHistorySorted = [today];
+            sp.LastUpdated = today;
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        else {
+          sp.Year = p.Year;
+        }
+      }
       sp.ProductStatusSaleName = p.ProductStatusSaleName ? p.ProductStatusSaleName : "";
       sp.Types = p.Types;
       sp.Country = p.Country;
@@ -36,6 +61,7 @@ module.exports = class FirebaseClient {
         order: "desc",
       });
       delete sp.Stock;
+      sp.Name = p.Name
       sp.Color = p.Color;
       sp.Smell = p.Smell;
       sp.Taste = p.Taste;
@@ -182,7 +208,9 @@ module.exports = class FirebaseClient {
                 Stores: [],
               };
             }
-            products.push(p);
+            if (!product.Id.includes("x")) {
+              products.push(p);
+            }
           });
         }
       });
@@ -249,7 +277,9 @@ module.exports = class FirebaseClient {
         if (!qs.empty) {
           qs.forEach((p) => {
             let product = p.data();
-            products.push(product);
+            if (!product.Id.includes("x")) {
+              products.push(product);
+            }
           });
         }
       });

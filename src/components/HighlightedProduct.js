@@ -193,25 +193,6 @@ const HighlightedProduct = ({
         }
 
         <div className="description">
-
-          {product.Rating && !Number.isNaN(product.Rating) &&
-            <div>
-              <span>Vurdering, aperitif.no</span>
-              <div className="ratingWrapper" >
-                {product.RatingComment &&
-                  <div>
-                    <i>{'"' + product.RatingComment + '"'}</i>
-                    <br />
-                    <a rel="noopener noreferrer" target="_blank" href={"https://www.aperitif.no/pollisten?query=" + encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, ""))}>Les mer..</a>
-                  </div>
-                }
-                <div title="Vurdering (aperitif.no)" className="rating">
-                  <FontAwesomeIcon icon={faStar} size="lg" />
-                  {product.Rating}
-                </div>
-              </div>
-            </div>
-          }
           <div className="tasteProfile">
             <ul className="pieCharts">
               {renderTasteProfile(product.Freshness, "Friskhet")}
@@ -231,18 +212,48 @@ const HighlightedProduct = ({
       </div>
 
       <div className="buttons">
-        <a
-          rel="noopener noreferrer"
-          className="clickable bigGoldBtn"
-          target="_blank"
-          href={"https://www.vinmonopolet.no/p/" + product.Id}
-        >
-          Se hos vinmonopolet
-          <FontAwesomeIcon icon={faExternalLinkAlt} />
-        </a>
+        {!product.Id.includes("x") ?
+          <a
+            rel="noopener noreferrer"
+            className="clickable bigGoldBtn"
+            target="_blank"
+            href={"https://www.vinmonopolet.no/p/" + product.Id}
+          >
+            Se hos vinmonopolet
+            <FontAwesomeIcon icon={faExternalLinkAlt} />
+          </a>
+          :
+          <button
+            className="clickable dark"
+            disabled={true}
+          >
+            Ikke lenger tilgjengelig hos vinmonopolet
+            <FontAwesomeIcon icon={faExternalLinkAlt} />
+          </button>
+        }
         <button onClick={copyLink} className="clickable bigGreenBtn" aria-label="kopier link">Kopier link <FontAwesomeIcon icon={faLink} /></button>
         <input type="text" style={{ display: "none" }} id="productLink_hidden" />
       </div>
+
+      {product.Rating && !Number.isNaN(product.Rating) &&
+        <div className="descriptionText">
+          <span>Vurdering, aperitif.no</span>
+          <div className="ratingWrapper" >
+            {product.RatingComment &&
+              <div>
+                <i>{'"' + product.RatingComment + '"'}</i>
+                <br />
+                <a rel="noopener noreferrer" target="_blank" href={"https://www.aperitif.no/pollisten?query=" + encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, ""))}>Les mer..</a>
+              </div>
+            }
+            <div title="Vurdering (aperitif.no)" className="rating">
+              <FontAwesomeIcon icon={faStar} size="lg" />
+              {product.Rating}
+            </div>
+          </div>
+        </div>
+      }
+      {renderTextSection(product.Year, "Årgang")}
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}
