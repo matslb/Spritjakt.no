@@ -17,6 +17,7 @@ class TypeSenseClient {
     }
 
     createFacetSearchParams(filter, facetSlug, filterSlug) {
+        if (filter[filterSlug] == undefined) return;
         if (filter.searchString == null)
             filter[filterSlug] = [];
         let searchParameters = {
@@ -83,7 +84,7 @@ class TypeSenseClient {
         };
     }
 
-    async fetchProducts(filter, pageSize) {
+    async fetchProducts(filter, pageSize, doFacetSearch = true) {
         let searchParameters = {
             facet_by: "Types,Country,Stores",
             filter_by: this.createFilterString(filter),
@@ -92,19 +93,21 @@ class TypeSenseClient {
         }
 
         let multiSearchRequest = {
-            searches: [
-                searchParameters,
-                this.createFacetSearchParams(Object.assign({}, filter), "Types", "types"),
-                this.createFacetSearchParams(Object.assign({}, filter), "Country", "countries"),
-                this.createFacetSearchParams(Object.assign({}, filter), "Stores", "stores"),
-            ]
+            searches: [searchParameters]
         };
+
+        if (doFacetSearch) {
+            multiSearchRequest.searches.push(this.createFacetSearchParams(Object.assign({}, filter), "Types", "types"));
+            multiSearchRequest.searches.push(this.createFacetSearchParams(Object.assign({}, filter), "Country", "countries"));
+            multiSearchRequest.searches.push(this.createFacetSearchParams(Object.assign({}, filter), "Stores", "stores"));
+        }
+
         let isIdSearch = filter.searchString?.trim().match(/^(\d{4,})$/);
         let request = await this.client.multiSearch.perform(multiSearchRequest, {
             collection: "Products_v1.2",
             query_by: isIdSearch ? 'Id' : 'Name',
             q: filter.searchString || "*",
-            sort_by: sortOptions.find(s => s.value === filter.sort).typeSenseValue,
+            sort_by: sortOptions.find(s => s.value === filter.sort)?.typeSenseValue || sortOptions[0].typeSenseValue,
             max_facet_values: 1000,
             //use_cache: true,
             cache_ttl: 300,
@@ -141,13 +144,13 @@ class TypeSenseClient {
             if (filter.sort === "new_discount" || filter.sort === "new_raised")
                 filterString += " && PriceChange:" + (filter.sort === "new_discount" ? "<99.9" : ">100.1");
         }
-        if (filter.types.length > 0) {
+        if (filter.types && filter.types.length > 0) {
             filterString += " && Types: [" + filter.types.join() + "]";
         }
-        if (filter.countries.length > 0) {
+        if (filter.countries && filter.countries.length > 0) {
             filterString += " && Country: [" + filter.countries.join() + "]";
         }
-        if (filter.stores.length > 0) {
+        if (filter.stores && filter.stores.length > 0) {
             filterString += " && Stores: [" + filter.stores.join() + "]";
         }
         return filterString;

@@ -12,10 +12,12 @@ import StoreCacher from "../services/storeCache";
 import debounce from "lodash.debounce";
 import emptyGraph from "../assets/emptyGraph.png";
 import { isMobile } from "react-device-detect";
+import TypeSenseClient from "../services/typeSenseClient";
 
 const HighlightedProduct = ({
   product,
-  notification
+  notification,
+  highlightProduct
 }) => {
 
   const [user, setUser] = useState(false);
@@ -25,6 +27,7 @@ const HighlightedProduct = ({
   const showDiff = product.PriceChange > 100.1 || product.PriceChange < 99.9;
   const priceIsLower = product.LatestPrice < product.PriceHistory[product.PriceHistorySorted[1]];
   const stores = StoreCacher.get();
+  const [vintages, setVintages] = useState([]);
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -37,12 +40,22 @@ const HighlightedProduct = ({
   }, []);
 
   useEffect(() => {
+    fetchVintages();
+
     if (!isMobile) return;
     if (showGraph) {
       setShowGraph(false);
     }
     debouncedChangeHandler();
   }, [product]);
+
+  const fetchVintages = async () => {
+    const typesenseClient = new TypeSenseClient();
+    const productVintages = await typesenseClient.fetchProducts({ stores: [], types: [], countries: [], searchString: product.Id.split("x")[0] }, 10, false)
+    setVintages(productVintages.hits.filter(p => p.Id.split("x")[0] == product.Id && p.document.Year != undefined).map(p => {
+      return { year: p.document.Year, id: p.document.Id }
+    }));
+  }
 
   const debouncedChangeHandler = useCallback(debounce(() => setShowGraph(true), 200), [product, 200]);
 
@@ -58,7 +71,7 @@ const HighlightedProduct = ({
           setIsFavorite(isFavorite)
         }
       });
-  }, [user]);
+  }, [user, product]);
 
   const toggleProdctWatch = (e) => {
 
@@ -130,7 +143,7 @@ const HighlightedProduct = ({
     return materials;
   }
   const renderTasteProfile = (value, label) => {
-    return value ? <li className="pieChartWrapper">
+    return value ? <li key={label} className="pieChartWrapper">
       <div aria-label={value} className="pieChart" style={createPieChartCss(value)}></div>
       {label}
     </li> : null
@@ -141,6 +154,17 @@ const HighlightedProduct = ({
       <span>{label}</span>
       {text}
     </p> : null
+  }
+
+  const renderVintages = () => {
+    return <section className="vintages descriptionText">
+      <span>Årganger</span>
+      <div className="vintageButtons">
+        {
+          vintages.map(v => <button key={v.year} onClick={() => product.Year == v.year ? null : highlightProduct(v.id)} className={"clickable" + (v.year == product.Year ? " bigGoldBtn" : "")}>{v.year}</button>)
+        }
+      </div>
+    </section>
   }
 
   return (
@@ -234,6 +258,7 @@ const HighlightedProduct = ({
         <button onClick={copyLink} className="clickable bigGreenBtn" aria-label="kopier link">Kopier link <FontAwesomeIcon icon={faLink} /></button>
         <input type="text" style={{ display: "none" }} id="productLink_hidden" />
       </div>
+      {vintages.length > 1 && renderVintages()}
 
       {product.Rating && !Number.isNaN(product.Rating) &&
         <div className="descriptionText">
@@ -253,7 +278,7 @@ const HighlightedProduct = ({
           </div>
         </div>
       }
-      {renderTextSection(product.Year, "Årgang")}
+
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}

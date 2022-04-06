@@ -17,7 +17,7 @@ const ProductPopUp = ({
                     <div className="backdrop" onClick={() => highlightProduct(null, null)} >
                     </div>
                     <div className="PopupProductWrapper">
-                        <HighlightedProduct product={product} notification={notification} />
+                        <HighlightedProduct highlightProduct={highlightProduct} product={product} notification={notification} />
                         <nav className="productNavigation">
                             {nextProduct &&
                                 <button aria-label="Forrige produkt" onClick={() => nextProduct(-1)} className="iconBtn productNav prev">

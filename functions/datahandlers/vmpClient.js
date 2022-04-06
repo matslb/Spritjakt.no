@@ -285,7 +285,8 @@ function CreateProduct(productData) {
     LatestPrice: productData.price ? productData.price.value : null,
     ProductStatusSaleName: productData.availability.deliveryAvailability.available ? "" : productData.availability.deliveryAvailability.mainText.split(": ")[1],
     Stores: productData.availability.deliveryAvailability.available ? ["online"] : [],
-    Year: productData.year || null
+    Year: productData.year || null,
+    VintageComment: productData.matured || null
   }
 }
 

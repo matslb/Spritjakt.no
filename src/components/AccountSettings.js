@@ -276,11 +276,11 @@ const AccountSettings = ({
         }
     }
 
-    const highlightProduct = (productId) => {
+    const highlightProduct = async (productId) => {
         if (productId === null || productId === highlightedProduct?.Id) {
             setHighlightedProduct(null);
         } else {
-            let product = productResult.find((p) => p.Id === productId);
+            let product = productResult.find((p) => p.Id === productId) || await SpritjaktClient.FetchProductById(productId);
             setHighlightedProduct(product);
         }
     };
