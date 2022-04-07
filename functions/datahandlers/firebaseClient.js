@@ -30,7 +30,7 @@ module.exports = class FirebaseClient {
       }
     } else {
 
-      if (p.Year != "0000" && !p.VintageComment.includes("ikke egnet for lagring")) {
+      if (p.Year != "0000" && !p.VintageComment?.includes("ikke egnet for lagring")) {
         if (sp.Year !== undefined && sp.Year != p.Year) {
           var expiredProduct = Object.assign({}, sp);
           expiredProduct.Expired = true;
