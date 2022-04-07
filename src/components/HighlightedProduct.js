@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./css/highlightedProduct.css";
-import { faExternalLinkAlt, faHeart, faLink, faSeedling, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faExternalLinkAlt, faHeart, faLink, faSeedling, faStar, faWineBottle } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
@@ -52,7 +52,7 @@ const HighlightedProduct = ({
   const fetchVintages = async () => {
     const typesenseClient = new TypeSenseClient();
     const productVintages = await typesenseClient.fetchProducts({ stores: [], types: [], countries: [], searchString: product.Id.split("x")[0] }, 10, false)
-    setVintages(productVintages.hits.filter(p => p.Id.split("x")[0] == product.Id && p.document.Year != undefined).map(p => {
+    setVintages(productVintages.hits?.filter(p => p.document.Id.split("x")[0] == product.Id.split("x")[0] && p.document.Year != undefined).map(p => {
       return { year: p.document.Year, id: p.document.Id }
     }));
   }
@@ -228,6 +228,11 @@ const HighlightedProduct = ({
               {renderIsGoodFor()}
             </ul>
           </div>
+          {product.VintageComment &&
+            <div className="vintageComment">
+              <FontAwesomeIcon icon={faWineBottle} size="lg" />
+              {product.VintageComment}</div>
+          }
           <ul className="rawMaterials">
             {renderRawMaterials()}
           </ul>
@@ -258,8 +263,6 @@ const HighlightedProduct = ({
         <button onClick={copyLink} className="clickable bigGreenBtn" aria-label="kopier link">Kopier link <FontAwesomeIcon icon={faLink} /></button>
         <input type="text" style={{ display: "none" }} id="productLink_hidden" />
       </div>
-      {vintages.length > 1 && renderVintages()}
-
       {product.Rating && !Number.isNaN(product.Rating) &&
         <div className="descriptionText">
           <span>Vurdering, aperitif.no</span>
@@ -278,7 +281,7 @@ const HighlightedProduct = ({
           </div>
         </div>
       }
-
+      {vintages.length > 1 && renderVintages()}
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}

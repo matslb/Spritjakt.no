@@ -240,7 +240,7 @@ ul.rawMaterials {
     flex-wrap: wrap;
 }
 
-.material .fa-lg {
+.material .fa-lg, .vintageComment .fa-lg {
     margin-right: 0.5rem;
 }
 
@@ -250,10 +250,11 @@ ul.rawMaterials {
 
 .pieChartWrapper,
 .food,
-.material {
+.material,
+.vintageComment {
     display: flex;
     align-items: center;
-    padding: 5px 0;
+    padding: 2.5px 0;
 }
 
 .pieChart {
@@ -274,4 +275,7 @@ ul.rawMaterials {
 }
 .vintageButtons button{
     margin: 0.5rem 0.25rem 0 0 ;
+}
+.vintageComment{
+    padding: 0.25rem;
 }
