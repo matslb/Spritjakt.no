@@ -57,7 +57,7 @@ const Product = ({
         "ProductComp " + (priceIsLower ? "price_lowered" : "price_raised")
       }>
       <button
-        aria-label="Se produktdetaljer"
+        aria-label={product.Name + ". Velg for å se produktdetaljer"}
         style={{
           padding: 0,
           opacity: 0,

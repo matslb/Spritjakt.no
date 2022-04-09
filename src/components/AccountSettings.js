@@ -41,6 +41,7 @@ const AccountSettings = ({
     const [permissions, setPermissions] = useState(defaultPermissions);
     const notificationService = useCallback(new NotificationService(), []);
     const notification = React.createRef();
+    const [showContent, setShowContent] = useState(false);
 
     const setNotifications = async (event) => {
         event.preventDefault();
@@ -116,8 +117,10 @@ const AccountSettings = ({
         let query = queryString.stringify(parsed, { arrayFormat: 'comma' });
         if (isActive) {
             window.history.pushState('', '', '?' + query);
+            setShowContent(true);
         } else {
             window.history.replaceState('', '', '?' + query);
+            setTimeout(() => setShowContent(false), 1000);
         }
         setIsActive(isActive);
     }
@@ -233,7 +236,7 @@ const AccountSettings = ({
 
             items.push(<li key={userData.filters.indexOf(filter)} className="filter">
                 <div className="operations">
-                    <button aria-label="Sett filter" className="iconBtn dark" onClick={(e) => {
+                    <button aria-label={"Velg filter. Butikker: " + storeNames + ". Produkttyper: " + filter.productTypes.join() + ". Land: " + filter.countries.join() + "."} className="iconBtn dark" onClick={(e) => {
                         applyFilter(filter);
                         notification.current.setNotification(e, "Filter satt", "success");
                     }} >
@@ -303,117 +306,120 @@ const AccountSettings = ({
             }
             {userData &&
                 <div className={"account-settings " + (isActive ? " active " : "")} >
-                    <div className="sectionHeader toolbar">
-                        <button aria-label="Skjul innstillinger" name="Togglesettings" onClick={() => toggleSection(!isActive)} className="iconBtn toggleSettings">
-                            <FontAwesomeIcon size="lg" icon={faTimesCircle} />
-                        </button>
-                        <div>Logget inn som <span className="userName">{userData?.name}</span></div>
-                        <button name="logout" onClick={logout} className="bigGreenBtn clickable logout">Logg ut</button>
-                    </div>
+                    {showContent && <div>
+                        <div className="sectionHeader toolbar">
+                            <button aria-label="Skjul innstillinger" name="Togglesettings" onClick={() => toggleSection(!isActive)} className="iconBtn toggleSettings">
+                                <FontAwesomeIcon size="lg" icon={faTimesCircle} />
+                            </button>
+                            <div>Logget inn som <span className="userName">{userData?.name}</span></div>
+                            <button name="logout" onClick={logout} className="bigGreenBtn clickable logout">Logg ut</button>
+                        </div>
 
-                    {userData.filters && userData.filters.length > 0 ?
-                        <div className="filters">
-                            <div className="sectionHeader">
-                                <h3>Lagrede filtre ({userData.filters.length})</h3>
-                            </div>
-                            <ul className="list filters">
-                                <li className="listHeaders filter">
-                                    <div className="operations">
-                                    </div>
-                                    <div className="details">
-                                        <div className="stores">Butikker</div>
-                                        <div className="productTypes">Typer</div>
-                                        <div className="productCountries">Land</div>
-                                    </div>
-                                    <div className="operations">
-                                    </div>
-                                </li>
-                                {renderFilters()}
-                            </ul>
-                        </div>
-                        :
-                        <div className="filters">
-                            <div className="sectionHeader">
-                                <h3>Lagrede filtre</h3>
-                            </div>
-                            <p>De lagrede filtrene dine vil dukke opp her.</p>
-                        </div>
-                    }
-                    <br />
-                    <hr />
-                    <div className="favorites">
-                        <div className="sectionHeader">
-                            <h3>Favoritter
-                                {productResult && productResult.length > 0 ? ` (${productResult.length})` : ""}
-                            </h3>
-                        </div>
-                        {productResult && productResult.length > 0 &&
-                            <ul className="list miniproducts">{renderProducts()}</ul>
-                        }
-                        {userData.products && (productResult.length < 1 || productResult === undefined) &&
-                            <p>Her listes favorittproduktene dine opp.</p>
-                        }
-                        {isLoading && userData.products && userData.products.length > 0 && productResult.length === 0 &&
-                            <FontAwesomeIcon icon={faCircleNotch} size="3x" />
-                        }
-
-                    </div>
-                    <ProductPopUp product={highlightedProduct} notification={notification} nextProduct={nextProduct.bind(this)} highlightProduct={highlightProduct.bind(this)} />
-                    <br />
-                    <hr />
-                    <div className="heading">
-                        <h2>Kontoinnstillinger</h2>
-                        <h3>Brukernavn</h3>
-                        {nameChange ?
-                            <div className="changeName">
-                                <input type="text" name="name" onChange={(e) => { setNewName(e.currentTarget.value) }} />
-                                <button className="bigWhiteBtn clickable" onClick={() => { setNameChange(false) }}>Tilbake</button>
-                                <button name="changeName" disabled={newName === null} onClick={changeName} className="bigGreenBtn clickable">Lagre</button>
+                        {userData.filters && userData.filters.length > 0 ?
+                            <div className="filters">
+                                <div className="sectionHeader">
+                                    <h3>Lagrede filtre ({userData.filters.length})</h3>
+                                </div>
+                                <ul className="list filters">
+                                    <li className="listHeaders filter">
+                                        <div className="operations">
+                                        </div>
+                                        <div className="details">
+                                            <div className="stores">Butikker</div>
+                                            <div className="productTypes">Typer</div>
+                                            <div className="productCountries">Land</div>
+                                        </div>
+                                        <div className="operations">
+                                        </div>
+                                    </li>
+                                    {renderFilters()}
+                                </ul>
                             </div>
                             :
-                            <div className="changeName">
-                                {userData.name}
-                                <button aria-label="Endre navn" className="iconBtn clickable dark" onClick={() => { setNameChange(true) }} ><FontAwesomeIcon size="lg" icon={faPen} /></button>
+                            <div className="filters">
+                                <div className="sectionHeader">
+                                    <h3>Lagrede filtre</h3>
+                                </div>
+                                <p>De lagrede filtrene dine vil dukke opp her.</p>
                             </div>
                         }
-                        <h3>Varsler</h3>
-                        <label><input type="checkbox" checked={permissions.onAll} onChange={handleNotifications} name="onAll" /> Ved alle prisendringer</label><br />
-                        <label><input type="checkbox" onChange={handleNotifications} checked={permissions.onFilters} name="onFilters" /> Ved prisendringer i lagrede filtre</label><br />
-                        <label><input type="checkbox" onChange={handleNotifications} checked={permissions.onFavorites} name="onFavorites" /> Ved prisendringer i favoritter</label><br />
-                        <h4>Hvordan vil du bli varslet?</h4>
+                        <br />
+                        <hr />
+                        <div className="favorites">
+                            <div className="sectionHeader">
+                                <h3>Favoritter
+                                    {productResult && productResult.length > 0 ? ` (${productResult.length})` : ""}
+                                </h3>
+                            </div>
+                            {productResult && productResult.length > 0 &&
+                                <ul className="list miniproducts">{renderProducts()}</ul>
+                            }
+                            {userData.products && (productResult.length < 1 || productResult === undefined) &&
+                                <p>Her listes favorittproduktene dine opp.</p>
+                            }
+                            {isLoading && userData.products && userData.products.length > 0 && productResult.length === 0 &&
+                                <FontAwesomeIcon icon={faCircleNotch} size="3x" />
+                            }
 
-                        <label><input type="checkbox" name="byPush" checked={permissions.byPush} onChange={handleNotifications} /> Push-varsler (Ikke på iPhone)</label><br />
-                        <label><input type="checkbox" name="byEmail" checked={permissions.byEmail} onChange={handleNotifications} /> E-post</label>
-                        <div>
-                            <br />
-                            <h3>Slett konto</h3>
-                            <div className="deleteWarning">
-                                <form onSubmit={deleteUser} >
-                                    {deleteProcessStarted && user?.providerData?.length > 0 ?
-                                        <label>
-                                            {user.providerData[0].providerId !== "password" ?
-                                                <span>
-                                                    Skriv SLETT for å bekrefte sletting
-                                                    <input type="text" aria-label="bekreft sletting" name="password" />
-                                                </span>
-                                                :
-                                                <span>
-                                                    Oppgi passord for å bekrefte sletting
-                                                    <input type="password" aria-label="passord" name="password" />
-                                                </span>
-                                            }
-                                        </label>
-                                        :
-                                        <span>Lagrede filtre og favoritter vil slettes, og du vil ikke lenger kunne logge inn med denne kontoen.<br /><strong>Denne handlingen kan ikke angres.</strong></span>
-                                    }
-                                    {deleteProcessStarted &&
-                                        <button className="clickable bigWhiteBtn" onClick={() => { setDeleteProcess(false) }}>Tilbake</button>
-                                    }
-                                    <input type="submit" className="bigRedBtn clickable" value="Slett konto" />
-                                </form>
+                        </div>
+                        <ProductPopUp product={highlightedProduct} notification={notification} nextProduct={nextProduct.bind(this)} highlightProduct={highlightProduct.bind(this)} />
+                        <br />
+                        <hr />
+                        <div className="heading">
+                            <h2>Kontoinnstillinger</h2>
+                            <h3>Brukernavn</h3>
+                            {nameChange ?
+                                <div className="changeName">
+                                    <input type="text" name="name" onChange={(e) => { setNewName(e.currentTarget.value) }} />
+                                    <button className="bigWhiteBtn clickable" onClick={() => { setNameChange(false) }}>Tilbake</button>
+                                    <button name="changeName" disabled={newName === null} onClick={changeName} className="bigGreenBtn clickable">Lagre</button>
+                                </div>
+                                :
+                                <div className="changeName">
+                                    {userData.name}
+                                    <button aria-label="Endre navn" className="iconBtn clickable dark" onClick={() => { setNameChange(true) }} ><FontAwesomeIcon size="lg" icon={faPen} /></button>
+                                </div>
+                            }
+                            <h3>Varsler</h3>
+                            <label><input type="checkbox" checked={permissions.onAll} onChange={handleNotifications} name="onAll" /> Ved alle prisendringer</label><br />
+                            <label><input type="checkbox" onChange={handleNotifications} checked={permissions.onFilters} name="onFilters" /> Ved prisendringer i lagrede filtre</label><br />
+                            <label><input type="checkbox" onChange={handleNotifications} checked={permissions.onFavorites} name="onFavorites" /> Ved prisendringer i favoritter</label><br />
+                            <h4>Hvordan vil du bli varslet?</h4>
+
+                            <label><input type="checkbox" name="byPush" checked={permissions.byPush} onChange={handleNotifications} /> Push-varsler (Ikke på iPhone)</label><br />
+                            <label><input type="checkbox" name="byEmail" checked={permissions.byEmail} onChange={handleNotifications} /> E-post</label>
+                            <div>
+                                <br />
+                                <h3>Slett konto</h3>
+                                <div className="deleteWarning">
+                                    <form onSubmit={deleteUser} >
+                                        {deleteProcessStarted && user?.providerData?.length > 0 ?
+                                            <label>
+                                                {user.providerData[0].providerId !== "password" ?
+                                                    <span>
+                                                        Skriv SLETT for å bekrefte sletting
+                                                        <input type="text" aria-label="Skriv SLETT for å bekrefte sletting" name="password" />
+                                                    </span>
+                                                    :
+                                                    <span>
+                                                        Oppgi passord for å bekrefte sletting
+                                                        <input type="password" aria-label="Oppgi passord for å bekrefte sletting" name="password" />
+                                                    </span>
+                                                }
+                                            </label>
+                                            :
+                                            <span>Lagrede filtre og favoritter vil slettes, og du vil ikke lenger kunne logge inn med denne kontoen.<br /><strong>Denne handlingen kan ikke angres.</strong></span>
+                                        }
+                                        {deleteProcessStarted &&
+                                            <button className="clickable bigWhiteBtn" onClick={() => { setDeleteProcess(false) }}>Tilbake</button>
+                                        }
+                                        <input type="submit" className="bigRedBtn clickable" value="Slett konto" />
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    }
                 </div >
             }¨
             {(isFirstLogin || registrationError) &&

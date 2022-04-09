@@ -7,7 +7,7 @@ const Header = () => {
             <div className="sitename">
                 <a href="/">
                     <h1>
-                        <img aria-label="Spritjakt" src={logo} />
+                        <img alt="Spritjakt" src={logo} />
                         <span
                             style={{
                                 width: 0,

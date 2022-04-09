@@ -24,7 +24,7 @@ const ProductPopUp = ({
                                     <FontAwesomeIcon size="lg" icon={faArrowCircleLeft} />
                                 </button>
                             }
-                            <button aria-label="Tilbake" name="closeGraph" onClick={() => highlightProduct(null, null)} className="iconBtn productNav close">
+                            <button aria-label="Lukk fremhevet produktvisning" name="closeGraph" onClick={() => highlightProduct(null, null)} className="iconBtn productNav close">
                                 <FontAwesomeIcon size="lg" icon={faTimesCircle} />
                             </button>
                             {nextProduct &&

@@ -8,6 +8,7 @@
     font-size: 1.2rem;
 }
 
+
 .HighlightedProduct .ProductComp,
 .HighlightedProduct .ProductComp > button {
     cursor: default;
@@ -61,8 +62,6 @@
 
 .HighlightedProduct .product_stock ul {
     padding: 0;
-    max-height: 15rem;
-    overflow-x: hidden;
     margin: 0;
 }
 
@@ -71,20 +70,16 @@
 }
 
 .HighlightedProduct .product_stock li {
-    font-size: 0.8rem;
+    font-size: .95rem;
     list-style: none;
-    padding: 0.5rem;
-    border-radius: 3px;
+    padding: 5px 0;
     display: flex;
     justify-content: space-between;
-    font-weight: 500;
-    background: #fafafa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
-
-.HighlightedProduct .product_stock li:nth-of-type(odd) {
-    background: #e8edf1;
+.HighlightedProduct .product_stock li:last-of-type {
+border-bottom: none;
 }
-
 .HighlightedProduct .product_details {
     display: grid;
     width: 70%;
@@ -114,13 +109,16 @@
     margin: 0.5rem 0.5rem 0;
 }
 
-.HighlightedProduct .descriptionText span {
+.HighlightedProduct .descriptionText h3 {
     display: block;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     font-weight: 400;
-    margin-top: 5px;
+    margin: 5px 0;
+    font-size: 1rem;
 }
-
+.HighlightedProduct .descriptionText p {
+    margin: 5px 0;
+}
 .HighlightedProduct .alcohol {
     grid-area: alk;
 }
@@ -220,7 +218,6 @@
 }
 
 .priceHistoryWrapper {
-    height: 100%;
     max-height: 15.5rem;
     width: 100%;
 }

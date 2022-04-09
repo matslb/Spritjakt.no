@@ -70,12 +70,12 @@ class Homepage extends React.Component {
                 <nav className="navigation">
                     <ul className="nav-list">
                         <li className="nav-element">
-                            <a className={"clickable " + (content == undefined || content === "lowered" ? "active" : "")} onClick={() => this.setChangeType(null)}>
-                                <FontAwesomeIcon icon={faWineBottle} size="lg" />Alle varer</a>
+                            <button className={"clickable " + (content == undefined || content === "lowered" ? "active" : "")} onClick={() => this.setChangeType(null)}>
+                                <FontAwesomeIcon icon={faWineBottle} size="lg" />Alle varer</button>
                         </li>
                         <li className="nav-element">
-                            <a className={"clickable " + (content === "hall-of-fame" ? "active" : "")} onClick={() => this.setChangeType("hall-of-fame")} >
-                                <FontAwesomeIcon icon={faFire} size="lg" />Hall of fame</a>
+                            <button className={"clickable " + (content === "hall-of-fame" ? "active" : "")} onClick={() => this.setChangeType("hall-of-fame")} >
+                                <FontAwesomeIcon icon={faFire} size="lg" />Hall of fame</button>
                         </li>
                         <li className="nav-element">
                             <a className={"clickable"} href="https://butikk.spritjakt.no" >

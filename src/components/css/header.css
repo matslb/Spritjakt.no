@@ -63,7 +63,7 @@ li.nav-element {
     width: 32%;
 }
 
-li.nav-element a {
+li.nav-element > .clickable {
     background: white;
     box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
     font-size: 1rem;
@@ -71,18 +71,20 @@ li.nav-element a {
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
     color: #4c4c4c;
+    width: 100%;
 }
 
-li.nav-element a.active,
-li.nav-element a:hover {
+li.nav-element > .clickable.active,
+li.nav-element > .clickable:hover,
+li.nav-element > .clickable:focus {
     box-shadow: 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%), inset 0 7px 0 -2px #fdb542
 }
 
-li.nav-element a > .fa-fire {
+li.nav-element > .clickable > .fa-fire {
     color: #ff9800;
 }
 
-li.nav-element a > .fa-wine-bottle {
+li.nav-element .clickable > .fa-wine-bottle {
     color: #54814C;
 }
 

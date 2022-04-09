@@ -26,7 +26,7 @@ class ProductComp extends React.Component {
             {(priceIsLower ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
           </span>
         }
-        <button aria-label="Se produktdetaljer" onClick={() => this.props.highlightProduct(product.Id)} className="img" style={background}></button>
+        <button aria-label={product.Name + ". Velg for å se produktdetaljer"} onClick={() => this.props.highlightProduct(product.Id)} className="img" style={background}></button>
         <div onClick={() => this.props.highlightProduct(product.Id)} className="name">
           {product.Name}
         </div>

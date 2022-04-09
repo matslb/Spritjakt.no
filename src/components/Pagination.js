@@ -31,9 +31,9 @@ const Pagination = ({
         || (page === pages && i === page - 2)) {
         list.push(
           <li key={"page" + i}>
-            <button style={{ pointerEvents: "none" }} className="pageButton clickable inactive dummy">
+            <div style={{ pointerEvents: "none" }} className="pageButton clickable inactive dummy">
               ...
-            </button>
+            </div>
           </li>
         );
       }

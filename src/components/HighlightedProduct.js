@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./css/highlightedProduct.css";
 import { faExternalLinkAlt, faHeart, faLink, faSeedling, faStar, faWineBottle } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
@@ -28,6 +28,7 @@ const HighlightedProduct = ({
   const priceIsLower = product.LatestPrice < product.PriceHistory[product.PriceHistorySorted[1]];
   const stores = StoreCacher.get();
   const [vintages, setVintages] = useState([]);
+  const rootRef = useRef(null);
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -41,6 +42,8 @@ const HighlightedProduct = ({
 
   useEffect(() => {
     fetchVintages();
+
+    document.querySelector("#highlighted" + product.Id).focus();
 
     if (!isMobile) return;
     if (showGraph) {
@@ -150,15 +153,15 @@ const HighlightedProduct = ({
   }
 
   const renderTextSection = (text, label) => {
-    return text ? <p className="descriptionText">
-      <span>{label}</span>
-      {text}
-    </p> : null
+    return text ? <section className="descriptionText">
+      <h3>{label}</h3>
+      <p>{text}</p>
+    </section> : null
   }
 
   const renderVintages = () => {
     return <section className="vintages descriptionText">
-      <span>Årganger</span>
+      <h3>Årganger</h3>
       <div className="vintageButtons">
         {
           vintages.map(v => <button key={v.year} onClick={() => product.Year == v.year ? null : highlightProduct(v.id)} className={"clickable" + (v.year == product.Year ? " bigGoldBtn" : "")}>{v.year}</button>)
@@ -168,8 +171,8 @@ const HighlightedProduct = ({
   }
 
   return (
-    <div
-      id={product.Id}
+    <article
+      id={"highlighted" + product.Id}
       className={
         "HighlightedProduct " +
         (priceIsLower ? "price_lowered" : "price_raised")
@@ -189,7 +192,7 @@ const HighlightedProduct = ({
           {(priceIsLower ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
         </span>
       }
-      <div className="product_details">
+      <section className="product_details">
         <h2 className="name">{product.Name}</h2>
         <span className="price">Kr {product.LatestPrice}</span>
         <span className="old_price">{product.PriceHistorySorted?.length > 1 && "Kr " + product.PriceHistory[product.PriceHistorySorted[1]]}</span>
@@ -238,9 +241,9 @@ const HighlightedProduct = ({
           </ul>
         </div>
 
-      </div>
+      </section>
 
-      <div className="buttons">
+      <section className="buttons">
         {!product.Id.includes("x") ?
           <a
             rel="noopener noreferrer"
@@ -262,24 +265,24 @@ const HighlightedProduct = ({
         }
         <button onClick={copyLink} className="clickable bigGreenBtn" aria-label="kopier link">Kopier link <FontAwesomeIcon icon={faLink} /></button>
         <input type="text" style={{ display: "none" }} id="productLink_hidden" />
-      </div>
+      </section>
       {product.Rating && !Number.isNaN(product.Rating) &&
-        <div className="descriptionText">
-          <span>Vurdering, aperitif.no</span>
+        <section className="descriptionText">
+          <h3>Vurdering, aperitif.no</h3>
           <div className="ratingWrapper" >
             {product.RatingComment &&
-              <div>
+              <p>
                 <i>{'"' + product.RatingComment + '"'}</i>
                 <br />
                 <a rel="noopener noreferrer" target="_blank" href={"https://www.aperitif.no/pollisten?query=" + encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, ""))}>Les mer..</a>
-              </div>
+              </p>
             }
             <div title="Vurdering (aperitif.no)" className="rating">
               <FontAwesomeIcon icon={faStar} size="lg" />
               {product.Rating}
             </div>
           </div>
-        </div>
+        </section>
       }
       {vintages.length > 1 && renderVintages()}
       {renderTextSection(product.Smell, "Lukt")}
@@ -290,20 +293,20 @@ const HighlightedProduct = ({
         {showGraph ?
           <PriceGraph id={product.Id} priceHistory={product.PriceHistory} />
           :
-          <div className="priceGraph fake">
-            <h4 className="title">Prishistorikk</h4>
+          <div className="priceGraph fake descriptionText">
+            <h3 className="title">Prishistorikk</h3>
             <img src={emptyGraph} />
           </div>
         }
 
       </div>
       {product.Stores?.length > 0 &&
-        <div className="product_stock">
-          <h4 className="title" >På lager i følgende butikker: </h4>
+        <div className="product_stock descriptionText">
+          <h3 className="title" >På lager i følgende butikker: </h3>
           <ul>{renderStoreStock()}</ul>
         </div>
       }
-    </div >
+    </article >
   );
 }
 

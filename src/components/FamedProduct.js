@@ -15,7 +15,7 @@ const FamedProduct = ({
             <FontAwesomeIcon className={positive ? "gold" : "dark"} icon={icon} size="3x" />
             <h3 className={positive ? "gold" : "dark"} >{title}</h3>
             <div>
-                <p>{description}</p>
+                {description}
                 <Product product={product} highlightProduct={highlightProduct.bind(this)} />
             </div>
         </li>

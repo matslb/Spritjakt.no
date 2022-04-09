@@ -86,31 +86,33 @@ const BarcodeScanner = () => {
                     <FontAwesomeIcon size="2x" icon={faQrcode} />
                 </button>
             }
-            <div className={"ScannerPopup " + (isActive ? "active" : "")}>
-                {scanning &&
-                    <div className="ScanningDescription scannerEffect">
-                        <FontAwesomeIcon size="3x" icon={faBarcode} />
-                        <h3>Beep baap boop</h3>
-                        <h4>...leter etter strekkoder...</h4>
-
-                    </div>
-                }
-                <div ref={scannerRef} className="VideoWrapper" >
+            {isActive &&
+                <div className={"ScannerPopup " + (isActive ? "active" : "")}>
                     {scanning &&
-                        <button aria-label="Bruk lys" onClick={openBarcodeScanner} className={"clickable iconBtn torch " + (useTorch ? "active" : "")}>
-                            <FontAwesomeIcon size="2x" onClick={() => setUseTorch(!useTorch)} icon={faLightbulb} />
+                        <div className="ScanningDescription scannerEffect">
+                            <FontAwesomeIcon size="3x" icon={faBarcode} />
+                            <h3>Beep baap boop</h3>
+                            <h4>...leter etter strekkoder...</h4>
+
+                        </div>
+                    }
+                    <div ref={scannerRef} className="VideoWrapper" >
+                        {scanning &&
+                            <button aria-label="Bruk lys" onClick={openBarcodeScanner} className={"clickable iconBtn torch " + (useTorch ? "active" : "")}>
+                                <FontAwesomeIcon size="2x" onClick={() => setUseTorch(!useTorch)} icon={faLightbulb} />
+                            </button>
+                        }
+                        {scanning &&
+                            <Scanner className="Scanner" hasProduct={product !== null} useTorch={useTorch} cameraId={cameraId} scannerRef={scannerRef} onDetected={debouncedChangeHandler} />
+                        }
+                    </div>
+                    {scanning &&
+                        <button aria-label="Tilbake" name="closeGraph" onClick={closeScanner} className="iconBtn productNav close">
+                            <FontAwesomeIcon size="2x" icon={faTimesCircle} />
                         </button>
                     }
-                    {scanning &&
-                        <Scanner className="Scanner" hasProduct={product !== null} useTorch={useTorch} cameraId={cameraId} scannerRef={scannerRef} onDetected={debouncedChangeHandler} />
-                    }
                 </div>
-                {scanning &&
-                    <button aria-label="Tilbake" name="closeGraph" onClick={closeScanner} className="iconBtn productNav close">
-                        <FontAwesomeIcon size="2x" icon={faTimesCircle} />
-                    </button>
-                }
-            </div>
+            }
             {product != null &&
                 <ProductPopUp
                     product={product}

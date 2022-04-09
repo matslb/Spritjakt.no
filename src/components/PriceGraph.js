@@ -33,8 +33,8 @@ const PriceGraph = ({
 
 
   return (
-    <div className="priceGraph">
-      <h4 className="title">Prishistorikk</h4>
+    <div className="priceGraph descriptionText">
+      <h3 className="title">Prishistorikk</h3>
       <div className="graph">
         {graphOptions &&
           <ResponsiveLine
