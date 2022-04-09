@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { faBarcode, faCamera, faLightbulb, faQrcode, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import { faBarcode, faCamera, faLightbulb, faQrcode, faRobot, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./css/barcodeScanner.css";
 import Scanner from "./Scanner";
@@ -90,10 +90,9 @@ const BarcodeScanner = () => {
                 <div className={"ScannerPopup " + (isActive ? "active" : "")}>
                     {scanning &&
                         <div className="ScanningDescription scannerEffect">
-                            <FontAwesomeIcon size="3x" icon={faBarcode} />
-                            <h3>Beep baap boop</h3>
+                            <FontAwesomeIcon size="3x" icon={faRobot} />
+                            <h3>Biip baap boop</h3>
                             <h4>...leter etter strekkoder...</h4>
-
                         </div>
                     }
                     <div ref={scannerRef} className="VideoWrapper" >
