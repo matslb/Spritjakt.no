@@ -177,11 +177,13 @@ exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts
 });
 
 
-exports.checkProductRatings = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 1 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.checkProductRatings = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 8 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let products = await FirebaseClient.GetProductsWithOldRating();
   for (const p of products) {
-    let { rating, comment } = await VmpClient.FetchProductRating(p.Id, p.Name);
-    await FirebaseClient.UpdateProductRating(p.Id, rating, comment);
+    if (!product.Id.includes("x")) {
+      let { rating, comment } = await VmpClient.FetchProductRating(p.Id, p.Name);
+      await FirebaseClient.UpdateProductRating(p.Id, rating, comment);
+    }
   }
 });
 

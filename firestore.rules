@@ -6,10 +6,6 @@ service cloud.firestore {
       allow read: if true
       allow write: if false;
     }
-    match /ProductCache/{document=**} {
-      allow read: if true
-      allow write: if false;
-    }
 		match /Stores/{document=**} {
       allow read: if true;
       allow write: if false;
