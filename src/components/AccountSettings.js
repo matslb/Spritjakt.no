@@ -116,7 +116,7 @@ const AccountSettings = ({
         }
         let query = queryString.stringify(parsed, { arrayFormat: 'comma' });
         if (isActive) {
-            window.history.pushState('', '', '?' + query);
+            window.history.replaceState('', '', '?' + query);
             setShowContent(true);
         } else {
             window.history.replaceState('', '', '?' + query);

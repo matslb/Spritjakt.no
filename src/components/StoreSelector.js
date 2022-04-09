@@ -118,7 +118,7 @@ const StoreSelector = ({
         />
       </label>
       {"geolocation" in navigator && selectedStores?.length === 0 &&
-        <button title="Velg nærmeste butikk" className="filterAddonBtn iconBtn dark" onClick={getUserPosition}>
+        <button title="Finn nærmeste butikk" className="filterAddonBtn iconBtn dark" onClick={getUserPosition}>
           <FontAwesomeIcon icon={faCrosshairs} />
         </button>
       }

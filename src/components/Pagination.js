@@ -51,9 +51,9 @@ const Pagination = ({
       (pageSize * page > total ? total : pageSize * page);
   }
   return (
-    <nav className="Pagination">
+    <nav className="Pagination" aria-labelledby="productNav">
       <ul className="pagelist">{renderPageButtons()}</ul>
-      <span>
+      <span id="productNav">
         Viser {productsShowingtext} av {total} produkter
       </span>
     </nav>

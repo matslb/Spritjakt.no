@@ -1,17 +1,43 @@
-.SupportWrapper {
-    overflow: auto;
+
+.SupportWrapper{
+    font-weight: 400;
+    text-align: center;
+    background-color: white;
+    padding: 1rem;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.SupportWrapper .vipps {
+    height: auto;
+}
+
+.clickable.vipps {
+    background-color: #ff5b24;
+    color: white;
+    border-radius: 24px;
+    font-size: 1rem;
+    padding: 0.75rem 1rem
 }
 
 .SupportWrapper .content {
     position: relative;
-    background: white;
-    border-radius: 16px;
     margin: auto;
     padding: 0.5rem 1rem;
-    max-width: 35rem;
+    max-width: 50rem;
     text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
 }
+
+ @media (max-width: 768px){
+    .SupportWrapper .content {
+        grid-template-columns: 1fr;
+    }
+    
+ }
 
 .SupportWrapper img {
     max-width: 100%;
@@ -26,10 +52,20 @@
     font-size: 1rem;
     font-weight: 400;
 }
+.SupportWrapper .clickable.vipps {
+    background: #ff5b24;
+}
+
+.SupportWrapper .vippsnumber {
+    color: #ff5b24;
+    font-size: 1.5rem;
+    font-weight: 700;
+    image-rendering: pixelated;
+}
 
 .SupportWrapper video {
     width: 100%;
-    max-width: 15rem;
+    max-width: 35rem;
     margin: 1rem auto;
     display: block;
 }

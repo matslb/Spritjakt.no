@@ -43,7 +43,7 @@ const HighlightedProduct = ({
   useEffect(() => {
     fetchVintages();
 
-    document.querySelector("#highlighted" + product.Id).focus();
+    rootRef?.current.focus();
 
     if (!isMobile) return;
     if (showGraph) {
@@ -172,7 +172,7 @@ const HighlightedProduct = ({
 
   return (
     <article
-      id={"highlighted" + product.Id}
+      id={product.Id}
       className={
         "HighlightedProduct " +
         (priceIsLower ? "price_lowered" : "price_raised")
@@ -250,6 +250,7 @@ const HighlightedProduct = ({
             className="clickable bigGoldBtn"
             target="_blank"
             href={"https://www.vinmonopolet.no/p/" + product.Id}
+            ref={rootRef}
           >
             Se hos vinmonopolet
             <FontAwesomeIcon icon={faExternalLinkAlt} />

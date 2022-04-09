@@ -59,7 +59,7 @@ class MainContent extends React.Component {
 
     let query = queryString.stringify(urlParameters, { arrayFormat: 'comma' });
     if (field === "product" && value !== null) {
-      window.history.pushState('', '', '?' + query);
+      window.history.replaceState('', '', '?' + query);
     }
     window.history.replaceState('', '', '?' + query);
   }
