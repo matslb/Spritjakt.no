@@ -16,7 +16,7 @@ const SupportWrapper = () => {
                 Da kan jeg fortsette utviklingen og holde tjenesten gratis!</p>
             <div className="content">
                 <article className="vipps">
-                    <h4>Du kan donere en liten slant?</h4>
+                    <h4>Du kan donere noen kronestykker?</h4>
                     <img loading={'lazy'} className="vipps" src="/vipps.png" alt="Vipps QR-kode" width="175px" height="356px" />
                     {isMobile ?
                         <a href="https://qr.vipps.no/28/2/05/031/kix5KzyDM" rel="noopener noreferrer" className="clickable vipps">Støtt meg på Vipps</a>

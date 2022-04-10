@@ -94,7 +94,7 @@ li.nav-element .fa-lg {
 }
 
 @media(max-width: 768px) {
-    li.nav-element a {
+    li.nav-element .clickable {
         padding: 0.5rem 0;
         font-size: 0.8rem;
     }

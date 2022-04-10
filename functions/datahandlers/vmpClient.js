@@ -161,6 +161,8 @@ class VmpClient {
   static async FetchProductRating(productId, name) {
     let rating = null;
     let ratingComment = null;
+    let ratingUrl = null;
+
     name = encodeURIComponent(name.replace(/(\d\d\d\d)/, ""));
     return await axios.get("https://www.aperitif.no/pollisten?query=" + name)
       .then(async function (res) {
@@ -171,23 +173,39 @@ class VmpClient {
         let matchIndex = results.findIndex(e => e.innerText.includes(productId));
         if (matchIndex == -1) {
           console.log("skipping");
-          return { rating: null, comment: null };
+          return {
+            productId: productId,
+            rating: null,
+            comment: null,
+            ratingUrl: null
+          };
         }
 
         let url = urlHtml.length > 0 ? urlHtml[matchIndex].attributes.href : null;
         rating = parseInt(ratingHtml[matchIndex].innerText);
-        await axios.get("https://www.aperitif.no/" + url)
+        url = "https://www.aperitif.no/" + url;
+        await axios.get(url)
           .then(async function (res) {
             let pageRoot = HTMLParser.parse(res.data);
             let commentHtml = pageRoot.querySelectorAll('h2.conclusion');
             ratingComment = commentHtml.length > 0 ? commentHtml[0].innerText : null;
           })
-        console.info("Successfully fetched product rationg: " + productId);
-        return { rating: rating, comment: ratingComment };
+        console.info("Successfully fetched product rating: " + productId);
+        return {
+          productId: productId,
+          rating: rating,
+          comment: ratingComment,
+          ratingUrl: url
+        };
       })
       .catch(function (err) {
         console.error("Could not fetch product rating: " + productId);
-        return { rating: rating, comment: null };
+        return {
+          productId: productId,
+          rating: rating,
+          comment: null,
+          ratingUrl: null
+        };
       });
   }
 

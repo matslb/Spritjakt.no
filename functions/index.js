@@ -180,9 +180,9 @@ exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts
 exports.checkProductRatings = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 8 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let products = await FirebaseClient.GetProductsWithOldRating();
   for (const p of products) {
-    if (!product.Id.includes("x")) {
-      let { rating, comment } = await VmpClient.FetchProductRating(p.Id, p.Name);
-      await FirebaseClient.UpdateProductRating(p.Id, rating, comment);
+    if (!p.Id.includes("x")) {
+      let ratingResult = await VmpClient.FetchProductRating(p.Id, p.Name);
+      await FirebaseClient.UpdateProductRating(ratingResult);
     }
   }
 });
@@ -190,8 +190,8 @@ exports.checkProductRatings = functions.region("europe-west1").runWith(runtimeOp
 exports.fetchProductRatingAndStockOnCreate = functions.region("europe-west1").runWith(runtimeOpts).firestore.document('Products/{producId}').onCreate(async (snap, context) => {
   const product = snap.data()
   if (!product.Id.includes("x")) {
-    let { rating, comment } = await VmpClient.FetchProductRating(product.Id, product.Name);
-    await FirebaseClient.UpdateProductRating(product.Id, rating, comment);
+    let ratingResult = await VmpClient.FetchProductRating(product.Id, product.Name);
+    await FirebaseClient.UpdateProductRating(ratingResult);
   }
 
   let stores = await FirebaseClient.GetConstant("Stores");

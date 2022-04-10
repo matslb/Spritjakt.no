@@ -29,6 +29,7 @@ const HighlightedProduct = ({
   const stores = StoreCacher.get();
   const [vintages, setVintages] = useState([]);
   const rootRef = useRef(null);
+  const [ratingUrl, setRatingUrl] = useState("https://www.aperitif.no/pollisten?query=" + encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, "")));
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -43,7 +44,10 @@ const HighlightedProduct = ({
   useEffect(() => {
     fetchVintages();
 
-    rootRef?.current.focus();
+    if (product.RatingUrl)
+      setRatingUrl(product.RatingUrl);
+
+    rootRef?.current?.focus();
 
     if (!isMobile) return;
     if (showGraph) {
@@ -275,7 +279,7 @@ const HighlightedProduct = ({
               <p>
                 <i>{'"' + product.RatingComment + '"'}</i>
                 <br />
-                <a rel="noopener noreferrer" target="_blank" href={"https://www.aperitif.no/pollisten?query=" + encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, ""))}>Les mer..</a>
+                <a rel="noopener noreferrer" target="_blank" href={ratingUrl}>Les mer på aperitif.no..</a>
               </p>
             }
             <div title="Vurdering (aperitif.no)" className="rating">

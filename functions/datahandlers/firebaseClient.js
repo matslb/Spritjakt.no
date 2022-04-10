@@ -251,20 +251,23 @@ module.exports = class FirebaseClient {
     }
   }
 
-  static async UpdateProductRating(productId, productRating, ratingComment) {
+  static async UpdateProductRating(result) {
+    if (result.rating == null) return;
+
     const productRef = firebase
       .firestore()
       .collection("Products")
-      .doc(productId);
+      .doc(result.productId);
     try {
       await productRef.update(
         {
-          Rating: productRating,
+          Rating: result.rating,
           RatingFetchDate: Date.now(),
-          RatingComment: ratingComment
+          RatingComment: result.comment,
+          RatingUrl: result.ratingUrl
         });
     } catch (e) {
-      console.log("Update failed for " + productId, e);
+      console.log("Update failed for " + result.productId, e);
     }
   }
 
