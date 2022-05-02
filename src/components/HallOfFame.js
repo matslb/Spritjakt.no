@@ -65,7 +65,7 @@ const HallOfFame = () => {
                         />
                         <FamedProduct
                             product={hallOfFameProducts.mostVolatile}
-                            description={<p>Gått opp eller ned i pris hele <br /> <strong>{hallOfFameProducts.mostVolatile.PriceChanges} ganger!</strong></p>}
+                            description={<p>Gått opp eller ned i pris hele <br /> <strong>{hallOfFameProducts.mostVolatile.PriceChanges - 1} ganger!</strong></p>}
                             icon={faChartLine}
                             positive={true}
                             highlightProduct={highlightProduct.bind(this)}

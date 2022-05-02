@@ -6,6 +6,9 @@ require("firebase/auth");
 module.exports = class FirebaseClient {
 
   static async UpdateProductPrice(p) {
+    if (p.LatestPrice === null) {
+      return;
+    }
     let d = new Date();
     d.setHours(0 - d.getTimezoneOffset() / 60);
     d.setMinutes(0);
@@ -60,6 +63,11 @@ module.exports = class FirebaseClient {
       sp.ProductStatusSaleName = p.ProductStatusSaleName ? p.ProductStatusSaleName : "";
       sp.Types = p.Types;
       sp.Country = p.Country;
+      if (sp.PriceHistory[sp.PriceHistorySorted[0]] == null) {
+        sp.PriceHistory = {
+          [today]: p.LatestPrice,
+        };
+      }
       sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
         order: "desc",
       });
@@ -77,44 +85,42 @@ module.exports = class FirebaseClient {
       sp.Buyable = p.Buyable;
       sp.RawMaterials = p.RawMaterials;
       sp.VintageComment = p.VintageComment;
-      if (p.LatestPrice !== null) {
-
-        let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
-        let LatestPrice = p.LatestPrice !== null ? p.LatestPrice : ComparingPrice;
-        if (ComparingPrice === undefined) {
-          ComparingPrice = LatestPrice;
-        }
-        if (ComparingPrice === null || ComparingPrice === undefined) {
-          return;
-        }
-
-        let PriceChange = (LatestPrice / ComparingPrice) * 100;
-
-        if (PriceChange !== 100) {
-          if (PriceChange <= 98 || PriceChange >= 102) {
-            sp.PriceIsLowered = PriceChange < 100;
-            sp.PriceChange = Math.round(PriceChange * 100) / 100;
-          } else {
-            sp.PriceIsLowered = null;
-            sp.PriceChange = 100;
-          }
-          sp.PriceHistory[today] = LatestPrice;
-          sp.LastUpdated = today;
-          sp.LatestPrice = LatestPrice;
-          sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
-            order: "desc",
-          });
-          sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;
-        }
+      sp.LatestPrice = p.LatestPrice;
+      let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
+      let LatestPrice = p.LatestPrice !== null ? p.LatestPrice : ComparingPrice;
+      if (ComparingPrice === undefined) {
+        ComparingPrice = LatestPrice;
+      }
+      if (ComparingPrice === null || ComparingPrice === undefined) {
+        return;
       }
 
-      sp = this.HandleProductMeta(sp);
-      try {
-        console.log("Updating: " + sp.Id);
-        await productRef.set(sp);
-      } catch (error) {
-        console.log(error);
+      let PriceChange = (LatestPrice / ComparingPrice) * 100;
+
+      if (PriceChange !== 100) {
+        if (PriceChange <= 98 || PriceChange >= 102) {
+          sp.PriceIsLowered = PriceChange < 100;
+          sp.PriceChange = Math.round(PriceChange * 100) / 100;
+        } else {
+          sp.PriceIsLowered = null;
+          sp.PriceChange = 100;
+        }
+        sp.PriceHistory[today] = LatestPrice;
+        sp.LastUpdated = today;
+        sp.LatestPrice = LatestPrice;
+        sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
+          order: "desc",
+        });
+        sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;
       }
+    }
+
+    sp = this.HandleProductMeta(sp);
+    try {
+      console.log("Updating: " + sp.Id);
+      await productRef.set(sp);
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -212,7 +218,7 @@ module.exports = class FirebaseClient {
                 Stores: [],
               };
             }
-            if (!product.Id.includes("x")) {
+            if (!p.Id.includes("x")) {
               products.push(p);
             }
           });

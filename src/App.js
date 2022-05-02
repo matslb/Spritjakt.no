@@ -29,7 +29,7 @@ class App extends React.Component {
             Når du sletter brukeren din vil dataene også slettes for godt.</p>
           <p>Spritjakt.no er ikke tilknyttet Vinmonopolet på noen måte, og feil kan forekomme.</p>
           <p>
-            Har du tilbakemeldinger eller funnet noe feil? Opprett gjerne et
+            Har du tilbakemeldinger eller funnet noe feil? Kontakt meg på <a href="mailto:mats@spritjakt.no">mats@spritjakt.no</a> eller opprett et
             issue på <a target="_blank" rel="noopener noreferrer" href="https://github.com/matslb/Spritjakt.no">Github</a>
           </p>
           <p data-nosnippet="true">© 2020 - {date.getFullYear()} <a target="_blank" rel="noopener noreferrer" href="https://no.linkedin.com/in/mats-l%C3%B8vstrand-berntsen-4682b2142">Mats Løvstrand Berntsen</a>
