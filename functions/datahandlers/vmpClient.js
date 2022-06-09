@@ -137,14 +137,14 @@ class VmpClient {
   }
 
   static async FetchProductPrice(productId) {
-    return await axios(
-      {
-        method: "get",
-        url: "https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL",
-        jar: cookieJar,
-        withCredentials: true
-      }
-    ).then(async function (res) {
+
+    var options = {
+      method: "get",
+      url: "https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL",
+      jar: cookieJar,
+      withCredentials: true,
+    };
+    return await axios(options).then(async function (res) {
 
       if (res.data.main_category.code === "gaveartikler_og_tilbehør") {
         return null;

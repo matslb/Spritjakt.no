@@ -116,7 +116,13 @@ const BarcodeScanner = () => {
                 <ProductPopUp
                     product={product}
                     notification={notificationRef}
-                    highlightProduct={() => setProduct(null)}
+                    highlightProduct={async (productId) => {
+                        if (productId == null)
+                            setProduct(null);
+                        var product = await SpritjaktClient.FetchProductById(productId);
+                        setProduct(product);
+                    }
+                    }
                 />
             }
             <Notification ref={notificationRef} />

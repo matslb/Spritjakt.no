@@ -26,13 +26,18 @@ const HallOfFame = () => {
         setHallOfFameProducts(hallOfFameProducts);
     }
 
-    const highlightProduct = (productId) => {
+    const highlightProduct = async (productId) => {
 
         if (productId === null || productId === highlightedProduct?.Id) {
             setHighlightedProduct(null);
-        } else {
-            let productKey = Object.keys(hallOfFameProducts).find((key) => hallOfFameProducts[key].Id === productId);
+            return;
+        }
+        let productKey = Object.keys(hallOfFameProducts).find((key) => hallOfFameProducts[key].Id === productId);
+        if (productKey != undefined) {
             setHighlightedProduct(hallOfFameProducts[productKey]);
+        } else {
+            var product = await SpritjaktClient.FetchProductById(productId);
+            setHighlightedProduct(product);
         }
     };
 

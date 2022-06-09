@@ -77,19 +77,30 @@ exports.priceUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
     return null;
   }
   const newValue = change.after.val();
+  var failcount = 0;
+  var cookie = await FirebaseClient.GetConstant("fetchCookie");
   const count = newValue.length > 50 ? 50 : newValue.length;
   console.log("Total count: " + newValue.length);
   console.log("Updating in this batch: " + count);
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
-      let product = await VmpClient.FetchProductPrice(newValue[i]);
+      let product = await VmpClient.FetchProductPrice(newValue[i], cookie);
       if (product !== null) {
         await FirebaseClient.UpdateProductPrice(product);
+      }
+      else {
+        failcount++;
       }
     }
     newValue.splice(i, 1);
   }
-  return await FirebaseClient.SetPriceUpdateList(newValue);
+
+  if (failcount >= 50) {
+    await NotificationClient.SendFetchErrorEmail("Henting av nye priser feilet");
+  } else {
+    return await FirebaseClient.SetPriceUpdateList(newValue);
+  }
+
 });
 
 
@@ -100,6 +111,7 @@ exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
   }
   let stores = await FirebaseClient.GetConstant("Stores");
   const newValue = change.after.val();
+  var failcount = 0;
   const count = newValue.length > 50 ? 50 : newValue.length;
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
@@ -111,11 +123,18 @@ exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
         }
         await FirebaseClient.UpdateProductStock(p);
       }
+      else {
+        failcount++;
+      }
     }
     newValue.splice(i, 1);
   }
 
-  return await FirebaseClient.SetStockUpdateList(newValue);
+  if (failcount >= 50) {
+    await NotificationClient.SendFetchErrorEmail("Henting av lagerstatus feilet");
+  } else {
+    return await FirebaseClient.SetStockUpdateList(newValue);
+  }
 });
 
 exports.subscribeClientsToTopic = functions.region("europe-west1").firestore.document('Users/{userId}').onWrite((change, context) => {

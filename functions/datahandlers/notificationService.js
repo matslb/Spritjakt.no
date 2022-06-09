@@ -115,6 +115,14 @@ module.exports = class NotificationClient {
         return email;
     }
 
+    static async SendFetchErrorEmail(text) {
+        let email = options;
+        email.to = "mats@spritjakt.no";
+        email.subject = "Daglig jobb feilet";
+        email.text = text;
+        await this.SendEmail(email);
+    }
+
     static CreateFilterEmail(userFilterMatch) {
         let urlParams = userFilterMatch.filter.productTypes && userFilterMatch.filter.productTypes.length > 0 ? "&types=" + userFilterMatch.filter.productTypes.join() : "";
         urlParams += userFilterMatch.filter.stores && userFilterMatch.filter.stores.length > 0 ? "&stores=" + userFilterMatch.filter.stores.join() : "";
@@ -262,7 +270,7 @@ module.exports = class NotificationClient {
     }
 
     static async SendEmail(email) {
-        mg.messages.create(emailConfig.domain, email)
+        mg.messages.create(emailConfig.mailgun.domain, email)
             .then(msg => console.log(msg))
             .catch(err => console.log(err)); // logs any error
 
