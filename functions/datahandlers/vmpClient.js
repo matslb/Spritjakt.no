@@ -38,7 +38,7 @@ class VmpClient {
     options.resolveWithFullResponse = true;
     options.params = {
       changedSince: "2000-01-01",
-      start: start,
+      start: start + 100,
       maxResults: 5000,
     };
     return await axios(options)
@@ -147,7 +147,7 @@ class VmpClient {
     return await axios(options).then(async function (res) {
 
       if (res.data.main_category.code === "gaveartikler_og_tilbehør") {
-        return null;
+        return false;
       }
       let p = CreateProduct(res.data);
       return p;

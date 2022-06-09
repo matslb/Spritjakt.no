@@ -238,6 +238,10 @@ module.exports = class FirebaseClient {
       delete stock.stock;
       const productDoc = await productRef.get();
       let sp = productDoc.data();
+      if (sp == undefined) {
+        console.log("Product not in database");
+        return;
+      }
       sp.Stores = [];
       sp.StoreStock = [];
       for (const store of stock.Stores) {

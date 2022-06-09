@@ -85,7 +85,7 @@ exports.priceUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
       let product = await VmpClient.FetchProductPrice(newValue[i], cookie);
-      if (product !== null) {
+      if (product !== null && product != false) {
         await FirebaseClient.UpdateProductPrice(product);
       }
       else {
