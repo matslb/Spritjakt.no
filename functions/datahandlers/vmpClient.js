@@ -198,7 +198,7 @@ class VmpClient {
           ratingUrl: url
         };
       })
-      .catch(function (err) {
+      .catch((err) => {
         console.error("Could not fetch product rating: " + productId);
         return {
           productId: productId,

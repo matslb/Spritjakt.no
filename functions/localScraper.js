@@ -15,14 +15,13 @@ async function orchistrator() {
     var lastRunDate = 0;
     while (true) {
         var time = new Date();
-        console.log(time.getHours());
-        if (time.getHours() == 3 && lastRunDate != time.getDate()) {
-            lastRunDate = time.getDate();
-            var productIdsToUpdate = await fetchProductsToUpdate();
-            await UpdatePrices(productIdsToUpdate);
-            await UpdateStocks(productIdsToUpdate);
-            console.log("Finished update. Sleeping for 24 hours.")
+        console.log("The time is " + time.getHours());
 
+        if (time.getHours() == 8 && lastRunDate != time.getDate()) {
+            lastRunDate = time.getDate();
+            await UpdatePrices();
+            await UpdateStocks();
+            console.log("Finished update. Sleeping for 24 hours.")
         } else {
             console.log("Not yet.. Continuing sleep...")
         }
@@ -37,9 +36,8 @@ async function fetchProductsToUpdate() {
     let tries = 0;
     let date = new Date();
     let dayofMonth = date.getDate();
-    let offset = dayofMonth % 2 === 0 ? 15000 : 0
     while (moreProductsToFetch && tries < 20) {
-        let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length + offset);
+        let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length);
 
         freshProducts = freshProducts.concat(products);
         console.log(totalCount);
@@ -48,7 +46,7 @@ async function fetchProductsToUpdate() {
         if (!error && (
             totalCount === freshProducts.length
             || products.length === 0
-            || (dayofMonth !== 1 && freshProducts.length >= 10000)
+            || freshProducts.length > 35000
         )) {
             moreProductsToFetch = false;
         } else if (error) {
@@ -57,11 +55,14 @@ async function fetchProductsToUpdate() {
         }
         tries++;
     }
+    var idsToFilterOut = await FirebaseClient.GetProductIdsNotToBeUpdated();
+    freshProducts = freshProducts.filter((id) => idsToFilterOut.indexOf(id) < 0);
 
     return freshProducts;
 }
 
-async function UpdatePrices(ids) {
+async function UpdatePrices() {
+    var ids = await fetchProductsToUpdate();
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         if (ids[i] !== undefined) {
@@ -79,7 +80,22 @@ async function UpdatePrices(ids) {
         await new Promise(r => setTimeout(r, Math.random() * 2000));
     }
 }
-async function UpdateStocks(ids) {
+
+
+async function UpdateStocks() {
+    let ids = await FirebaseClient.GetProductIdsForStock();
+    let d = new Date();
+
+    d.setDate(d.getDate() - 2);
+    d.setHours(0);
+
+    let onSaleIds = await FirebaseClient.GetProductsOnSale(d.getTime());
+
+    if (onSaleIds && onSaleIds.length > 0)
+        ids = [...new Set(onSaleIds.concat(ids))];
+
+    console.log("Updating " + ids.length + " stocks");
+
     var failcount = 0;
     let stores = await FirebaseClient.GetConstant("Stores");
     for (let i = 0; i < ids.length; i++) {

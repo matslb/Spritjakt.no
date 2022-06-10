@@ -78,13 +78,12 @@ exports.priceUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
   }
   const newValue = change.after.val();
   var failcount = 0;
-  var cookie = await FirebaseClient.GetConstant("fetchCookie");
   const count = newValue.length > 50 ? 50 : newValue.length;
   console.log("Total count: " + newValue.length);
   console.log("Updating in this batch: " + count);
   for (let i = 0; i < count; i++) {
     if (newValue[i] !== undefined) {
-      let product = await VmpClient.FetchProductPrice(newValue[i], cookie);
+      let product = await VmpClient.FetchProductPrice(newValue[i]);
       if (product !== null && product != false) {
         await FirebaseClient.UpdateProductPrice(product);
       }
@@ -102,7 +101,6 @@ exports.priceUpdater = functions.region("europe-west1").runWith(runtimeOpts).dat
   }
 
 });
-
 
 exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
 

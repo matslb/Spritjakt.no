@@ -15,6 +15,7 @@ module.exports = class FirebaseClient {
     d.setSeconds(0);
     d.setMilliseconds(0);
     var today = d.getTime();
+    var lastPriceFetchDate = new Date();
     const productRef = firebase.firestore().collection("Products").doc(p.Id);
     const productDoc = await productRef.get();
     let sp = productDoc.data();
@@ -26,6 +27,7 @@ module.exports = class FirebaseClient {
       };
       sp.PriceHistorySorted = [today];
       sp.LastUpdated = today;
+      sp.LastPriceFetchDate = lastPriceFetchDate;
       try {
         await productRef.set(sp);
       } catch (error) {
@@ -86,6 +88,7 @@ module.exports = class FirebaseClient {
       sp.RawMaterials = p.RawMaterials;
       sp.VintageComment = p.VintageComment;
       sp.LatestPrice = p.LatestPrice;
+      sp.LastPriceFetchDate = lastPriceFetchDate;
       let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
       let LatestPrice = p.LatestPrice !== null ? p.LatestPrice : ComparingPrice;
       if (ComparingPrice === undefined) {
@@ -161,6 +164,44 @@ module.exports = class FirebaseClient {
 
   static async SetStockUpdateList(ids) {
     await firebase.database().ref("/StocksToBeFetched/").set(ids);
+  }
+
+  static async GetProductIdsNotToBeUpdated() {
+    let ids = [];
+    let d = new Date();
+    d.setDate(d.getDate() - 3);
+    await firebase.firestore()
+      .collection("Products")
+      .where("LastPriceFetchDate", ">", d)
+      .get().then(function (qs) {
+        if (!qs.empty) {
+          qs.forEach((p) => {
+            if (!p.id.includes("x")) {
+              ids.push(p.id);
+            }
+          });
+        }
+      });
+
+    var moreIds = await firebase.firestore()
+      .collection("Products")
+      .where("Expired", "==", true)
+      .where("Buyable", "==", false)
+      .get().then(function (qs) {
+        if (!qs.empty) {
+          qs.forEach((p) => {
+            if (!p.id.includes("x")) {
+              ids.push(p.id);
+            }
+          });
+        }
+      });
+
+    if (moreIds)
+      ids = ids.concat(moreIds);
+
+    console.log("Fetching " + ids.length + " product Ids to be avoided");
+    return ids;
   }
 
   static async GetProductIdsForStock() {
@@ -262,8 +303,7 @@ module.exports = class FirebaseClient {
   }
 
   static async UpdateProductRating(result) {
-    if (result.rating == null) return;
-
+    var today = new Date();
     const productRef = firebase
       .firestore()
       .collection("Products")
@@ -272,7 +312,7 @@ module.exports = class FirebaseClient {
       await productRef.update(
         {
           Rating: result.rating,
-          RatingFetchDate: Date.now(),
+          RatingFetchDate: today,
           RatingComment: result.comment,
           RatingUrl: result.ratingUrl
         });
@@ -282,9 +322,9 @@ module.exports = class FirebaseClient {
   }
 
   static async GetProductsWithOldRating() {
-
     let products = [];
-    let datetime = Date.now() - 15778800000; // 6 months
+    let date = new Date();
+    let datetime = date.setMonth(date.getMonth() - 6);
     await firebase.firestore()
       .collection("Products")
       .where("RatingFetchDate", "<", datetime)
