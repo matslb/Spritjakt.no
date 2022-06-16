@@ -6,9 +6,7 @@ require("firebase/auth");
 module.exports = class FirebaseClient {
 
   static async UpdateProductPrice(p) {
-    if (p.LatestPrice === null) {
-      return;
-    }
+
     let d = new Date();
     d.setHours(0 - d.getTimezoneOffset() / 60);
     d.setMinutes(0);
@@ -87,7 +85,6 @@ module.exports = class FirebaseClient {
       sp.Buyable = p.Buyable;
       sp.RawMaterials = p.RawMaterials;
       sp.VintageComment = p.VintageComment;
-      sp.LatestPrice = p.LatestPrice;
       sp.LastPriceFetchDate = lastPriceFetchDate;
       let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
       let LatestPrice = p.LatestPrice !== null ? p.LatestPrice : ComparingPrice;
@@ -95,7 +92,14 @@ module.exports = class FirebaseClient {
         ComparingPrice = LatestPrice;
       }
       if (ComparingPrice === null || ComparingPrice === undefined) {
-        return;
+        sp = this.HandleProductMeta(sp);
+        try {
+          console.log("Updating: " + sp.Id);
+          await productRef.set(sp);
+          return;
+        } catch (error) {
+          console.log(error);
+        }
       }
 
       let PriceChange = (LatestPrice / ComparingPrice) * 100;
@@ -198,7 +202,11 @@ module.exports = class FirebaseClient {
       });
 
     if (moreIds)
-      ids = ids.concat(moreIds);
+      ids = [...new Set(ids.concat(moreIds))];
+
+    let evenMoreIds = await this.GetConstant("ProductsToBeIgnored");
+    if (evenMoreIds)
+      ids = [... new Set(ids.concat(evenMoreIds))];
 
     console.log("Fetching " + ids.length + " product Ids to be avoided");
     return ids;

@@ -38,7 +38,7 @@ class VmpClient {
     options.resolveWithFullResponse = true;
     options.params = {
       changedSince: "2000-01-01",
-      start: start + 100,
+      start: start,
       maxResults: 5000,
     };
     return await axios(options)
@@ -106,6 +106,7 @@ class VmpClient {
           expectedResults = 0;
           fail = true;
         });
+      await new Promise(r => setTimeout(r, Math.random() * 400));
     }
     console.log("Expected: " + expectedResults);
     console.log("Retrieved: " + storeStocks.length);
@@ -161,7 +162,6 @@ class VmpClient {
   static async FetchProductRating(productId, name) {
     let rating = null;
     let ratingComment = null;
-    let ratingUrl = null;
 
     name = encodeURIComponent(name.replace(/(\d\d\d\d)/, ""));
     return await axios.get("https://www.aperitif.no/pollisten?query=" + name)
@@ -209,63 +209,6 @@ class VmpClient {
       });
   }
 
-  static async FetchVintageChart() {
-    var dataRows = [];
-    await axios.get(vintageUrl)
-      .then((res) => {
-        let pageRoot = HTMLParser.parse(res.data);
-        let countries = pageRoot.querySelectorAll('.chart-title');
-        for (const countryHtml of countries) {
-          console.log(countryHtml.innerText);
-          let country = countryHtml.innerText;
-          let countryTable = pageRoot.querySelector('#' + country.toLowerCase().replace(" ", "-") + '-vintage-chart');
-          let tableRows = countryTable.querySelectorAll("tbody tr:not(.region-holder)");
-          let isGrapeType = countryTable.querySelector("thead tr .index-2").innerText == "Wine Variety";
-
-          let lastRegion = "undefined";
-          for (const tableRow of tableRows) {
-            let regions = tableRow.querySelector(".index-1").innerText.trim() != "" ? tableRow.querySelector(".index-1").innerText : lastRegion;
-            for (const currentRegion of regions.split("/")) {
-              if (currentRegion == "Port") continue;
-              lastRegion = currentRegion;
-
-              let regionOrType = tableRow.querySelector(".index-2").innerText;
-              let type = "";
-              if (regionOrType.toLowerCase().includes("white")) {
-                type = "white"
-              }
-              if (regionOrType.toLowerCase().includes("red")) {
-                type = "red"
-              }
-
-              let typeGrapeOrDistricts = regionOrType.split("(")[0].split("/").filter(s => !["white)", "red)"].includes(s));
-
-              for (const typeGrapeOrDistrict of typeGrapeOrDistricts) {
-                for (const cellData of tableRow.querySelectorAll("td.year-rating")) {
-                  let year = cellData.getAttribute("data-year");
-                  let vintageState = mappings.colorcodes[cellData.getAttribute("data-color").toLowerCase()];
-                  if (vintageState == mappings.colorcodes.othergray) continue;
-                  let row = {
-                    year: parseInt(year),
-                    vintageState: vintageState,
-                    region: currentRegion.trim() != "Table Wines" ? currentRegion.trim() : null,
-                    sweet: typeGrapeOrDistrict.toLowerCase().includes("sweet"),
-                    dry: typeGrapeOrDistrict.toLowerCase().includes("dry"),
-                    district: !isGrapeType && !["Whites", "Reds", "Dry Whites", "Sweet Wines", "Sweet Whites", "Dry Reds", "Sweet Reds"].includes(typeGrapeOrDistrict) && typeGrapeOrDistrict.length > 0 ? typeGrapeOrDistrict.trim() : null,
-                    type: ["white", "red"].includes(type) ? type : null,
-                    grape: isGrapeType && !["white", "red"].includes(type) ? typeGrapeOrDistrict.trim() : null,
-                    rating: parseInt(cellData.innerText),
-                    country: country.trim()
-                  };
-                  dataRows.push(row);
-                }
-              }
-            }
-          }
-        }
-      });
-    return dataRows;
-  }
 }
 
 function CreateProduct(productData) {
