@@ -204,10 +204,6 @@ module.exports = class FirebaseClient {
     if (moreIds)
       ids = [...new Set(ids.concat(moreIds))];
 
-    let evenMoreIds = await this.GetConstant("ProductsToBeIgnored");
-    if (evenMoreIds)
-      ids = [... new Set(ids.concat(evenMoreIds))];
-
     console.log("Fetching " + ids.length + " product Ids to be avoided");
     return ids;
   }

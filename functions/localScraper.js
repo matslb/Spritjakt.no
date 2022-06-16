@@ -55,7 +55,7 @@ async function fetchProductsToUpdate() {
         if (!error && (
             totalCount === freshProducts.length
             || products.length === 0
-            || freshProducts.length > 1
+            || freshProducts.length > 35000
         )) {
             moreProductsToFetch = false;
         } else if (error) {
@@ -71,8 +71,8 @@ async function fetchProductsToUpdate() {
 }
 
 async function UpdatePrices() {
-    var ids = await fetchProductsToUpdate();
-    var productsToIgnore = [];
+    let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
+    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0);
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         console.log("PriceFetch: " + i + " of " + ids.length);
@@ -94,6 +94,7 @@ async function UpdatePrices() {
         }
         await new Promise(r => setTimeout(r, Math.random() * 1000));
     }
+    productsToIgnore = [... new Set(productsToIgnore)];
     FirebaseClient.UpdateConstants(productsToIgnore, "ProductsToIgnore");
 }
 
