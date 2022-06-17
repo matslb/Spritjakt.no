@@ -13,6 +13,7 @@ import debounce from "lodash.debounce";
 import emptyGraph from "../assets/emptyGraph.png";
 import { isMobile } from "react-device-detect";
 import TypeSenseClient from "../services/typeSenseClient";
+import sortArray from "sort-array";
 
 const HighlightedProduct = ({
   product,
@@ -43,7 +44,6 @@ const HighlightedProduct = ({
 
   useEffect(() => {
     fetchVintages();
-
     if (product.RatingUrl)
       setRatingUrl(product.RatingUrl);
 
@@ -59,8 +59,10 @@ const HighlightedProduct = ({
   const fetchVintages = async () => {
     const typesenseClient = new TypeSenseClient();
     const productVintages = await typesenseClient.fetchProducts({ stores: [], types: [], countries: [], searchString: product.Id.split("x")[0] }, 10, false)
-    setVintages(productVintages.hits?.filter(p => p.document.Id.split("x")[0] == product.Id.split("x")[0] && p.document.Year != undefined).map(p => {
+    setVintages(sortArray(productVintages.hits?.filter(p => p.document.Id.split("x")[0] == product.Id.split("x")[0] && p.document.Year != undefined).map(p => {
       return { year: p.document.Year, id: p.document.Id }
+    }), {
+      by: "year"
     }));
   }
 
