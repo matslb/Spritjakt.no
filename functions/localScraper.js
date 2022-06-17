@@ -9,6 +9,16 @@ firebaseAdmin.initializeApp({
     credential: firebaseAdmin.credential.cert(serviceAccount),
     databaseURL: "https://spritjakt.firebaseio.com/",
 });
+
+var fs = require('fs');
+var util = require('util');
+var log_file = fs.createWriteStream(__dirname + '/debug.log', { flags: 'w' });
+var log_stdout = process.stdout;
+
+console.log = function (d) { //
+    log_file.write(util.format(d) + '\n');
+    log_stdout.write(util.format(d) + '\n');
+};
 orchistrator();
 
 async function orchistrator() {
@@ -16,7 +26,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 12;
+        var runhour = 2;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {

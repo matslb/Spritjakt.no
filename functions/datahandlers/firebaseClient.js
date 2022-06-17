@@ -35,23 +35,33 @@ module.exports = class FirebaseClient {
 
       if (p.Year != "0000" && !p.VintageComment?.includes("ikke egnet for lagring")) {
         if (sp.Year !== undefined && sp.Year != p.Year) {
+          var oldYear = sp.Year;
+          var newYear = p.Year;
           var expiredProduct = Object.assign({}, sp);
+          expiredProduct.Id += "x" + oldYear;
           expiredProduct.Expired = true;
           expiredProduct.Buyable = false;
           expiredProduct.ProductStatusSaleName = "Utgått";
-          expiredProduct.Id += "x" + expiredProduct.Year;
           expiredProduct.Stores = [];
           expiredProduct.StoreStock = [];
           try {
             console.log("New vintage detected for product " + sp.Id + ". Creating new product " + expiredProduct.Id);
-            await firebase.firestore().collection("Products").doc(expiredProduct.Id).set(expiredProduct);
-            sp = p;
-            sp.RatingFetchDate = 0;
-            sp.PriceHistory = {
-              [today]: sp.LatestPrice,
-            };
-            sp.PriceHistorySorted = [today];
-            sp.LastUpdated = today;
+            firebase.firestore().collection("Products").doc(expiredProduct.Id).set(expiredProduct);
+            // if vintage has already been created prior to this, its fetched and used as a base for pricehistory
+            const existingVintageRef = firebase.firestore().collection("Products").doc(sp.Id += "x" + newYear);
+            if ((await existingVintageRef.get()).exists) {
+              sp = Object.assign({}, (await existingVintageRef.get())?.data());
+              sp.Id = p.Id;
+              existingVintageRef.delete();
+            } else {
+              sp = p;
+              sp.RatingFetchDate = 0;
+              sp.PriceHistory = {
+                [today]: sp.LatestPrice,
+              };
+              sp.PriceHistorySorted = [today];
+              sp.LastUpdated = today;
+            }
           } catch (error) {
             console.log(error);
           }
@@ -84,6 +94,7 @@ module.exports = class FirebaseClient {
       sp.Expired = p.Expired;
       sp.Buyable = p.Buyable;
       sp.RawMaterials = p.RawMaterials;
+      sp.LatestPrice = p.LatestPrice;
       sp.VintageComment = p.VintageComment;
       sp.LastPriceFetchDate = lastPriceFetchDate;
       let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
