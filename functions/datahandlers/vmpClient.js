@@ -4,6 +4,7 @@ const tough = require('tough-cookie');
 const config = require("../configs/vmp.json");
 const cookieJar = new tough.CookieJar();
 var HTMLParser = require('node-html-parser');
+const sortArray = require("sort-array");
 const vintageUrl = "https://www.winemag.com/wine-vintage-chart/";
 
 axiosCookieJarSupport(axios);
@@ -72,7 +73,9 @@ class VmpClient {
     let expectedResults = 1;
     let fail = false;
     let tries = 0;
+
     while (storeStocks.length < expectedResults && stores.length > 0 && tries < 50) {
+      let index = Math.floor(Math.random() * stores.length);
       let options = {
         method: "get",
         url: "https://www.vinmonopolet.no/api/products/" + productId + "/stock",
@@ -80,13 +83,14 @@ class VmpClient {
           pageSize: 1000,
           currentPage: 0,
           fields: "BASIC",
-          latitude: stores[0].address.gpsCoord.split(";")[0],
-          longitude: stores[0].address.gpsCoord.split(";")[1],
+          latitude: stores[index].address.gpsCoord.split(";")[0],
+          longitude: stores[index].address.gpsCoord.split(";")[1],
         },
         jar: cookieJar,
         withCredentials: true
       };
-      stores.shift();
+
+      stores.splice(index, 1);
       tries++;
       await axios(options)
         .then(async function (res) {
@@ -106,7 +110,8 @@ class VmpClient {
           expectedResults = 0;
           fail = true;
         });
-      await new Promise(r => setTimeout(r, Math.random() * 400));
+
+      await new Promise(r => setTimeout(r, Math.random() * 2000));
     }
     console.log("Expected: " + expectedResults);
     console.log("Retrieved: " + storeStocks.length);

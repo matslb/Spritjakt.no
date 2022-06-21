@@ -19,6 +19,7 @@ console.log = function (d) { //
     log_file.write(util.format(d) + '\n');
     log_stdout.write(util.format(d) + '\n');
 };
+
 orchistrator();
 
 async function orchistrator() {
@@ -37,15 +38,19 @@ async function orchistrator() {
 
         if (((msLeft <= 1000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
             lastRunDate = time.getDate();
-            await UpdatePrices();
-            await UpdateStocks();
-            var stoppedTime = new Date();
-            var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
-            console.log("Finished run. It took " + runtime.toFixed(2) + " hours.");
+            try {
+                await UpdatePrices();
+                await UpdateStocks();
+                var stoppedTime = new Date();
+                var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
+                console.log("Finished run. It took " + runtime.toFixed(2) + " hours.");
+            } catch (e) {
+                console.log(e);
+            }
         } else {
             console.log("Not yet.. Sleeping for " + hoursLeft.toFixed(2) + " hours")
+            await new Promise(r => setTimeout(r, msLeft));
         }
-        await new Promise(r => setTimeout(r, msLeft));
     }
 }
 
@@ -54,7 +59,6 @@ async function fetchProductsToUpdate() {
     let moreProductsToFetch = true;
     let freshProducts = [];
     let tries = 0;
-    let date = new Date();
     while (moreProductsToFetch && tries < 20) {
         let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length);
 
@@ -65,7 +69,7 @@ async function fetchProductsToUpdate() {
         if (!error && (
             totalCount === freshProducts.length
             || products.length === 0
-            || freshProducts.length > 35000
+            || freshProducts.length > 40000
         )) {
             moreProductsToFetch = false;
         } else if (error) {
@@ -100,9 +104,10 @@ async function UpdatePrices() {
         }
         if (failcount > 50) {
             await NotificationClient.SendFetchErrorEmail("Henting av nye priser feilet");
-            return;
+            throw 'Pricefetch failed';
         }
-        await new Promise(r => setTimeout(r, Math.random() * 1000));
+        console.log(new Date());
+        await new Promise(r => setTimeout(r, Math.random() * 2000));
     }
     productsToIgnore = [... new Set(productsToIgnore)];
     FirebaseClient.UpdateConstants(productsToIgnore, "ProductsToIgnore");
@@ -113,10 +118,14 @@ async function UpdateStocks() {
     let ids = await FirebaseClient.GetProductIdsForStock();
     console.log("Updating " + ids.length + " stocks");
 
-    var failcount = 0;
+    let failcount = 0;
+    let noStockFoundResponses = 0;
+    let lastSuccessfullFetchId = null;
     let stores = await FirebaseClient.GetConstant("Stores");
     for (let i = 0; i < ids.length; i++) {
+        console.log("---------------------");
         console.log("StockFetch: " + i + " of " + ids.length);
+        console.log(ids[i]);
         if (ids[i] !== undefined) {
             let storeStock = await VmpClient.FetchStoreStock(ids[i], stores);
             if (storeStock !== null) {
@@ -125,14 +134,31 @@ async function UpdateStocks() {
                     Stores: storeStock
                 }
                 await FirebaseClient.UpdateProductStock(p);
+                if (storeStock.length == 0)
+                    noStockFoundResponses++;
+                else {
+                    noStockFoundResponses = 0;
+                    lastSuccessfullFetchId = ids[i];
+                }
             }
             else {
                 failcount++;
             }
+            console.log(new Date());
+            console.log("---------------------");
         }
         if (failcount > 50) {
             await NotificationClient.SendFetchErrorEmail("Henting av lagerstatus feilet");
-            return;
+            throw "Too many fails on stock fetch";
+        }
+        if (noStockFoundResponses >= 100) {
+            console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock...");
+            if (await VmpClient.FetchStoreStock(ids[i], stores) == null) {
+                throw "The stock fetch endpoint does not work, something is fuckey. Aborting...";
+            } else {
+                console.log("Just a coincidence, keeping on truckin'");
+                noStockFoundResponses = 0;
+            }
         }
         await new Promise(r => setTimeout(r, Math.random() * 2000));
     }

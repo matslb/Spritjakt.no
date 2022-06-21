@@ -16,38 +16,6 @@ const runtimeOpts = {
   memory: "512MB",
 };
 
-exports.fetchNewProducts = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 6 * * *").timeZone("Europe/Paris").onRun(async (context) => {
-  let moreProductsToFetch = true;
-  let freshProducts = [];
-  let tries = 0;
-  let date = new Date();
-  let dayofMonth = date.getDate();
-  let offset = dayofMonth % 2 === 0 ? 15000 : 0
-  while (moreProductsToFetch && tries < 20) {
-    let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length + offset);
-
-    freshProducts = freshProducts.concat(products);
-    console.log(totalCount);
-    console.info("freshProducts: " + freshProducts.length);
-
-    if (!error && (
-      totalCount === freshProducts.length
-      || products.length === 0
-      || (dayofMonth !== 1 && freshProducts.length >= 10000)
-    )) {
-      moreProductsToFetch = false;
-    } else if (error) {
-      console.info("Could not fetch Products, waiting 1 second until retry");
-      await new Promise(r => setTimeout(r, 1000));
-    }
-    tries++;
-  }
-
-  if (freshProducts.length > 0) {
-    await FirebaseClient.SetPriceUpdateList(freshProducts);
-  }
-});
-
 exports.updateStores = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 1 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let stores = await VmpClient.FetchStores();
   try {
@@ -56,82 +24,6 @@ exports.updateStores = functions.region("europe-west1").runWith(runtimeOpts).pub
     console.log("Updated stores");
   } catch (e) {
     console.error(e);
-  }
-});
-
-exports.fetchNewStocks = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 11 * * *").timeZone("Europe/Paris").onRun(async (context) => {
-  let ids = await FirebaseClient.GetProductIdsForStock();
-  let d = new Date();
-  d.setDate(d.getDate() - 2);
-  d.setHours(0);
-  let onSaleIds = await FirebaseClient.GetProductsOnSale(d.getTime());
-  if (onSaleIds && onSaleIds.length > 0)
-    ids = [...new Set(onSaleIds.concat(ids))];
-  console.log("Updating " + ids.length + " stocks");
-  await FirebaseClient.SetStockUpdateList(ids);
-});
-
-exports.priceUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/PricesToBeFetched/").onWrite(async (change, context) => {
-
-  if (!change.after.exists()) {
-    return null;
-  }
-  const newValue = change.after.val();
-  var failcount = 0;
-  const count = newValue.length > 50 ? 50 : newValue.length;
-  console.log("Total count: " + newValue.length);
-  console.log("Updating in this batch: " + count);
-  for (let i = 0; i < count; i++) {
-    if (newValue[i] !== undefined) {
-      let product = await VmpClient.FetchProductPrice(newValue[i]);
-      if (product !== null && product != false) {
-        await FirebaseClient.UpdateProductPrice(product);
-      }
-      else {
-        failcount++;
-      }
-    }
-    newValue.splice(i, 1);
-  }
-
-  if (failcount >= 50) {
-    await NotificationClient.SendFetchErrorEmail("Henting av nye priser feilet");
-  } else {
-    return await FirebaseClient.SetPriceUpdateList(newValue);
-  }
-
-});
-
-exports.stockUpdater = functions.region("europe-west1").runWith(runtimeOpts).database.ref("/StocksToBeFetched/").onWrite(async (change, context) => {
-
-  if (!change.after.exists()) {
-    return null;
-  }
-  let stores = await FirebaseClient.GetConstant("Stores");
-  const newValue = change.after.val();
-  var failcount = 0;
-  const count = newValue.length > 50 ? 50 : newValue.length;
-  for (let i = 0; i < count; i++) {
-    if (newValue[i] !== undefined) {
-      let storeStock = await VmpClient.FetchStoreStock(newValue[i], stores);
-      if (storeStock !== null) {
-        let p = {
-          productId: newValue[i],
-          Stores: storeStock
-        }
-        await FirebaseClient.UpdateProductStock(p);
-      }
-      else {
-        failcount++;
-      }
-    }
-    newValue.splice(i, 1);
-  }
-
-  if (failcount >= 50) {
-    await NotificationClient.SendFetchErrorEmail("Henting av lagerstatus feilet");
-  } else {
-    return await FirebaseClient.SetStockUpdateList(newValue);
   }
 });
 
