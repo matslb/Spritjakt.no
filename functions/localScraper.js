@@ -152,8 +152,8 @@ async function UpdateStocks() {
             throw "Too many fails on stock fetch";
         }
         if (noStockFoundResponses >= 100) {
-            console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock...");
-            if (await VmpClient.FetchStoreStock(ids[i], stores) == null) {
+            console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock (" + lastSuccessfullFetchId + ")...");
+            if (await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores) == null) {
                 throw "The stock fetch endpoint does not work, something is fuckey. Aborting...";
             } else {
                 console.log("Just a coincidence, keeping on truckin'");
