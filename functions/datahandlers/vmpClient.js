@@ -74,7 +74,7 @@ class VmpClient {
     let fail = false;
     let tries = 0;
 
-    while (storeStocks.length < expectedResults && stores.length > 0 && tries < 50) {
+    while (fail == false && storeStocks.length < expectedResults && stores.length > 0 && tries < 50) {
       let index = Math.floor(Math.random() * stores.length);
       let options = {
         method: "get",
@@ -106,19 +106,22 @@ class VmpClient {
           expectedResults = res.data.pagination.totalResults;
         })
         .catch(function (err) {
-          console.error("Store stock fetch failed: " + err);
-          expectedResults = 0;
+          console.log("Store stock fetch failed: " + err);
           fail = true;
         });
-
-      await new Promise(r => setTimeout(r, Math.random() * 2000));
+      if (expectedResults == 1 && storeStocks.length == 0) {
+        fail = true;
+      }
+      await new Promise(r => setTimeout(r, Math.random() * 1000));
     }
-    console.log("Expected: " + expectedResults);
-    console.log("Retrieved: " + storeStocks.length);
-    console.log("tries: " + tries);
     if (fail) {
       return null;
     }
+
+    console.log("Expected: " + expectedResults);
+    console.log("Retrieved: " + storeStocks.length);
+    console.log("tries: " + tries);
+
     return storeStocks;
   }
 

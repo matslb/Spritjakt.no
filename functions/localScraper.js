@@ -119,27 +119,22 @@ async function UpdateStocks() {
     console.log("Updating " + ids.length + " stocks");
 
     let failcount = 0;
-    let noStockFoundResponses = 0;
     let lastSuccessfullFetchId = null;
-    let stores = await FirebaseClient.GetConstant("Stores");
+    const stores = await FirebaseClient.GetConstant("Stores");
     for (let i = 0; i < ids.length; i++) {
         console.log("---------------------");
         console.log("StockFetch: " + i + " of " + ids.length);
         console.log(ids[i]);
         if (ids[i] !== undefined) {
-            let storeStock = await VmpClient.FetchStoreStock(ids[i], stores);
+            let storeStock = await VmpClient.FetchStoreStock(ids[i], Object.assign([], stores));
             if (storeStock !== null) {
                 let p = {
                     productId: ids[i],
                     Stores: storeStock
                 }
                 await FirebaseClient.UpdateProductStock(p);
-                if (storeStock.length == 0)
-                    noStockFoundResponses++;
-                else {
-                    noStockFoundResponses = 0;
-                    lastSuccessfullFetchId = ids[i];
-                }
+                failcount = 0;
+                lastSuccessfullFetchId = ids[i];
             }
             else {
                 failcount++;
@@ -147,19 +142,16 @@ async function UpdateStocks() {
             console.log(new Date());
             console.log("---------------------");
         }
-        if (failcount > 50) {
-            await NotificationClient.SendFetchErrorEmail("Henting av lagerstatus feilet");
-            throw "Too many fails on stock fetch";
-        }
-        if (noStockFoundResponses >= 100) {
+        if (failcount >= 10) {
             console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock (" + lastSuccessfullFetchId + ")...");
-            if (await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores) == null) {
-                throw "The stock fetch endpoint does not work, something is fuckey. Aborting...";
+            let testStock = await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores);
+            if (testStock == null) {
+                console.log("The stock fetch endpoint does not work, something is fuckey. Sleeping for 5 minutes...");
+                await new Promise(r => setTimeout(r, 1000 * 60 * 5));
             } else {
                 console.log("Just a coincidence, keeping on truckin'");
-                noStockFoundResponses = 0;
+                failcount = 0;
             }
         }
-        await new Promise(r => setTimeout(r, Math.random() * 2000));
     }
 }

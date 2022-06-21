@@ -24,6 +24,7 @@ const HighlightedProduct = ({
   const [user, setUser] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showGraph, setShowGraph] = useState(!isMobile);
+  const [stockFetchDate, setStockFetchDate] = useState(false);
   const background = { backgroundImage: "url(" + getImageUrl(product.Id, 300) + ")" };
   const showDiff = product.PriceChange > 100.1 || product.PriceChange < 99.9;
   const priceIsLower = product.LatestPrice < product.PriceHistory[product.PriceHistorySorted[1]];
@@ -44,6 +45,9 @@ const HighlightedProduct = ({
 
   useEffect(() => {
     fetchVintages();
+    var diff = Math.floor((new Date().getTime() - new Date((product.StockFetchDate._seconds ?? product.StockFetchDate.seconds) * 1000).getTime()) / 1000 / 60 / 60 / 24);
+    var fetchDateString = diff == 0 ? "mindre enn et døgn siden" : diff + " dager siden.";
+    setStockFetchDate(fetchDateString);
     if (product.RatingUrl)
       setRatingUrl(product.RatingUrl);
 
@@ -311,6 +315,10 @@ const HighlightedProduct = ({
         <div className="product_stock descriptionText">
           <h3 className="title" >På lager i følgende butikker: </h3>
           <ul>{renderStoreStock()}</ul>
+          <br />
+          {stockFetchDate &&
+            <i>Lagerstatus oppdatert for {stockFetchDate}</i>
+          }
         </div>
       }
     </article >
