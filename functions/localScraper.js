@@ -27,7 +27,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 2;
+        var runhour = 23;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -39,7 +39,7 @@ async function orchistrator() {
         if (((msLeft <= 1000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
             lastRunDate = time.getDate();
             try {
-                await UpdatePrices();
+                //  await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;

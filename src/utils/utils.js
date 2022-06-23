@@ -117,7 +117,7 @@ export const sortOptions = [
     { label: "Beste tilbud", value: "discounted", typeSenseValue: "_text_match:desc, PriceChange:asc" },
     { label: "Største prisøkning", value: "raised", typeSenseValue: "_text_match:desc, PriceChange:desc" },
     { label: "Vurdering (aperitif.no)", value: "rating", typeSenseValue: "_text_match:desc, Rating:desc" },
-    { label: "Gjerrigknark - Literpris ", value: "literprice", typeSenseValue: "LiterPrice:asc" },
+    { label: "Gjerrigknark - Literpris ", value: "cheapskate", typeSenseValue: "_text_match:desc, Literprice:asc" },
     { label: "Student - Mest alkohol for penga", value: "student", typeSenseValue: "_text_match:desc, LiterPriceAlcohol:asc" },
     { label: "Laveste pris", value: "price_low", typeSenseValue: "_text_match:desc, LatestPrice:asc" },
     { label: "Høyeste pris", value: "price_high", typeSenseValue: "_text_match:desc, LatestPrice:desc" },

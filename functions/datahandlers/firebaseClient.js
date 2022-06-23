@@ -248,7 +248,7 @@ module.exports = class FirebaseClient {
       .get().then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
-            ids.push(p.id);
+            moreIds.push(p.id);
           });
         }
       });

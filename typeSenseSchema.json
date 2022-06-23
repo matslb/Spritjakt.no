@@ -61,7 +61,7 @@
         {
           "facet": false,
           "index": true,
-          "name": "LiterPrice",
+          "name": "Literprice",
           "optional": true,
           "type": "float"
         },
