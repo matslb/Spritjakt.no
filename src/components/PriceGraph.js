@@ -2,34 +2,30 @@ import React, { useEffect, useState } from "react";
 import { ResponsiveLine } from "@nivo/line";
 import "./css/priceGraph.css";
 import dateFormater from "../dateFormater";
-import sortArray from "sort-array";
 
 const PriceGraph = ({
-  id, priceHistory,
-  product,
-  notification
+  product
 }) => {
 
   const [graphOptions, setGraphOptions] = useState();
 
   useEffect(() => {
     let config = {
-      id: id,
+      id: product.Id,
       color: "#1c323a",
       data: [],
       minPrice: 99999,
       maxPrice: 0
     };
 
-    let sortedDates = sortArray(Object.keys(priceHistory), "asc");
-    for (const date of sortedDates) {
-      let price = priceHistory[date];
+    for (const date of product.PriceHistorySorted) {
+      let price = product["PriceHistory." + date];
       config.minPrice = price < config.minPrice ? price : config.minPrice;
       config.maxPrice = price > config.maxPrice ? price : config.maxPrice;
       config.data.push({ x: dateFormater.format(date), y: price });
     }
     setGraphOptions(config);
-  }, [id]);
+  }, [product]);
 
 
   return (

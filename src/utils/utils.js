@@ -133,3 +133,11 @@ export const isInViewport = (element) => {
         rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
 }
+export const formatPriceHistory = (p) => {
+    if (p["PriceHistory." + [p.PriceHistorySorted[0]]] != undefined) return p;
+
+    for (const date of p.PriceHistorySorted) {
+        p["PriceHistory." + date] = p.PriceHistory[date];
+    }
+    return p;
+}

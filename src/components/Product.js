@@ -46,7 +46,7 @@ const Product = ({
   };
 
   let showDiff = product.PriceChange && product.PriceChange > 100.1 || product.PriceChange < 99.9;
-  let priceIsLower = product.LatestPrice < product.PriceHistory[product.PriceHistorySorted[1]];
+  let priceIsLower = product.LatestPrice < product["PriceHistory." + [product.PriceHistorySorted[1]]];
   let lastChangedDate = dateFormater.format(product.LastUpdated);
   let isSoldOut = product.Stores.length == 0;
 
@@ -112,8 +112,8 @@ const Product = ({
         </div>
         <h2 className="name">{product.Name}</h2>
         <span className="price">Kr {product.LatestPrice}</span>
-        {product.PriceHistory[product.PriceHistorySorted[1]] && (
-          <span className="old_price secondary">Kr {product.PriceHistory[product.PriceHistorySorted[1]]}</span>
+        {product["PriceHistory." + [product.PriceHistorySorted[1]]] && (
+          <span className="old_price secondary">Kr {product["PriceHistory." + [product.PriceHistorySorted[1]]]}</span>
         )}
         <span className="volume secondary">
           {(product.Volume * 100).toFixed(1)} cl

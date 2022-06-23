@@ -2,6 +2,7 @@ import { faArrowCircleLeft, faArrowCircleRight, faTimesCircle } from "@fortaweso
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
 import HighlightedProduct from "./HighlightedProduct";
+import { formatPriceHistory } from "../utils/utils.js";
 import "./css/popupProduct.css";
 
 const ProductPopUp = ({
@@ -46,7 +47,7 @@ const ProductPopUp = ({
                     <div className="backdrop" onClick={() => highlightProduct(null)} >
                     </div>
                     <div className="PopupProductWrapper">
-                        <HighlightedProduct highlightProduct={highlightProduct} product={product} notification={notification} />
+                        <HighlightedProduct highlightProduct={highlightProduct} product={formatPriceHistory(product)} notification={notification} />
                         <nav aria-label="Naviger fremhevet produkt" className="productNavigation">
                             {nextProduct &&
                                 <button aria-label="Forrige produkt" onClick={() => nextProduct(-1)} className="iconBtn productNav prev">

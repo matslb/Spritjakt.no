@@ -27,7 +27,6 @@ const HighlightedProduct = ({
   const [stockFetchDate, setStockFetchDate] = useState(false);
   const background = { backgroundImage: "url(" + getImageUrl(product.Id, 300) + ")" };
   const showDiff = product.PriceChange > 100.1 || product.PriceChange < 99.9;
-  const priceIsLower = product.LatestPrice < product.PriceHistory[product.PriceHistorySorted[1]];
   const stores = StoreCacher.get();
   const [vintages, setVintages] = useState([]);
   const rootRef = useRef(null);
@@ -187,7 +186,7 @@ const HighlightedProduct = ({
       id={product.Id}
       className={
         "HighlightedProduct " +
-        (priceIsLower ? "price_lowered" : "price_raised")
+        (product.PriceIsLowered ? "price_lowered" : "price_raised")
       }
     >
       <span className="productWatchBtns">
@@ -201,13 +200,13 @@ const HighlightedProduct = ({
       <div className="product_img" style={background}></div>
       {showDiff &&
         <span className="percentage_change">
-          {(priceIsLower ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
+          {(product.PriceIsLowered ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
         </span>
       }
       <section className="product_details">
         <h2 className="name">{product.Name}</h2>
         <span className="price">Kr {product.LatestPrice}</span>
-        <span className="old_price">{product.PriceHistorySorted?.length > 1 && "Kr " + product.PriceHistory[product.PriceHistorySorted[1]]}</span>
+        <span className="old_price">{product.PriceHistorySorted?.length > 1 && "Kr " + product["PriceHistory." + [product.PriceHistorySorted[1]]]}</span>
         <span className="details">
           {product.Types[product.Types.length - 1]}, {product.Country}
           <br />
@@ -304,7 +303,7 @@ const HighlightedProduct = ({
       <div className="priceHistoryWrapper">
 
         {showGraph ?
-          <PriceGraph id={product.Id} priceHistory={product.PriceHistory} />
+          <PriceGraph product={product} />
           :
           <div className="priceGraph fake descriptionText">
             <h3 className="title">Prishistorikk</h3>
