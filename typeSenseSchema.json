@@ -1,5 +1,5 @@
 {
-    "name": "Products_v1.2",
+    "name": "Products_v1.3",
     "fields": 
       [
         {
@@ -55,6 +55,13 @@
           "facet": false,
           "index": true,
           "name": "LiterPriceAlcohol",
+          "optional": true,
+          "type": "float"
+        },
+        {
+          "facet": false,
+          "index": true,
+          "name": "LiterPrice",
           "optional": true,
           "type": "float"
         },

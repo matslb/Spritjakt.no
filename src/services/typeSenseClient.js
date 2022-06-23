@@ -62,7 +62,7 @@ class TypeSenseClient {
                 }
             ]
         }, {
-            collection: "Products_v1.2",
+            collection: "Products_v1.3",
             query_by: 'Id',
             q: "*",
             pageSize: 1,
@@ -104,12 +104,12 @@ class TypeSenseClient {
 
         let isIdSearch = filter.searchString?.trim().match(/^(\d{4,})$/);
         let request = await this.client.multiSearch.perform(multiSearchRequest, {
-            collection: "Products_v1.2",
+            collection: "Products_v1.3",
             query_by: isIdSearch ? 'Id' : 'Name',
             q: filter.searchString || "*",
             sort_by: sortOptions.find(s => s.value === filter.sort)?.typeSenseValue || sortOptions[0].typeSenseValue,
             max_facet_values: 1000,
-            //use_cache: true,
+            //  use_cache: true,
             cache_ttl: 300,
             num_typos: isIdSearch ? 0 : 1,
             min_len_1typo: 5,

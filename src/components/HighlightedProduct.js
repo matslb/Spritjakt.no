@@ -45,9 +45,11 @@ const HighlightedProduct = ({
 
   useEffect(() => {
     fetchVintages();
-    var diff = Math.floor((new Date().getTime() - new Date((product.StockFetchDate._seconds ?? product.StockFetchDate.seconds) * 1000).getTime()) / 1000 / 60 / 60 / 24);
-    var fetchDateString = diff == 0 ? "mindre enn et døgn siden" : diff + " dager siden.";
-    setStockFetchDate(fetchDateString);
+    if (product.StockFetchDate) {
+      var diff = Math.floor((new Date().getTime() - new Date((product.StockFetchDate._seconds ?? product.StockFetchDate.seconds) * 1000).getTime()) / 1000 / 60 / 60 / 24);
+      var fetchDateString = diff == 0 ? "mindre enn et døgn siden" : diff + " dag" + (diff > 1 ? "er" : "") + " siden.";
+      setStockFetchDate(fetchDateString);
+    }
     if (product.RatingUrl)
       setRatingUrl(product.RatingUrl);
 
