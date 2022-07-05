@@ -1,8 +1,12 @@
 .loginForm {
     max-width: 25rem;
     margin: 1rem auto auto;
+    overflow-x: scroll;
+    max-height: 95vh;
 }
-
+.loginForm::-webkit-scrollbar {
+    display: none;
+  }
 .loginForm input {
     margin: 0.5rem 0;
 }

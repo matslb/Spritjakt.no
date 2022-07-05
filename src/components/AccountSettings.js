@@ -120,7 +120,7 @@ const AccountSettings = ({
             setShowContent(true);
         } else {
             window.history.replaceState('', '', '?' + query);
-            setTimeout(() => setShowContent(false), 1000);
+            setTimeout(() => setShowContent(false), 300);
         }
         setIsActive(isActive);
     }

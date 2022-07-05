@@ -79,14 +79,16 @@ async function fetchProductsToUpdate() {
         tries++;
     }
     var idsToFilterOut = await FirebaseClient.GetProductIdsNotToBeUpdated();
-    freshProducts = freshProducts.filter((id) => idsToFilterOut.indexOf(id) < 0).slice(0, 7500);
+    freshProducts = freshProducts.filter((id) => idsToFilterOut.indexOf(id) < 0);
 
     return freshProducts;
 }
 
 async function UpdatePrices() {
+
+    var time = new Date();
     let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0);
+    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() == 1 ? 20000 : 7500);
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         console.log("PriceFetch: " + i + " of " + ids.length);
@@ -125,7 +127,7 @@ async function UpdateStocks() {
         console.log("---------------------");
         console.log("StockFetch: " + i + " of " + ids.length);
         console.log(ids[i]);
-        if (ids[i] !== undefined) {
+        if (ids[i] !== undefined && !ids[i].includes("x")) {
             let storeStock = await VmpClient.FetchStoreStock(ids[i], Object.assign([], stores));
             if (storeStock !== null) {
                 let p = {
