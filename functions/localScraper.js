@@ -12,6 +12,7 @@ firebaseAdmin.initializeApp({
 
 var fs = require('fs');
 var util = require('util');
+const { exec } = require("child_process");
 var log_file = fs.createWriteStream(__dirname + '/debug.log', { flags: 'w' });
 var log_stdout = process.stdout;
 
@@ -27,7 +28,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 2;
+        var runhour = 15;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -39,6 +40,7 @@ async function orchistrator() {
         if (((msLeft <= 1000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
             lastRunDate = time.getDate();
             try {
+                await reConnectToVpn();
                 await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
@@ -69,12 +71,12 @@ async function fetchProductsToUpdate() {
         if (!error && (
             totalCount === freshProducts.length
             || products.length === 0
-            || freshProducts.length > 40000
+            || freshProducts.length > 100
         )) {
             moreProductsToFetch = false;
         } else if (error) {
             console.info("Could not fetch Products, waiting 1 second until retry");
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, 35000));
         }
         tries++;
     }
@@ -85,31 +87,45 @@ async function fetchProductsToUpdate() {
 }
 
 async function UpdatePrices() {
-
+    var reconnectAttempted = false;
     var time = new Date();
     let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() == 1 ? 20000 : 7500);
+    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 7500 : 4000);
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
+        console.log("____________________");
         console.log("PriceFetch: " + i + " of " + ids.length);
         if (ids[i] !== undefined) {
-            let product = await VmpClient.FetchProductPrice(ids[i]);
-            if (product !== null && product != false) {
-                await FirebaseClient.UpdateProductPrice(product);
+            let response = await VmpClient.FetchProductPrice(ids[i]);
+            if (response.product !== null && response.product != false) {
+                await FirebaseClient.UpdateProductPrice(response.product);
+                failcount = 0;
+                reconnectAttempted = false;
             }
-            else if (product != false) {
+            else if (response.error) {
                 failcount++;
             } else {
                 productsToIgnore.push(ids[i]);
                 console.log("Ignoring " + ids[i] + " in future scrapes");
             }
         }
+
         if (failcount > 50) {
-            await NotificationClient.SendFetchErrorEmail("Henting av nye priser feilet");
-            throw 'Pricefetch failed';
+            if (reconnectAttempted != false) {
+                reconnectAttempted = true;
+                await reConnectToVpn();
+            } else {
+                await NotificationClient.SendFetchErrorEmail("Henting av nye priser feilet");
+                throw 'Pricefetch failed';
+            }
         }
         console.log(new Date());
-        await new Promise(r => setTimeout(r, Math.random() * 2000));
+        if (i % 100 === 0) {
+            console.log("Waiting 25 seconds");
+            await new Promise(r => setTimeout(r, 25000));
+        }
+        else
+            await new Promise(r => setTimeout(r, (Math.random() * 2500) + 500));
     }
     productsToIgnore = [... new Set(productsToIgnore)];
     FirebaseClient.UpdateConstants(productsToIgnore, "ProductsToIgnore");
@@ -119,7 +135,7 @@ async function UpdatePrices() {
 async function UpdateStocks() {
     let ids = await FirebaseClient.GetProductIdsForStock();
     console.log("Updating " + ids.length + " stocks");
-
+    var reconnectAttempted = false;
     let failcount = 0;
     let lastSuccessfullFetchId = null;
     const stores = await FirebaseClient.GetConstant("Stores");
@@ -137,6 +153,7 @@ async function UpdateStocks() {
                 await FirebaseClient.UpdateProductStock(p);
                 failcount = 0;
                 lastSuccessfullFetchId = ids[i];
+                reconnectAttempted = false;
             }
             else {
                 failcount++;
@@ -148,12 +165,25 @@ async function UpdateStocks() {
             console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock (" + lastSuccessfullFetchId + ")...");
             let testStock = await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores);
             if (testStock == null) {
-                console.log("The stock fetch endpoint does not work, something is fuckey. Sleeping for 5 minutes...");
-                await new Promise(r => setTimeout(r, 1000 * 60 * 5));
+                console.log("The stock fetch endpoint does not work, something is fucky...");
+                if (reconnectAttempted != false) {
+                    reconnectAttempted = true;
+                    await reConnectToVpn();
+                } else {
+                    await NotificationClient.SendFetchErrorEmail("Henting av lagerstatus feilet");
+                    throw 'StockFetch failed';
+                }
             } else {
                 console.log("Just a coincidence, keeping on truckin'");
                 failcount = 0;
             }
         }
+        await new Promise(r => setTimeout(r, (Math.random() * 10000) + 500));
     }
+}
+
+async function reConnectToVpn() {
+    console.log("Attempting to re-connect to VPN...")
+    exec('vpnConnector.cmd', { encoding: 'utf-8' });
+    await new Promise(r => setTimeout(r, 5000));
 }

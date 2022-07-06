@@ -40,7 +40,7 @@ class VmpClient {
     options.params = {
       changedSince: "2000-01-01",
       start: start,
-      maxResults: 5000,
+      maxResults: 10000,
     };
     return await axios(options)
       .then(function (res) {
@@ -112,7 +112,7 @@ class VmpClient {
       if (expectedResults == 1 && storeStocks.length == 0) {
         fail = true;
       }
-      await new Promise(r => setTimeout(r, Math.random() * 500));
+      await new Promise(r => setTimeout(r, Math.random() * 2000));
     }
     if (fail) {
       return null;
@@ -156,14 +156,14 @@ class VmpClient {
     return await axios(options).then(async function (res) {
 
       if (res.data.main_category.code === "gaveartikler_og_tilbehør") {
-        return false;
+        return { product: false };
       }
       let p = CreateProduct(res.data);
-      return p;
+      return { product: p };
     })
       .catch(function (err) {
         console.error("Could not fetch price of product " + productId + ": " + err);
-        return null;
+        return { error: true, status: error.response.status };
       });
   }
 

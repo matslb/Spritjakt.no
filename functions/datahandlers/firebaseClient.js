@@ -229,7 +229,7 @@ module.exports = class FirebaseClient {
       .where("StockFetchDate", "<", d)
       .where("Expired", "==", null)
       .orderBy("StockFetchDate", "asc")
-      .limit(5000)
+      .limit(4000)
       .get().then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
