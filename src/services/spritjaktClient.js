@@ -49,12 +49,13 @@ class SpritjaktClient {
     await firebase.firestore()
       .collection("Products")
       .orderBy("PriceChanges", "desc")
-      .limit(1)
+      .limit(10)
       .get()
       .then((qs) => {
         if (!qs.empty) {
           qs.forEach((p) => {
-            product = p.data();
+            if (p.ProductStatusSaleName != "Utgått")
+              product = p.data();
           });
         }
       });

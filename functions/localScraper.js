@@ -27,8 +27,9 @@ async function orchistrator() {
     var lastRunDate = 0;
     while (true) {
         var time = new Date();
+        await reConnectToVpn();
         console.log("The time is " + time.getHours());
-        var runhour = 15;
+        var runhour = 1;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -40,7 +41,6 @@ async function orchistrator() {
         if (((msLeft <= 1000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
             lastRunDate = time.getDate();
             try {
-                await reConnectToVpn();
                 await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
@@ -97,7 +97,7 @@ async function UpdatePrices() {
         console.log("PriceFetch: " + i + " of " + ids.length);
         if (ids[i] !== undefined) {
             let response = await VmpClient.FetchProductPrice(ids[i]);
-            if (response.product !== null && response.product != false) {
+            if (response.product) {
                 await FirebaseClient.UpdateProductPrice(response.product);
                 failcount = 0;
                 reconnectAttempted = false;
@@ -113,6 +113,7 @@ async function UpdatePrices() {
         if (failcount > 50) {
             if (reconnectAttempted != false) {
                 reconnectAttempted = true;
+                failcount = 0;
                 await reConnectToVpn();
             } else {
                 await NotificationClient.SendFetchErrorEmail("Henting av nye priser feilet");
@@ -120,12 +121,8 @@ async function UpdatePrices() {
             }
         }
         console.log(new Date());
-        if (i % 100 === 0) {
-            console.log("Waiting 25 seconds");
-            await new Promise(r => setTimeout(r, 25000));
-        }
-        else
-            await new Promise(r => setTimeout(r, (Math.random() * 2500) + 500));
+
+        await new Promise(r => setTimeout(r, (Math.random() * 1500) + 200));
     }
     productsToIgnore = [... new Set(productsToIgnore)];
     FirebaseClient.UpdateConstants(productsToIgnore, "ProductsToIgnore");
@@ -166,7 +163,7 @@ async function UpdateStocks() {
             let testStock = await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores);
             if (testStock == null) {
                 console.log("The stock fetch endpoint does not work, something is fucky...");
-                if (reconnectAttempted != false) {
+                if (reconnectAttempted == false) {
                     reconnectAttempted = true;
                     await reConnectToVpn();
                 } else {
@@ -178,7 +175,7 @@ async function UpdateStocks() {
                 failcount = 0;
             }
         }
-        await new Promise(r => setTimeout(r, (Math.random() * 10000) + 500));
+        await new Promise(r => setTimeout(r, (Math.random() * 1000) + 500));
     }
 }
 

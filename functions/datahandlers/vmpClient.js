@@ -5,20 +5,10 @@ const config = require("../configs/vmp.json");
 const cookieJar = new tough.CookieJar();
 var HTMLParser = require('node-html-parser');
 const sortArray = require("sort-array");
-const vintageUrl = "https://www.winemag.com/wine-vintage-chart/";
-
+const randomUseragent = require('random-useragent');
+var useragent = "Mozilla/5.0 (compatible; Konqueror/3.5; Linux 2.6.30-7.dmz.1-liquorix-686; X11) KHTML/3.5.10 (like Gecko) (Debian package 4:3.5.10.dfsg.1-1 b1)";
 axiosCookieJarSupport(axios);
 
-const mappings = {
-  colorcodes: {
-    red: "hold",
-    teal: "pre-peak",
-    green: "ready",
-    blue: "past-peak",
-    gray: "decline",
-    othergray: "no-data"
-  }
-}
 
 const vmpOptions = () => {
   return {
@@ -86,6 +76,7 @@ class VmpClient {
           latitude: stores[index].address.gpsCoord.split(";")[0],
           longitude: stores[index].address.gpsCoord.split(";")[1],
         },
+        headers: { 'User-Agent': useragent },
         jar: cookieJar,
         withCredentials: true
       };
@@ -112,7 +103,7 @@ class VmpClient {
       if (expectedResults == 1 && storeStocks.length == 0) {
         fail = true;
       }
-      await new Promise(r => setTimeout(r, Math.random() * 2000));
+      await new Promise(r => setTimeout(r, Math.random() * 1000));
     }
     if (fail) {
       return null;
@@ -146,16 +137,16 @@ class VmpClient {
   }
 
   static async FetchProductPrice(productId) {
-
     var options = {
       method: "get",
       url: "https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL",
       jar: cookieJar,
+      headers: { 'User-Agent': useragent },
       withCredentials: true,
     };
     return await axios(options).then(async function (res) {
 
-      if (res.data.main_category.code === "gaveartikler_og_tilbehør") {
+      if (res?.data?.main_category?.code === "gaveartikler_og_tilbehør") {
         return { product: false };
       }
       let p = CreateProduct(res.data);
@@ -163,7 +154,8 @@ class VmpClient {
     })
       .catch(function (err) {
         console.error("Could not fetch price of product " + productId + ": " + err);
-        return { error: true, status: error.response.status };
+        useragent = randomUseragent.getRandom();
+        return { error: true };
       });
   }
 
