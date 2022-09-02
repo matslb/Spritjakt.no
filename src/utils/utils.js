@@ -134,6 +134,9 @@ export const isInViewport = (element) => {
     );
 }
 export const formatPriceHistory = (p) => {
+    if (p.PriceHistorySorted == undefined)
+        return p;
+
     if (p["PriceHistory." + [p.PriceHistorySorted[0]]] != undefined) return p;
 
     for (const date of p.PriceHistorySorted) {

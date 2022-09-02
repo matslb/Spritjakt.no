@@ -26,7 +26,7 @@ const HighlightedProduct = ({
   const [showGraph, setShowGraph] = useState(!isMobile);
   const [stockFetchDate, setStockFetchDate] = useState(false);
   const background = { backgroundImage: "url(" + getImageUrl(product.Id, 300) + ")" };
-  const showDiff = product.PriceChange > 100.1 || product.PriceChange < 99.9;
+  const showDiff = (product.PriceChange > 100.1 || product.PriceChange < 99.9);
   const stores = StoreCacher.get();
   const [vintages, setVintages] = useState([]);
   const rootRef = useRef(null);
@@ -206,8 +206,14 @@ const HighlightedProduct = ({
       }
       <section className="product_details">
         <h2 className="name">{product.Name}</h2>
-        <span className="price">Kr {product.LatestPrice}</span>
-        <span className="old_price">{product.PriceHistorySorted?.length > 1 && "Kr " + product["PriceHistory." + [product.PriceHistorySorted[1]]]}</span>
+        {product.LatestPrice ?
+          <span className="price">Kr {product.LatestPrice}</span>
+          :
+          <span className="price">Utgått</span>
+        }
+        {product.PriceHistorySorted &&
+          <span className="old_price">{product.PriceHistorySorted?.length > 1 && "Kr " + product["PriceHistory." + [product.PriceHistorySorted[1]]]}</span>
+        }
         <span className="details">
           {product.Types[product.Types.length - 1]}, {product.Country}
           <br />
@@ -303,7 +309,7 @@ const HighlightedProduct = ({
       {renderTextSection(product.Color, "Farge")}
       <div className="priceHistoryWrapper">
 
-        {showGraph ?
+        {showGraph && product.PriceHistorySorted ?
           <PriceGraph product={product} />
           :
           <div className="priceGraph fake descriptionText">
