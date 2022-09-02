@@ -13,8 +13,9 @@ firebaseAdmin.initializeApp({
 var fs = require('fs');
 var util = require('util');
 const { exec } = require("child_process");
-var log_file = fs.createWriteStream(__dirname + '/debug.log', { flags: 'w' });
 var log_stdout = process.stdout;
+let date = new Date();
+var log_file = fs.createWriteStream(__dirname + '/logs/' + date.toDateString() + '.log', { flags: 'w' });
 
 console.log = function (d) { //
     log_file.write(util.format(d) + '\n');
@@ -41,6 +42,8 @@ async function orchistrator() {
         if (((msLeft <= 1000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
             lastRunDate = time.getDate();
             try {
+                console.clear();
+                log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
                 await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
@@ -71,7 +74,7 @@ async function fetchProductsToUpdate() {
         if (!error && (
             totalCount === freshProducts.length
             || products.length === 0
-            || freshProducts.length > 100
+            || freshProducts.length > 30000
         )) {
             moreProductsToFetch = false;
         } else if (error) {
@@ -90,7 +93,7 @@ async function UpdatePrices() {
     var reconnectAttempted = false;
     var time = new Date();
     let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 7500 : 4000);
+    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() == 1 ? 20000 : 2000);
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         console.log("____________________");

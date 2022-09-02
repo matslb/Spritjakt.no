@@ -19,11 +19,14 @@ module.exports = class FirebaseClient {
     let sp = productDoc.data();
 
     if (sp === undefined) {
+
       sp = p;
-      sp.PriceHistory = {
-        [today]: sp.LatestPrice,
-      };
-      sp.PriceHistorySorted = [today];
+      if (p.Buyable == false) {
+        sp.PriceHistory = {
+          [today]: sp.LatestPrice,
+        };
+        sp.PriceHistorySorted = [today];
+      }
       sp.LastUpdated = today;
       sp.LastPriceFetchDate = lastPriceFetchDate;
       try {
@@ -229,7 +232,7 @@ module.exports = class FirebaseClient {
       .where("StockFetchDate", "<", d)
       .where("Expired", "==", null)
       .orderBy("StockFetchDate", "asc")
-      .limit(4000)
+      .limit(5000)
       .get().then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
