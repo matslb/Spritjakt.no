@@ -93,7 +93,7 @@ async function UpdatePrices() {
     var reconnectAttempted = false;
     var time = new Date();
     let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() == 1 ? 20000 : 2000);
+    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 25000 : 1000);
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         console.log("____________________");

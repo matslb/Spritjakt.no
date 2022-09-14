@@ -157,7 +157,7 @@ module.exports = class FirebaseClient {
       sp.Stores = sp.Stores.filter(s => s !== "online");
     }
     if (sp.Stores?.length > 0 && sp.Alcohol > 0.7) {
-      if (sp.PriceHistory[sp.PriceHistorySorted[1]]) {
+      if (sp.PriceHistorySorted.length >= 1 && sp.PriceHistory[sp.PriceHistorySorted[1]]) {
         sp.PriceChange = Math.round((sp.LatestPrice / sp.PriceHistory[sp.PriceHistorySorted[1]] * 100) * 100) / 100;
       }
       sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;
