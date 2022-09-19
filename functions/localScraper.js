@@ -39,7 +39,7 @@ async function orchistrator() {
         var msLeft = Math.abs(nextRunTime.getTime() - time.getTime());
         var hoursLeft = Math.abs(nextRunTime.getTime() - time.getTime()) / 1000 / 60 / 60;
 
-        if (((msLeft <= 1000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
+        if (((msLeft <= 5000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
             lastRunDate = time.getDate();
             try {
                 console.clear();

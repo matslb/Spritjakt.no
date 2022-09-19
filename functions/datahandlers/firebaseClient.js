@@ -76,7 +76,7 @@ module.exports = class FirebaseClient {
       sp.ProductStatusSaleName = p.ProductStatusSaleName ? p.ProductStatusSaleName : "";
       sp.Types = p.Types;
       sp.Country = p.Country;
-      if (sp.PriceHistory[sp.PriceHistorySorted[0]] == null) {
+      if (sp.PriceHistorySorted[0] && sp.PriceHistory[sp.PriceHistorySorted[0]] == null) {
         sp.PriceHistory = {
           [today]: p.LatestPrice,
         };
