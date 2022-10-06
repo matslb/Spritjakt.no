@@ -76,14 +76,14 @@ module.exports = class FirebaseClient {
       sp.ProductStatusSaleName = p.ProductStatusSaleName ? p.ProductStatusSaleName : "";
       sp.Types = p.Types;
       sp.Country = p.Country;
-      if (sp.PriceHistorySorted[0] && sp.PriceHistory[sp.PriceHistorySorted[0]] == null) {
+      if (sp.PriceHistory == undefined && p.LatestPrice != null) {
         sp.PriceHistory = {
           [today]: p.LatestPrice,
         };
+        sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
+          order: "desc",
+        });
       }
-      sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
-        order: "desc",
-      });
       delete sp.Stock;
       sp.Name = p.Name
       sp.Color = p.Color;
@@ -100,7 +100,7 @@ module.exports = class FirebaseClient {
       sp.LatestPrice = p.LatestPrice;
       sp.VintageComment = p.VintageComment;
       sp.LastPriceFetchDate = lastPriceFetchDate;
-      let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]];
+      let ComparingPrice = sp.PriceHistory == undefined ? p.LatestPrice : sp.PriceHistory[sp.PriceHistorySorted[0]];
       let LatestPrice = p.LatestPrice !== null ? p.LatestPrice : ComparingPrice;
       if (ComparingPrice === undefined) {
         ComparingPrice = LatestPrice;
@@ -157,7 +157,7 @@ module.exports = class FirebaseClient {
       sp.Stores = sp.Stores.filter(s => s !== "online");
     }
     if (sp.Stores?.length > 0 && sp.Alcohol > 0.7) {
-      if (sp.PriceHistorySorted.length >= 1 && sp.PriceHistory[sp.PriceHistorySorted[1]]) {
+      if (sp.PriceHistory != undefined && sp.PriceHistorySorted.length >= 1 && sp.PriceHistory[sp.PriceHistorySorted[1]]) {
         sp.PriceChange = Math.round((sp.LatestPrice / sp.PriceHistory[sp.PriceHistorySorted[1]] * 100) * 100) / 100;
       }
       sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;

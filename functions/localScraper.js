@@ -39,7 +39,7 @@ async function orchistrator() {
         var msLeft = Math.abs(nextRunTime.getTime() - time.getTime());
         var hoursLeft = Math.abs(nextRunTime.getTime() - time.getTime()) / 1000 / 60 / 60;
 
-        if (((msLeft <= 5000 * 60) || time.getHours() == runhour) && lastRunDate != time.getDate()) {
+        if (time.getHours() == runhour && lastRunDate != time.getDate()) {
             lastRunDate = time.getDate();
             try {
                 console.clear();
@@ -85,7 +85,6 @@ async function fetchProductsToUpdate() {
     }
     var idsToFilterOut = await FirebaseClient.GetProductIdsNotToBeUpdated();
     freshProducts = freshProducts.filter((id) => idsToFilterOut.indexOf(id) < 0);
-
     return freshProducts;
 }
 

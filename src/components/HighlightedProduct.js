@@ -309,15 +309,15 @@ const HighlightedProduct = ({
       {renderTextSection(product.Color, "Farge")}
       <div className="priceHistoryWrapper">
 
-        {showGraph && product.PriceHistorySorted ?
+        {showGraph && product.PriceHistorySorted &&
           <PriceGraph product={product} />
-          :
+        }
+        {!showGraph && product.PriceHistory != undefined &&
           <div className="priceGraph fake descriptionText">
             <h3 className="title">Prishistorikk</h3>
             <img src={emptyGraph} />
           </div>
         }
-
       </div>
       {product.Stores?.length > 0 &&
         <div className="product_stock descriptionText">
