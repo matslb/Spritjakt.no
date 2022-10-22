@@ -44,11 +44,13 @@ const HighlightedProduct = ({
 
   useEffect(() => {
     fetchVintages();
+    setStockFetchDate(false);
     if (product.StockFetchDate) {
       var diff = Math.floor((new Date().getTime() - new Date((product.StockFetchDate.seconds ?? product.StockFetchDate) * 1000).getTime()) / 1000 / 60 / 60 / 24);
       if (diff < 1000) {
-        var fetchDateString = diff == 0 ? "mindre enn et døgn siden" : diff + " dag" + (diff > 1 ? "er" : "") + " siden.";
-        setStockFetchDate(fetchDateString);
+        setStockFetchDate(diff == 0 ? "mindre enn et døgn siden" : diff + " dag" + (diff > 1 ? "er" : "") + " siden.");
+      } else {
+        setStockFetchDate(" helt tullete mange dager siden, om i det hele tatt.");
       }
     }
     setRatingUrl(product?.RatingUrl || "https://www.aperitif.no/pollisten?query=" + encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, "")));
@@ -323,10 +325,12 @@ const HighlightedProduct = ({
         <div className="product_stock descriptionText">
           <h3 className="title" >På lager i følgende butikker: </h3>
           <ul>{renderStoreStock()}</ul>
-          <br />
-          {stockFetchDate &&
-            <i>Lagerstatus oppdatert for {stockFetchDate}</i>
-          }
+        </div>
+      }
+
+      {stockFetchDate &&
+        <div className="descriptionText">
+          <i>Lagerstatus oppdatert for {stockFetchDate}</i>
         </div>
       }
     </article >

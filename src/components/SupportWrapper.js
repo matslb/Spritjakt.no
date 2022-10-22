@@ -12,7 +12,7 @@ const SupportWrapper = () => {
                     <source src="/money_please.mp4" type="video/mp4" />
                 </video>
             </div>
-            <p>Hvis du syns dette er en kul tjeneste du bruker ofte, så hadde jeg satt uhorvelig stor pris på en donasjon eller et lite kjøp. <br />
+            <p>Hvis du syns dette er en kul tjeneste så hadde jeg satt uhorvelig stor pris på en donasjon eller et lite kjøp. <br />
                 Da kan jeg fortsette utviklingen og holde tjenesten gratis!</p>
             <div className="content">
                 <article className="vipps">

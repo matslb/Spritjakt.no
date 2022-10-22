@@ -15,7 +15,6 @@ export const arraysAreEqual = (arr1, arr2) => {
         }
     }
     return true;
-    ;
 }
 
 export const formatDate = (date) => {

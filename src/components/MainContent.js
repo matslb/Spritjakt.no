@@ -18,6 +18,7 @@ import roundLogo from "../assets/round-logo.svg";
 import SpritjaktClient from "../services/spritjaktClient";
 
 import { sortOptions } from "../utils/utils.js";
+import SavedFilterList from "./SavedFilterList";
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -337,6 +338,9 @@ class MainContent extends React.Component {
               }
               <div className="nav">
                 <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
+                {user != null && user.filters != undefined &&
+                  <SavedFilterList currentFilterExists={currentFilterExists} filters={user.filters} stores={this.state.stores} setPage={this.setPage} />
+                }
                 <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
                 <StoreSelector
                   updateStore={this.handleFilterClick.bind(this)}

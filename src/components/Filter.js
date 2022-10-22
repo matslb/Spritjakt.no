@@ -1,18 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Select from 'react-select'
 import sortArray from "sort-array";
 
-class Filter extends React.Component {
-    handleChange = (options) => {
+const Filter = ({
+    items,
+    selectedItems,
+    propSlug,
+    label,
+    handleFilterChange
+}) => {
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [options, setOptions] = useState([]);
+
+    const handleChange = (options) => {
         let list = [];
         if (options && options.length > 0) {
             options.map(s => list.push(s.value));
         }
-        this.props.handleFilterChange(this.props.propSlug, list);
+        handleFilterChange(propSlug, list);
     }
 
-    render() {
-        const { items = {}, selectedItems = [], propSlug, label } = this.props;
+    useEffect(() => {
         let options = [];
         let selectedOptions = [];
         Object.keys(items).forEach(id => {
@@ -29,33 +37,36 @@ class Filter extends React.Component {
         });
         sortArray(options, {
             by: ["noResults", "value"]
-        })
-        return (
-            <div className={"filter " + propSlug} >
-                <label>
-                    <span>{label}</span>
-                    <Select
-                        value={selectedOptions}
-                        onChange={this.handleChange}
-                        isMulti
-                        onMenuClose={() => document.activeElement.blur()}
-                        menuShouldScrollIntoView={true}
-                        options={options}
-                        noOptionsMessage={() => "Fant niks og nada"}
-                        placeholder={"Filtrer på " + label}
-                        classNamePrefix="select"
-                        theme={theme => ({
-                            ...theme,
-                            colors: {
-                                ...theme.colors,
-                                primary: '#d0b55e',
-                            },
-                        })}
-                    />
-                </label>
-            </div>
-        );
-    }
+        });
+        setSelectedOptions(selectedOptions);
+        setOptions(options);
+    }, [items, selectedItems])
+
+    return (
+        <div className={"filter " + propSlug} >
+            <label>
+                <span>{label}</span>
+                <Select
+                    value={selectedOptions}
+                    onChange={handleChange}
+                    isMulti
+                    onMenuClose={() => document.activeElement.blur()}
+                    menuShouldScrollIntoView={true}
+                    options={options}
+                    noOptionsMessage={() => "Fant niks og nada"}
+                    placeholder={"Filtrer på " + label}
+                    classNamePrefix="select"
+                    theme={theme => ({
+                        ...theme,
+                        colors: {
+                            ...theme.colors,
+                            primary: '#d0b55e',
+                        },
+                    })}
+                />
+            </label>
+        </div>
+    );
 }
 
 export default Filter;

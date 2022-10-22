@@ -29,6 +29,7 @@ module.exports = class FirebaseClient {
       }
       sp.LastUpdated = today;
       sp.LastPriceFetchDate = lastPriceFetchDate;
+      sp.StockFetchDate = new Date(0, 0, 0, 0);
       try {
         await productRef.set(sp);
       } catch (error) {
