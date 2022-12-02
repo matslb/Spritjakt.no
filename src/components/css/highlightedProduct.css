@@ -223,7 +223,7 @@ border-bottom: none;
 }
 
 .pieCharts,
-.isGoodFor,
+.HighlightedProduct .isGoodFor,
 .rawMaterials {
     display: flex;
     flex-direction: column;

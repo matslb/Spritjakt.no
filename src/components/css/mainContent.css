@@ -79,7 +79,7 @@ ul.product-list {
 
 .nav {
     display: grid;
-    grid-template-areas: "search barcode" "types stores" "countries sorting";
+    grid-template-areas: "search goodfor" "types stores" "countries sorting";
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     align-items: end;
@@ -142,6 +142,10 @@ ul.product-list {
     grid-area: countries;
 }
 
+.filter.isGoodFor {
+    grid-area: goodfor;
+}
+
 .filter.types {
     grid-area: types;
 }
@@ -171,23 +175,25 @@ ul.product-list {
 
 .filterSaver {
     display: flex;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem .5rem;
     align-items: center;
     grid-area: filtersaver;
     box-sizing: border-box;
     background: white;
     box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
     border-radius: 16px;
-    max-width: 40rem;
+    max-width: 34rem;
     margin: auto;
+    font-size: 0.9rem;
 }
 
 .filterSaver > div {
-    margin-left: 1rem;
+    margin-left: .5rem;
 }
 
 .filterSaver > button {
-    margin-left: 1rem;
+    margin-left: .5rem;
+    font-size: 0.9rem;
 }
 
 .stores .filterAddonBtn {
@@ -258,7 +264,7 @@ ul.product-list {
 @media(max-width: 540px) {
     .nav {
         grid-template-columns: 1fr;
-        grid-template-areas: "barcode" "search" "types" "stores" "countries" "sorting";
+        grid-template-areas: "barcode" "search" "goodfor" "types" "stores" "countries" "sorting";
     }
 
     ul.product-list {

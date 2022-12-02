@@ -215,6 +215,20 @@ button {
     border-radius: 3px;
 }
 
+.greenBtn {
+    background: #54814C;
+    border: none;
+    color: white;
+    padding: 0.25rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.bigGreenBtn svg {
+    margin-left: 0.25rem;
+}
+
+
 .bigGreenBtn svg {
     margin-left: 0.5rem;
 }

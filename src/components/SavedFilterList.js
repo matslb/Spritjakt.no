@@ -17,9 +17,10 @@ const SavedFilterList = ({
                 let name = stores.filter(s => s.storeId == id)[0].storeName;
                 return name.substring(name.indexOf(", ") + 1);
             })?.join(", ");
+            f.isGoodFor = f.isGoodFor == undefined ? [] : f.isGoodFor;
             return {
                 value: i,
-                label: [storeList, f.countries.join(", "), f.productTypes.join(", ")].filter(x => x.length > 0).join(" | ")
+                label: [storeList, f.countries.join(", "), f.productTypes.join(", "), f.isGoodFor?.join(", ")].filter(x => x.length > 0).join(" | ")
             };
         })
         filterOptions.unshift({ value: 999, label: "Velg et lagret filter" });
@@ -38,7 +39,7 @@ const SavedFilterList = ({
             query.stores = filter.stores;
             query.types = filter.productTypes;
             query.countries = filter.countries;
-
+            query.isGoodFor = filter.isGoodFor;
             let params = queryString.stringify(query, { arrayFormat: 'comma' });
             window.history.replaceState('', '', '?' + params);
         }

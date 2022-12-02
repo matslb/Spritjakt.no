@@ -54,7 +54,7 @@ const Filter = ({
                     menuShouldScrollIntoView={true}
                     options={options}
                     noOptionsMessage={() => "Fant niks og nada"}
-                    placeholder={"Filtrer på " + label}
+                    placeholder={"Filtrer på " + label.toLowerCase()}
                     classNamePrefix="select"
                     theme={theme => ({
                         ...theme,

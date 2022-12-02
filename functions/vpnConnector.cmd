@@ -1,1 +1,1 @@
-cd /d C:\Program Files\NordVPN && nordvpn -c
+cd /d C:\Program Files\NordVPN && nordvpn -c -g %1

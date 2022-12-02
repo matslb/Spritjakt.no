@@ -4,11 +4,8 @@ const tough = require('tough-cookie');
 const config = require("../configs/vmp.json");
 const cookieJar = new tough.CookieJar();
 var HTMLParser = require('node-html-parser');
-const sortArray = require("sort-array");
-const randomUseragent = require('random-useragent');
-var useragent = "Mozilla/5.0 (compatible; Konqueror/3.5; Linux 2.6.30-7.dmz.1-liquorix-686; X11) KHTML/3.5.10 (like Gecko) (Debian package 4:3.5.10.dfsg.1-1 b1)";
+const { HeaderGenerator, PRESETS } = require('header-generator');
 axiosCookieJarSupport(axios);
-
 
 const vmpOptions = () => {
   return {
@@ -63,8 +60,10 @@ class VmpClient {
     let expectedResults = 1;
     let fail = false;
     let tries = 0;
+    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
 
-    while (fail == false && storeStocks.length < expectedResults && stores.length > 0 && tries < 50) {
+    while (fail == false && storeStocks.length < expectedResults && stores.length > 0 && tries < 40) {
+      var headers = headerGenerator.getHeaders();
       let index = Math.floor(Math.random() * stores.length);
       let options = {
         method: "get",
@@ -76,7 +75,7 @@ class VmpClient {
           latitude: stores[index].address.gpsCoord.split(";")[0],
           longitude: stores[index].address.gpsCoord.split(";")[1],
         },
-        headers: { 'User-Agent': useragent },
+        headers: headers,
         jar: cookieJar,
         withCredentials: true
       };
@@ -103,17 +102,17 @@ class VmpClient {
       if (expectedResults == 1 && storeStocks.length == 0) {
         fail = true;
       }
-      await new Promise(r => setTimeout(r, Math.random() * 1000));
+      await new Promise(r => setTimeout(r, (Math.random() * 5000) + 1000));
     }
     if (fail) {
-      return null;
+      return { failed: fail, statusCode: 429, stocks: null };
     }
 
     console.log("Expected: " + expectedResults);
     console.log("Retrieved: " + storeStocks.length);
     console.log("tries: " + tries);
 
-    return storeStocks;
+    return { failed: fail, statusCode: 200, stocks: storeStocks };
   }
 
   static async FetchStores() {
@@ -137,6 +136,9 @@ class VmpClient {
   }
 
   static async FetchProductPrice(productId) {
+    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
+    var headers = headerGenerator.getHeaders();
+
     var options = {
       method: "get",
       url: "https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL",

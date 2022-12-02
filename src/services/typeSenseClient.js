@@ -2,6 +2,8 @@ import { SearchClient as TypesenseSearchClient } from "typesense";
 import config from "../config.json";
 import { sortOptions } from "../utils/utils";
 
+const collection = "Products_v1.35";
+
 class TypeSenseClient {
 
     constructor() {
@@ -62,7 +64,7 @@ class TypeSenseClient {
                 }
             ]
         }, {
-            collection: "Products_v1.3",
+            collection: collection,
             query_by: 'Id',
             q: "*",
             pageSize: 1,
@@ -86,7 +88,7 @@ class TypeSenseClient {
 
     async fetchProducts(filter, pageSize, doFacetSearch = true) {
         let searchParameters = {
-            facet_by: "Types,Country,Stores",
+            facet_by: "Types,Country,Stores,IsGoodForList",
             filter_by: this.createFilterString(filter),
             per_page: pageSize,
             page: filter.page || 1
@@ -100,11 +102,12 @@ class TypeSenseClient {
             multiSearchRequest.searches.push(this.createFacetSearchParams(Object.assign({}, filter), "Types", "types"));
             multiSearchRequest.searches.push(this.createFacetSearchParams(Object.assign({}, filter), "Country", "countries"));
             multiSearchRequest.searches.push(this.createFacetSearchParams(Object.assign({}, filter), "Stores", "stores"));
+            multiSearchRequest.searches.push(this.createFacetSearchParams(Object.assign({}, filter), "IsGoodForList", "isGoodFor"));
         }
 
         let isIdSearch = filter.searchString?.trim().match(/^(\d{4,})$/);
         let request = await this.client.multiSearch.perform(multiSearchRequest, {
-            collection: "Products_v1.3",
+            collection: collection,
             query_by: isIdSearch ? 'Id' : 'Name',
             q: filter.searchString || "*",
             sort_by: sortOptions.find(s => s.value === filter.sort)?.typeSenseValue || sortOptions[0].typeSenseValue,
@@ -125,6 +128,9 @@ class TypeSenseClient {
             }
             if (f.field_name === "Stores") {
                 return this.retrieveFacetCount(request.results[3], "Stores");
+            }
+            if (f.field_name === "IsGoodForList") {
+                return this.retrieveFacetCount(request.results[4], "IsGoodForList");
             }
             return f;
         });
@@ -152,6 +158,9 @@ class TypeSenseClient {
         }
         if (filter.stores && filter.stores.length > 0) {
             filterString += " && Stores: [" + filter.stores.join() + "]";
+        }
+        if (filter.isGoodFor && filter.isGoodFor.length > 0) {
+            filterString += " && IsGoodForList: [" + filter.isGoodFor.join() + "]";
         }
         return filterString;
     }

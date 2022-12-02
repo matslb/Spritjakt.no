@@ -30,7 +30,7 @@ async function orchistrator() {
         var time = new Date();
         await reConnectToVpn();
         console.log("The time is " + time.getHours());
-        var runhour = 1;
+        var runhour = 18;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -44,7 +44,7 @@ async function orchistrator() {
             try {
                 console.clear();
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
-                await UpdatePrices();
+                //await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
@@ -132,22 +132,23 @@ async function UpdatePrices() {
 
 
 async function UpdateStocks() {
-    let ids = await FirebaseClient.GetProductIdsForStock();
+    let ids = (await FirebaseClient.GetProductIdsForStock()).filter(id => !id.includes("x"));
     console.log("Updating " + ids.length + " stocks");
     var reconnectAttempted = false;
     let failcount = 0;
     let lastSuccessfullFetchId = null;
+
     const stores = await FirebaseClient.GetConstant("Stores");
     for (let i = 0; i < ids.length; i++) {
         console.log("---------------------");
         console.log("StockFetch: " + i + " of " + ids.length);
         console.log(ids[i]);
         if (ids[i] !== undefined && !ids[i].includes("x")) {
-            let storeStock = await VmpClient.FetchStoreStock(ids[i], Object.assign([], stores));
-            if (storeStock !== null) {
+            let stockresult = await VmpClient.FetchStoreStock(ids[i], Object.assign([], stores));
+            if (stockresult.failed == false) {
                 let p = {
                     productId: ids[i],
-                    Stores: storeStock
+                    Stores: stockresult.stocks
                 }
                 await FirebaseClient.UpdateProductStock(p);
                 failcount = 0;
@@ -160,7 +161,7 @@ async function UpdateStocks() {
             console.log(new Date());
             console.log("---------------------");
         }
-        if (failcount >= 10) {
+        if (failcount >= 2) {
             console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock (" + lastSuccessfullFetchId + ")...");
             let testStock = await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores);
             if (testStock == null) {
@@ -177,12 +178,20 @@ async function UpdateStocks() {
                 failcount = 0;
             }
         }
-        await new Promise(r => setTimeout(r, (Math.random() * 1000) + 500));
+        await new Promise(r => setTimeout(r, (Math.random() * 10000) + 500));
     }
 }
 
 async function reConnectToVpn() {
     console.log("Attempting to re-connect to VPN...")
-    exec('vpnConnector.cmd', { encoding: 'utf-8' });
-    await new Promise(r => setTimeout(r, 5000));
+    let country = getVpnCountry();
+    console.log("Country: " + country);
+    exec('vpnConnector.cmd ' + country, { encoding: 'utf-8' });
+    console.log("Waiting 10 seconds for VPN to start up...")
+    await new Promise(r => setTimeout(r, 10000));
+}
+
+function getVpnCountry() {
+    let countries = ["Norway", "United States", "Germany", "Sweden", "Denmark", "France", "Spain", "Finland", "Poland"]
+    return countries[Math.floor(Math.random() * (countries.length - 1))];
 }

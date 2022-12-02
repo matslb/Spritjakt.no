@@ -1,5 +1,5 @@
 {
-    "name": "Products_v1.3",
+    "name": "Products_v1.35",
     "fields": 
       [
         {
@@ -91,6 +91,13 @@
           "index": true,
           "name": "Stores",
           "optional": false,
+          "type": "string[]"
+        },
+        {
+          "facet": true,
+          "index": true,
+          "name": "IsGoodForList",
+          "optional": true,
           "type": "string[]"
         }
       ]

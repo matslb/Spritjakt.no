@@ -164,6 +164,7 @@ module.exports = class FirebaseClient {
       sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;
       sp.Literprice = Math.ceil(sp.LatestPrice / (sp.Volume * 100) * 100);
       sp.LiterPriceAlcohol = Math.ceil((100 / sp.Alcohol) * sp.Literprice);
+      sp.IsGoodForList = sp.IsGoodFor != undefined ? sp.IsGoodFor?.map(x => x.code) : [];
     } else {
       delete sp.PriceChange;
       delete sp.PriceChanges;

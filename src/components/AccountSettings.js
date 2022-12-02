@@ -240,20 +240,22 @@ const AccountSettings = ({
                         applyFilter(filter);
                         notification.current.setNotification(e, "Filter satt", "success");
                     }} >
-                        <FontAwesomeIcon icon={faFilter} />
+                        <FontAwesomeIcon icon={faFilter} size={"sm"} />
                     </button>
                 </div>
                 <div className="details">
                     <div className="stores">{storeNames.length > 0 ? storeNames.join().replace(/,/g, ", ") : "Alle"}</div>
                     <div className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
                     <div className="countries">{filter.countries?.length > 0 ? filter.countries?.join().replace(/,/g, ", ") : "Alle"}</div>
+                    <div className="isGoodForList">{filter.isGoodFor?.length > 0 ? filter.isGoodFor?.join().replace(/,/g, ", ") : "Alle"}</div>
+
                 </div>
                 <div className="operations">
                     <button aria-label="Slett filter" className="iconBtn dark" onClick={(e) => {
                         SpritjaktClient.RemoveUserFilter(filter);
                         notification.current.setNotification(e, "Fjernet", "success");
                     }} >
-                        <FontAwesomeIcon icon={faTrash} />
+                        <FontAwesomeIcon icon={faTrash} size={"sm"} />
                     </button>
                 </div>
             </li>);
@@ -328,6 +330,7 @@ const AccountSettings = ({
                                             <div className="stores">Butikker</div>
                                             <div className="productTypes">Typer</div>
                                             <div className="productCountries">Land</div>
+                                            <div className="productCountries">Passer til</div>
                                         </div>
                                         <div className="operations">
                                         </div>

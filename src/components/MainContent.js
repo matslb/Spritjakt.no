@@ -28,6 +28,7 @@ class MainContent extends React.Component {
       loading: true,
       sort: "LastUpdated_desc",
       productTypes: {},
+      isGoodFor: [],
       productCountries: {},
       highlightedProduct: null,
       productResult: [],
@@ -41,7 +42,8 @@ class MainContent extends React.Component {
       filter: {
         productTypes: [],
         stores: [],
-        countries: []
+        countries: [],
+        isGoodFor: []
       },
       sortOptions: sortOptions
     };
@@ -94,6 +96,7 @@ class MainContent extends React.Component {
     query.stores = cleanForMissingStores(toArray(query.stores), this.state.stores);
     query.types = toArray(query.types);
     query.countries = toArray(query.countries);
+    query.isGoodFor = toArray(query.isGoodFor);
     query.page = query.page || 1;
     query.sort = query.sort || sortOptions[0].value;
     return query;
@@ -159,18 +162,21 @@ class MainContent extends React.Component {
       productTypes: query.types,
       stores: query.stores,
       countries: query.countries,
+      isGoodFor: query.isGoodFor,
     }
 
     let filterExists = false;
 
     if ((newFilter.stores.length === 0
       && newFilter.productTypes.length === 0
+      && newFilter.isGoodFor.length === 0
       && newFilter.countries.length === 0)
       || (this.state.user
         && this.state.user.filters.find(f =>
           arraysAreEqual(f.stores, newFilter.stores)
           && arraysAreEqual(f.productTypes, newFilter.productTypes)
           && arraysAreEqual(f.countries, newFilter.countries)
+          && arraysAreEqual(f.isGoodFor, newFilter.isGoodFor)
         )
       )) {
       filterExists = true;
@@ -183,10 +189,12 @@ class MainContent extends React.Component {
 
     let productTypes = this.state.productTypes;
     let productCountries = this.state.productCountries;
+    let isGoodFor = this.state.isGoodFor;
     let stores = this.state.stores;
     this.setState({ loading: true });
     let result = await this.typeSenseClient.fetchProducts(query, this.state.pageSize);
     let products = result.hits.map(hit => hit.document);
+    Object.keys(isGoodFor).forEach(gf => isGoodFor[gf].count = 0);
     Object.keys(productTypes).forEach(pt => productTypes[pt].count = 0);
     Object.keys(productCountries).forEach(c => productCountries[c].count = 0);
     stores.map(s => delete s.count);
@@ -217,6 +225,14 @@ class MainContent extends React.Component {
               }
               return s;
             });
+          }
+          break;
+        case "IsGoodForList":
+          for (const c of f?.counts) {
+            if (isGoodFor[c.value] == undefined) {
+              isGoodFor[c.value] = {};
+            }
+            isGoodFor[c.value].count = c.count;
           }
           break;
         default:
@@ -311,6 +327,7 @@ class MainContent extends React.Component {
       stores,
       productTypes,
       productCountries,
+      isGoodFor,
       filter,
       user,
       currentFilterExists,
@@ -324,7 +341,7 @@ class MainContent extends React.Component {
             <div className="before-products">
               {(!currentFilterExists && filter) &&
                 <div className="filterSaver">
-                  <FontAwesomeIcon icon={faInfoCircle} size="lg" />
+                  <FontAwesomeIcon icon={faInfoCircle} size="sm" />
                   <div>
                     <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
                     {user && !user.notifications.onFilters &&
@@ -333,14 +350,13 @@ class MainContent extends React.Component {
                       </div>
                     }
                   </div>
-                  <button className="bigGreenBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
+                  <button className="greenBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
                 </div>
               }
               <div className="nav">
                 <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
-                {user != null && user.filters != undefined &&
-                  <SavedFilterList currentFilterExists={currentFilterExists} filters={user.filters} stores={this.state.stores} setPage={this.setPage} />
-                }
+
+                <Filter items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
                 <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
                 <StoreSelector
                   updateStore={this.handleFilterClick.bind(this)}
@@ -349,6 +365,9 @@ class MainContent extends React.Component {
                   notification={this.notification}
                 />
                 <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
+                {user != null && user.filters != undefined &&
+                  <SavedFilterList currentFilterExists={currentFilterExists} filters={user.filters} stores={this.state.stores} setPage={this.setPage} />
+                }
                 <div className="sorting">
                   <label htmlFor="sorting">Sortering
                     <NativeSelect
