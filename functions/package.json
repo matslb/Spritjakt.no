@@ -24,7 +24,6 @@
     "node-fetch": "^3.2.5",
     "node-html-parser": "^3.3.6",
     "nodemailer": "^6.7.2",
-    "random-useragent": "^0.5.0",
     "sort-array": "^4.1.4",
     "tough-cookie": "^4.0.0",
     "typesense": "^1.0.2"
