@@ -78,7 +78,7 @@
     width: 3.5rem;
     position: fixed;
     z-index: 3;
-    background: white;
+    background: #1c323a;
     bottom: 2rem;
     right: 1.5rem;
     box-shadow: 2px 2px 12px rgb(0 0 0 / 40%);
@@ -87,7 +87,7 @@
 }
 
 
-.BarcodeScanner > button.clickable.dark.iconBtn:after {
+.BarcodeScanner > button.clickable.iconBtn:after {
     content: "";
     width: 65%;
     position: absolute;
@@ -127,11 +127,11 @@
 
 @keyframes scanSmall {
     0% {
-        transform: translateY(-5px);
+        transform: translateY(-10px);
     }
 
     100% {
-        transform: translateY(5px);
+        transform: translateY(10px);
     }
 
 }

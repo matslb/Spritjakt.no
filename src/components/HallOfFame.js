@@ -22,7 +22,6 @@ const HallOfFame = () => {
 
     const fetchProducts = async () => {
         let hallOfFameProducts = await typeSenseClient.fetchHallOfFameProducts();
-        hallOfFameProducts.mostVolatile = await SpritjaktClient.FetchMostVolatileProduct();
         setHallOfFameProducts(hallOfFameProducts);
     }
 

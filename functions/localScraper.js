@@ -30,7 +30,7 @@ async function orchistrator() {
         var time = new Date();
         await reConnectToVpn();
         console.log("The time is " + time.getHours());
-        var runhour = 18;
+        var runhour = 1;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -44,7 +44,7 @@ async function orchistrator() {
             try {
                 console.clear();
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
-                //await UpdatePrices();
+                await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
@@ -178,7 +178,7 @@ async function UpdateStocks() {
                 failcount = 0;
             }
         }
-        await new Promise(r => setTimeout(r, (Math.random() * 10000) + 500));
+        await new Promise(r => setTimeout(r, (Math.random() * 2000) + 500));
     }
 }
 

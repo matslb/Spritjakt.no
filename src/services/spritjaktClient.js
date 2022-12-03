@@ -43,25 +43,6 @@ class SpritjaktClient {
       });
     return data?.code;
   }
-
-  static async FetchMostVolatileProduct() {
-    var product = null;
-    await firebase.firestore()
-      .collection("Products")
-      .orderBy("PriceChanges", "desc")
-      .limit(10)
-      .get()
-      .then((qs) => {
-        if (!qs.empty) {
-          qs.forEach((p) => {
-            if (p.ProductStatusSaleName != "Utgått")
-              product = p.data();
-          });
-        }
-      });
-    return product;
-  }
-
   static async FetchStores() {
     let stores = await this.GetConstant("Stores");
     SortArray(stores, {

@@ -99,6 +99,13 @@
           "name": "IsGoodForList",
           "optional": true,
           "type": "string[]"
+        },
+        {
+          "facet": false,
+          "index": true,
+          "name": "PriceChanges",
+          "optional": true,
+          "type": "int32"
         }
       ]
 }

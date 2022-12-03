@@ -216,6 +216,7 @@ const AccountSettings = ({
         query.stores = filter.stores;
         query.types = filter.productTypes;
         query.countries = filter.countries;
+        query.isGoodFor = filter.isGoodFor;
 
         let params = queryString.stringify(query, { arrayFormat: 'comma' });
         window.history.replaceState('', '', '?' + params);

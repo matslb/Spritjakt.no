@@ -2,7 +2,7 @@ import { SearchClient as TypesenseSearchClient } from "typesense";
 import config from "../config.json";
 import { sortOptions } from "../utils/utils";
 
-const collection = "Products_v1.35";
+const collection = "Products_v1.4";
 
 class TypeSenseClient {
 
@@ -61,6 +61,10 @@ class TypeSenseClient {
                 {
                     filter_by: "Buyable:=true",
                     sort_by: "PriceChange:desc",
+                },
+                {
+                    filter_by: "Buyable:=true",
+                    sort_by: "PriceChanges:desc",
                 }
             ]
         }, {
@@ -76,13 +80,12 @@ class TypeSenseClient {
 
         return {
             largestDiscount: result.results[0].hits[0].document,
-            mostVolatile: null,
             cheapestByAlcohol: result.results[1].hits[0].document,
             highestRated: result.results[2].hits[0].document,
             lowestRated: result.results[3].hits[0].document,
             mostExpensiveByAlcohol: result.results[4].hits[0].document,
             largestRise: result.results[5].hits[0].document,
-
+            mostVolatile: result.results[6].hits[0].document,
         };
     }
 
@@ -112,7 +115,7 @@ class TypeSenseClient {
             q: filter.searchString || "*",
             sort_by: sortOptions.find(s => s.value === filter.sort)?.typeSenseValue || sortOptions[0].typeSenseValue,
             max_facet_values: 1000,
-            use_cache: true,
+            use_cache: false,
             cache_ttl: 300,
             num_typos: isIdSearch ? 0 : 1,
             min_len_1typo: 5,

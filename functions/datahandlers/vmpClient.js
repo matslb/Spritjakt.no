@@ -143,7 +143,7 @@ class VmpClient {
       method: "get",
       url: "https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL",
       jar: cookieJar,
-      headers: { 'User-Agent': useragent },
+      headers: headers,
       withCredentials: true,
     };
     return await axios(options).then(async function (res) {
@@ -156,7 +156,6 @@ class VmpClient {
     })
       .catch(function (err) {
         console.error("Could not fetch price of product " + productId + ": " + err);
-        useragent = randomUseragent.getRandom();
         return { error: true };
       });
   }

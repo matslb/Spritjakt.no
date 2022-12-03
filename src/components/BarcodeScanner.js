@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { faBarcode, faCamera, faLightbulb, faQrcode, faRobot, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import { faBarcode, faCamera, faLightbulb, faQrcode, faRobot, faTimesCircle, faWineBottle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./css/barcodeScanner.css";
 import Scanner from "./Scanner";
@@ -82,8 +82,8 @@ const BarcodeScanner = () => {
     return (
         <div className="BarcodeScanner">
             {hasCamera &&
-                <button aria-label="Scan strekkode" onClick={openBarcodeScanner} className="clickable dark iconBtn">
-                    <FontAwesomeIcon size="2x" icon={faQrcode} />
+                <button aria-label="Skann strekkode" onClick={openBarcodeScanner} className="clickable iconBtn">
+                    <FontAwesomeIcon size="2x" icon={faWineBottle} />
                 </button>
             }
             {isActive &&
