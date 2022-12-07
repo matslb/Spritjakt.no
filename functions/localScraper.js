@@ -28,7 +28,6 @@ async function orchistrator() {
     var lastRunDate = 0;
     while (true) {
         var time = new Date();
-        await reConnectToVpn();
         console.log("The time is " + time.getHours());
         var runhour = 1;
         var nextRunTime = new Date();
@@ -44,6 +43,7 @@ async function orchistrator() {
             try {
                 console.clear();
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
+                await reConnectToVpn();
                 await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
@@ -163,8 +163,8 @@ async function UpdateStocks() {
         }
         if (failcount >= 2) {
             console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock (" + lastSuccessfullFetchId + ")...");
-            let testStock = await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores);
-            if (testStock == null) {
+            let stockresult = await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores);
+            if (stockresult.failed) {
                 console.log("The stock fetch endpoint does not work, something is fucky...");
                 if (reconnectAttempted == false) {
                     reconnectAttempted = true;
@@ -178,7 +178,7 @@ async function UpdateStocks() {
                 failcount = 0;
             }
         }
-        await new Promise(r => setTimeout(r, (Math.random() * 2000) + 500));
+        await new Promise(r => setTimeout(r, (Math.random() * 1500) + 500));
     }
 }
 

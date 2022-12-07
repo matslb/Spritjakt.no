@@ -62,7 +62,7 @@ class VmpClient {
     let tries = 0;
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
 
-    while (fail == false && storeStocks.length < expectedResults && stores.length > 0 && tries < 40) {
+    while (fail == false && storeStocks.length < expectedResults && stores.length > 0 && tries < 50) {
       var headers = headerGenerator.getHeaders();
       let index = Math.floor(Math.random() * stores.length);
       let options = {
@@ -102,7 +102,7 @@ class VmpClient {
       if (expectedResults == 1 && storeStocks.length == 0) {
         fail = true;
       }
-      await new Promise(r => setTimeout(r, (Math.random() * 5000) + 1000));
+      await new Promise(r => setTimeout(r, (Math.random() * 2000) + 1000));
     }
     if (fail) {
       return { failed: fail, statusCode: 429, stocks: null };

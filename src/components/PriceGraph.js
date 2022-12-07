@@ -48,7 +48,7 @@ const PriceGraph = ({
               stacked: false,
               reverse: false,
             }}
-            curve="step"
+            curve="stepBefore"
             axisTop={null}
             axisRight={null}
             axisLeft={{
@@ -77,7 +77,7 @@ const PriceGraph = ({
             lineWidth={3}
             enableArea={true}
             enablePoints={true}
-            pointSize={8}
+            pointSize={6}
             pointColor="#fdb542"
             pointBorderColor={{ from: 'serieColor' }}
             pointBorderWidth={2}
