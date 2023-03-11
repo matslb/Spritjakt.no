@@ -206,7 +206,9 @@ button {
     opacity: 1;
     border-radius: 3px;
 }
-
+.wide{
+    width: 100%;
+}
 .bigGreenBtn {
     background: #54814C;
     border: none;

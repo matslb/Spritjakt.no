@@ -84,6 +84,8 @@ ul.product-list {
     grid-template-columns: 1fr 1fr;
     align-items: end;
     width: 100%;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
 }
 
 .nav .batchsize {

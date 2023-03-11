@@ -150,9 +150,10 @@ class TypeSenseClient {
         let filterString = "";
         if (filter.searchString == null) {
             filterString += " Buyable:=true";
-            if (filter.sort === "new_discount" || filter.sort === "new_raised")
+            if ((filter.sort === "new_discount" || filter.sort === "new_raised") && (filter.types?.length == 0 && filter.countries?.length == 0 && filter.stores?.length == 0))
                 filterString += " && PriceChange:" + (filter.sort === "new_discount" ? "<99.9" : ">100.1");
         }
+
         if (filter.types && filter.types.length > 0) {
             filterString += " && Types: [" + filter.types.join() + "]";
         }

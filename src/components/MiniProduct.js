@@ -18,7 +18,7 @@ class ProductComp extends React.Component {
       backgroundImage: "url(" + getImageUrl(product.Id, 300) + ")"
     };
     let showDiff = product.PriceChange && product.PriceChange !== 100;
-    let priceIsLower = product.LatestPrice < product.PriceHistory[product.PriceHistorySorted[1]];
+    let priceIsLower = showDiff && product.LatestPrice < product.PriceHistory[product.PriceHistorySorted[1]];
     return (
       <li id={product.Id} className={"MiniProduct " + (priceIsLower ? "price_lowered" : "price_raised")}>
         {showDiff &&

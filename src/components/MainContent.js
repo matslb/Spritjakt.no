@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from 'react';
 import Pagination from "./Pagination";
 import "./css/mainContent.css";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
 import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
-import { NativeSelect } from '@mui/material';
+import { NativeSelect, SwipeableDrawer } from '@mui/material';
 import queryString from "query-string";
 import Notification from "./Notification";
 import Filter from "./Filter";
@@ -19,6 +19,7 @@ import SpritjaktClient from "../services/spritjaktClient";
 
 import { sortOptions } from "../utils/utils.js";
 import SavedFilterList from "./SavedFilterList";
+import { isMobile } from 'react-device-detect';
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -39,6 +40,7 @@ class MainContent extends React.Component {
       currentFilterExists: true,
       searchString: "",
       forceSearchString: false,
+      anchor: false,
       filter: {
         productTypes: [],
         stores: [],
@@ -50,6 +52,17 @@ class MainContent extends React.Component {
 
     this.typeSenseClient = new TypeSenseClient();
     this.notification = React.createRef();
+  }
+
+  toggleDrawer = (anchor, open) => (event) => {
+    if (
+      event &&
+      event.type === 'keydown' &&
+      (event.key === 'Tab' || event.key === 'Shift')
+    ) {
+      return;
+    }
+    this.setState({ anchor: open });
   }
 
   setUrlParams = (field, value = null) => {
@@ -318,6 +331,73 @@ class MainContent extends React.Component {
     this.fetchProducts();
   }
 
+  getFilterSection = () => {
+    let {
+      loading,
+      stores,
+      productTypes,
+      productCountries,
+      isGoodFor,
+      filter,
+      user,
+      currentFilterExists,
+      isSearch = false,
+    } = this.state;
+    let anchor = "bottom";
+    return (
+      <React.Fragment key={anchor}>
+        {(!currentFilterExists && filter) &&
+          <div className="filterSaver">
+            <FontAwesomeIcon icon={faInfoCircle} size="sm" />
+            <div>
+              <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
+              {user && !user.notifications.onFilters &&
+                <div>
+                  <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
+                </div>
+              }
+            </div>
+            <button className="greenBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
+          </div>
+        }
+        <div className="nav">
+          <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
+
+          <Filter items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
+          <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
+          <StoreSelector
+            updateStore={this.handleFilterClick.bind(this)}
+            selectedStores={filter.stores}
+            stores={stores}
+            notification={this.notification}
+          />
+          <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
+
+          <div className="sorting">
+            <label htmlFor="sorting">Sortering
+              <NativeSelect
+                value={this.state.sort}
+                onChange={this.handleSortChange}
+                inputProps={{
+                  name: 'sorting',
+                  id: 'sorting',
+                }}
+              >
+                {this.state.sortOptions.map(option => {
+                  if (option !== undefined) {
+                    return <option key={option?.value} value={option?.value}>{option?.label}</option>
+                  }
+                  return null;
+                })}
+
+              </NativeSelect>
+            </label>
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  }
+
   render() {
     let {
       loading,
@@ -334,60 +414,27 @@ class MainContent extends React.Component {
       isSearch = false,
       found
     } = this.state;
+    let anchor = "bottom";
     return (
       <div key="MainContent" className="MainContent" >
         <div className="main">
           <main>
             <div className="before-products">
-              {(!currentFilterExists && filter) &&
-                <div className="filterSaver">
-                  <FontAwesomeIcon icon={faInfoCircle} size="sm" />
-                  <div>
-                    <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
-                    {user && !user.notifications.onFilters &&
-                      <div>
-                        <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
-                      </div>
-                    }
-                  </div>
-                  <button className="greenBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
-                </div>
+              {isMobile && (<React.Fragment>
+                < button className="bigGreenBtn clickable wide" onClick={this.toggleDrawer(anchor, true)}>Vis filter</button>
+                <SwipeableDrawer
+                  anchor={anchor}
+                  open={this.state.anchor}
+                  onClose={this.toggleDrawer(anchor, false)}
+                  onOpen={this.toggleDrawer(anchor, true)}
+                >
+                  {this.getFilterSection()}
+                </SwipeableDrawer>
+              </React.Fragment>)
               }
-              <div className="nav">
-                <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
-
-                <Filter items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
-                <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
-                <StoreSelector
-                  updateStore={this.handleFilterClick.bind(this)}
-                  selectedStores={filter.stores}
-                  stores={stores}
-                  notification={this.notification}
-                />
-                <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
-
-                <div className="sorting">
-                  <label htmlFor="sorting">Sortering
-                    <NativeSelect
-                      value={this.state.sort}
-                      onChange={this.handleSortChange}
-                      inputProps={{
-                        name: 'sorting',
-                        id: 'sorting',
-                      }}
-                    >
-                      {this.state.sortOptions.map(option => {
-                        if (option !== undefined) {
-                          return <option key={option?.value} value={option?.value}>{option?.label}</option>
-                        }
-                        return null;
-                      })}
-
-                    </NativeSelect>
-                  </label>
-                </div>
-
-              </div>
+              {!isMobile &&
+                this.getFilterSection()
+              }
             </div>
             <Pagination
               total={found}
@@ -437,9 +484,9 @@ class MainContent extends React.Component {
               highlightProduct={this.highlightProduct.bind(this)}
             />
           </main>
-        </div>
+        </div >
         <Notification ref={this.notification} />
-      </div>
+      </div >
     );
   }
 }
