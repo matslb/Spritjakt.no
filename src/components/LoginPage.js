@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import LoginForm from "./LoginForm";
 import "./css/loginPage.css";
-import firebase from "firebase/app";
+import firebase from "firebase/compat/app";
 import queryString from "query-string";
 import ThirdPartyLogin from "./ThirdPartyLogin";
 import { formTypes, providers } from "../utils/utils";

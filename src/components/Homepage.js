@@ -1,8 +1,8 @@
 import React from "react";
 import MainContent from "./MainContent";
 import queryString from "query-string";
-import firebase from "firebase/app";
-import "firebase/analytics";
+import firebase from "firebase/compat/app";
+import "firebase/compat/analytics";
 import AccountSettings from "./AccountSettings";
 import LoginPage from "./LoginPage";
 import SupportWrapper from "./SupportWrapper";

@@ -1,6 +1,6 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/analytics";
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
+import "firebase/compat/analytics";
 import SortArray from "sort-array";
 import axios from "axios";
 import UserCacher from "./userCache";

@@ -4,7 +4,7 @@ import { faExternalLinkAlt, faHeart, faLink, faSeedling, faStar, faWineBottle } 
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
-import firebase from "firebase/app";
+import firebase from "firebase/compat/app";
 import { getImageUrl } from "../utils/utils.js";
 import PriceGraph from "./PriceGraph";
 import copy from 'copy-to-clipboard';

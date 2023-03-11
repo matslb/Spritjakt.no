@@ -4,7 +4,7 @@ import "./css/mainContent.css";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
-import firebase from "firebase/app";
+import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
 import { NativeSelect } from '@mui/material';
 import queryString from "query-string";
@@ -365,9 +365,7 @@ class MainContent extends React.Component {
                   notification={this.notification}
                 />
                 <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
-                {user != null && user.filters != undefined &&
-                  <SavedFilterList currentFilterExists={currentFilterExists} filters={user.filters} stores={this.state.stores} setPage={this.setPage} />
-                }
+
                 <div className="sorting">
                   <label htmlFor="sorting">Sortering
                     <NativeSelect

@@ -2,7 +2,7 @@ import googleImg from "../assets/google.png";
 import facebookImg from "../assets/facebook.png";
 import appleImg from "../assets/apple.svg";
 import emailImg from "../assets/email.svg";
-import firebase from "firebase/app";
+import firebase from "firebase/compat/app";
 
 
 export const arraysAreEqual = (arr1, arr2) => {

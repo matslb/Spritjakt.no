@@ -1,8 +1,8 @@
 import React from "react";
 import "./App.css";
-import firebase from "firebase/app";
-import "firebase/analytics";
-import "firebase/messaging";
+import firebase from "firebase/compat/app";
+import "firebase/compat/analytics";
+import "firebase/compat/messaging";
 import Homepage from "./components/Homepage";
 import Header from "./components/Header";
 import '@pwabuilder/pwaupdate';

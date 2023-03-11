@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./css/searchBar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
-import firebase from "firebase/app";
-import "firebase/analytics";
+import firebase from "firebase/compat/app";
+import "firebase/compat/analytics";
 
 const SearchBar = ({
   forceSearchString,

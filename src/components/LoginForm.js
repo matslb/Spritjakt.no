@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./css/loginForm.css";
-import firebase from "firebase/app";
-import "firebase/auth";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 import SpritjaktClient from "../services/spritjaktClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
