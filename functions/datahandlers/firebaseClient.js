@@ -97,6 +97,7 @@ module.exports = class FirebaseClient {
       sp.Sulfates = p.Sulfates;
       sp.Expired = p.Expired;
       sp.Buyable = p.Buyable;
+      sp.Volume = p.Volume;
       sp.RawMaterials = p.RawMaterials;
       sp.LatestPrice = p.LatestPrice;
       sp.VintageComment = p.VintageComment;
@@ -162,7 +163,7 @@ module.exports = class FirebaseClient {
         sp.PriceChange = Math.round((sp.LatestPrice / sp.PriceHistory[sp.PriceHistorySorted[1]] * 100) * 100) / 100;
       }
       sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;
-      sp.Literprice = Math.ceil(sp.LatestPrice / (sp.Volume * 100) * 100);
+      sp.Literprice = Math.ceil(sp.LatestPrice / (sp.Volume) * 100);
       sp.LiterPriceAlcohol = Math.ceil((100 / sp.Alcohol) * sp.Literprice);
       sp.IsGoodForList = sp.IsGoodFor != undefined ? sp.IsGoodFor?.map(x => x.name) : [];
     } else {

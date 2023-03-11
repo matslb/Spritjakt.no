@@ -121,7 +121,7 @@ const Product = ({
           )
         }
         <span className="volume secondary">
-          {(product.Volume * 100).toFixed(1)} cl
+          {(product.Volume).toFixed(1)} cl
         </span>
         <span className="alcohol secondary">Alk. {product.Alcohol}%</span>
       </div>

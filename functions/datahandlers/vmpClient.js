@@ -67,7 +67,7 @@ class VmpClient {
       let index = Math.floor(Math.random() * stores.length);
       let options = {
         method: "get",
-        url: "https://www.vinmonopolet.no/api/products/" + productId + "/stock",
+        url: `https://www.vinmonopolet.no/api/products/${productId}/stock`,
         params: {
           pageSize: 1000,
           currentPage: 0,

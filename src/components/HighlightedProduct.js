@@ -219,7 +219,7 @@ const HighlightedProduct = ({
         <span className="details">
           {product.Types[product.Types.length - 1]}, {product.Country}
           <br />
-          {(product.Volume * 100).toFixed(1)}
+          {(product.Volume).toFixed(1)}
           cl, Alk. {product.Alcohol}%
         </span>
         {product.Literprice &&

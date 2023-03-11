@@ -43,12 +43,13 @@ async function orchistrator() {
             try {
                 console.clear();
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
-                await reConnectToVpn();
+                await reConnectToVpn(getVpnCountry());
                 await UpdatePrices();
                 await UpdateStocks();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
                 console.log("Finished run. It took " + runtime.toFixed(2) + " hours.");
+                reConnectToVpn("Norway");
             } catch (e) {
                 console.log(e);
             }
@@ -116,7 +117,7 @@ async function UpdatePrices() {
             if (reconnectAttempted != false) {
                 reconnectAttempted = true;
                 failcount = 0;
-                await reConnectToVpn();
+                await reConnectToVpn(getVpnCountry());
             } else {
                 await NotificationClient.SendFetchErrorEmail("Henting av nye priser feilet");
                 throw 'Pricefetch failed';
@@ -168,7 +169,7 @@ async function UpdateStocks() {
                 console.log("The stock fetch endpoint does not work, something is fucky...");
                 if (reconnectAttempted == false) {
                     reconnectAttempted = true;
-                    await reConnectToVpn();
+                    await reConnectToVpn(getVpnCountry());
                 } else {
                     await NotificationClient.SendFetchErrorEmail("Henting av lagerstatus feilet");
                     throw 'StockFetch failed';
@@ -182,9 +183,8 @@ async function UpdateStocks() {
     }
 }
 
-async function reConnectToVpn() {
+async function reConnectToVpn(country) {
     console.log("Attempting to re-connect to VPN...")
-    let country = getVpnCountry();
     console.log("Country: " + country);
     exec('vpnConnector.cmd ' + country, { encoding: 'utf-8' });
     console.log("Waiting 10 seconds for VPN to start up...")
