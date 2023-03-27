@@ -362,7 +362,6 @@ class MainContent extends React.Component {
         }
         <div className="nav">
           <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
-
           <Filter items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <StoreSelector
@@ -420,21 +419,7 @@ class MainContent extends React.Component {
         <div className="main">
           <main>
             <div className="before-products">
-              {isMobile && (<React.Fragment>
-                < button className="bigGreenBtn clickable wide" onClick={this.toggleDrawer(anchor, true)}>Vis filter</button>
-                <SwipeableDrawer
-                  anchor={anchor}
-                  open={this.state.anchor}
-                  onClose={this.toggleDrawer(anchor, false)}
-                  onOpen={this.toggleDrawer(anchor, true)}
-                >
                   {this.getFilterSection()}
-                </SwipeableDrawer>
-              </React.Fragment>)
-              }
-              {!isMobile &&
-                this.getFilterSection()
-              }
             </div>
             <Pagination
               total={found}
