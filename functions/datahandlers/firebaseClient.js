@@ -306,7 +306,7 @@ module.exports = class FirebaseClient {
       }
       sp.Stores = [];
       sp.StoreStock = [];
-      for (const store of stock.Stores.stocks) {
+      for (const store of stock.Stores) {
         if (store.stockInfo?.stockLevel)
           sp.StoreStock.push({
             store: store.pointOfService.id+"",
@@ -319,7 +319,6 @@ module.exports = class FirebaseClient {
       await productRef.set(sp);
     } catch (e) {
       console.log(e);
-      console.log("Product not in database");
     }
   }
 
