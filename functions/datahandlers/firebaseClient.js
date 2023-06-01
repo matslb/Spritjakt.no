@@ -306,13 +306,13 @@ module.exports = class FirebaseClient {
       }
       sp.Stores = [];
       sp.StoreStock = [];
-      for (const store of stock.Stores) {
+      for (const store of stock.Stores.stocks) {
         if (store.stockInfo?.stockLevel)
           sp.StoreStock.push({
-            store: store.pointOfService.id,
+            store: store.pointOfService.id+"",
             stock: store.stockInfo.stockLevel
           });
-        sp.Stores.push(store.pointOfService.id);
+        sp.Stores.push(store.pointOfService.id+"");
       }
       sp = this.HandleProductMeta(sp);
       sp.StockFetchDate = new Date();

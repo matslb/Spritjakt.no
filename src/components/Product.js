@@ -55,7 +55,7 @@ const Product = ({
     <div
       id={'p-' + product.Id}
       className={
-        "ProductComp " + (priceIsLower ? "price_lowered" : "price_raised")
+        "ProductComp " + (product.PriceIsLowered ? "price_lowered" : "price_raised")
       }>
       <button
         aria-label={product.Name + ". Velg for å se produktdetaljer"}
@@ -78,7 +78,7 @@ const Product = ({
       {
         showDiff && product.LatestPrice &&
         <span className="percentage_change">
-          {(priceIsLower ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
+          {(product.PriceIsLowered ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
         </span>
       }
       <span className="productWatchBtns">

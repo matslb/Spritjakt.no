@@ -5,6 +5,8 @@ const config = require("../configs/vmp.json");
 const cookieJar = new tough.CookieJar();
 var HTMLParser = require('node-html-parser');
 const { HeaderGenerator, PRESETS } = require('header-generator');
+const { XMLParser} = require("fast-xml-parser");
+const parser = new XMLParser();
 axiosCookieJarSupport(axios);
 
 const vmpOptions = () => {
@@ -67,7 +69,7 @@ class VmpClient {
       let index = Math.floor(Math.random() * stores.length);
       let options = {
         method: "get",
-        url: `https://www.vinmonopolet.no/api/products/${productId}/stock`,
+        url: `https://www.vinmonopolet.no/vmpws/v2/vmp/products/${productId}/stock`,
         params: {
           pageSize: 1000,
           currentPage: 0,
@@ -84,7 +86,16 @@ class VmpClient {
       tries++;
       await axios(options)
         .then(async function (res) {
-          res.data.stores.forEach(newStore => {
+          var data = parser.parse(res.data).vmpStoreFinderStockSearchPage;
+          if( data.stores == undefined)
+          {
+            data.stores = [];
+          }
+          else if(!Array.isArray(data.stores))
+          {
+            data.stores = [data.stores];
+          }
+          data.stores.forEach(newStore => {
             if (!storeStocks.some(oldStore => oldStore.pointOfService.id === newStore.pointOfService.id)) {
               delete newStore.pointOfService.address;
               delete newStore.pointOfService.formattedDistance;
@@ -93,7 +104,7 @@ class VmpClient {
               stores = stores.filter(s => s.storeId !== newStore.pointOfService.id);
             }
           });
-          expectedResults = res.data.pagination.totalResults;
+          expectedResults = data.pagination.totalResults;
         })
         .catch(function (err) {
           console.log("Store stock fetch failed: " + err);
@@ -141,7 +152,7 @@ class VmpClient {
 
     var options = {
       method: "get",
-      url: "https://www.vinmonopolet.no/api/products/" + productId + "?fields=FULL",
+      url: "https://www.vinmonopolet.no/vmpws/v2/vmp/products/" + productId + "?fields=FULL",
       jar: cookieJar,
       headers: headers,
       withCredentials: true,
@@ -151,7 +162,7 @@ class VmpClient {
       if (res?.data?.main_category?.code === "gaveartikler_og_tilbehør") {
         return { product: false };
       }
-      let p = CreateProduct(res.data);
+      let p = CreateProduct(parser.parse(res.data).product);
       return { product: p };
     })
       .catch(function (err) {
@@ -219,13 +230,23 @@ function CreateProduct(productData) {
   }
 
   let types = [];
-  if (productData.tags) {
-    types = productData.tags;
+  if (productData.tags && !Array.isArray(productData.tags)) {
+    types = productData.tags.split(",");
   }
   types.push(type.split(",")[0]);
 
+  if( productData.isGoodFor != undefined && !Array.isArray(productData.isGoodFor))
+  {
+    productData.isGoodFor = [productData.isGoodFor];
+  }
+
+  if( productData.raastoff != undefined && !Array.isArray(productData.raastoff))
+  {
+    productData.RawMaterials = [productData.raastoff];
+  }
+
   return {
-    Id: productData.code,
+    Id: productData.code + "",
     Name: productData.name,
     Volume: productData.volume ? productData.volume.value : null,
     Alcohol: productData.alcohol ? productData.alcohol.value : null,

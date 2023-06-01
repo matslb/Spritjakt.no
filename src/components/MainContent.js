@@ -297,6 +297,10 @@ class MainContent extends React.Component {
       if (product === undefined) {
         product = await SpritjaktClient.FetchProductById(productId);
       }
+      if( product.RawMaterials != undefined && !Array.isArray(product.RawMaterials))
+      {
+        product.RawMaterials = [product.RawMaterials];
+      }
       this.setState({ highlightedProduct: product });
       firebase.analytics().logEvent("highlight_product");
     }
