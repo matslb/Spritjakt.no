@@ -47,7 +47,6 @@ const Product = ({
 
   let showDiff = product.PriceChange && product.PriceChange > 100.1 || product.PriceChange < 99.9;
 
-  let priceIsLower = product.LatestPrice && product.PriceHistorySorted && product.LatestPrice < product["PriceHistory." + [product.PriceHistorySorted[1]]];
   let lastChangedDate = dateFormater.format(product.LastUpdated);
   let isSoldOut = product.Stores.length == 0;
 
@@ -55,7 +54,7 @@ const Product = ({
     <div
       id={'p-' + product.Id}
       className={
-        "ProductComp " + (product.PriceIsLowered ? "price_lowered" : "price_raised")
+        "ProductComp " + (product.PriceChange < 100 ? "price_lowered" : "price_raised")
       }>
       <button
         aria-label={product.Name + ". Velg for å se produktdetaljer"}
@@ -78,7 +77,7 @@ const Product = ({
       {
         showDiff && product.LatestPrice &&
         <span className="percentage_change">
-          {(product.PriceIsLowered ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
+          {(product.PriceChange < 100 ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
         </span>
       }
       <span className="productWatchBtns">

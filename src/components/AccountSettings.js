@@ -390,7 +390,7 @@ const AccountSettings = ({
                             <label><input type="checkbox" onChange={handleNotifications} checked={permissions.onFavorites} name="onFavorites" /> Ved prisendringer i favoritter</label><br />
                             <h4>Hvordan vil du bli varslet?</h4>
 
-                            <label><input type="checkbox" name="byPush" checked={permissions.byPush} onChange={handleNotifications} /> Push-varsler (Ikke på iPhone)</label><br />
+                            <label><input type="checkbox" name="byPush" checked={permissions.byPush} onChange={handleNotifications} /> Push-varsler</label><br />
                             <label><input type="checkbox" name="byEmail" checked={permissions.byEmail} onChange={handleNotifications} /> E-post</label>
                             <div>
                                 <br />

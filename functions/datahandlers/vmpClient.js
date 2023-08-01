@@ -242,7 +242,7 @@ function CreateProduct(productData) {
 
   if( productData.raastoff != undefined && !Array.isArray(productData.raastoff))
   {
-    productData.RawMaterials = [productData.raastoff];
+    productData.raastoff = [productData.raastoff];
   }
 
   return {

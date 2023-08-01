@@ -11,7 +11,7 @@ export const NotificationSection = () => {
             </div>
             <div>
                 <h4>Varsle meg på...</h4>
-                <label><input type="checkbox" name="byPush" /> Push-varsler (Ikke på iPhone)</label><br />
+                <label><input type="checkbox" name="byPush" /> Push-varsler</label><br />
                 <label><input type="checkbox" name="byEmail" /> E-post</label>
             </div>
         </div>

@@ -189,7 +189,7 @@ const HighlightedProduct = ({
       id={product.Id}
       className={
         "HighlightedProduct " +
-        (product.PriceIsLowered ? "price_lowered" : "price_raised")
+        (product.PriceChange < 100 ? "price_lowered" : "price_raised")
       }
     >
       <span className="productWatchBtns">
@@ -203,7 +203,7 @@ const HighlightedProduct = ({
       <div className="product_img" style={background}></div>
       {showDiff &&
         <span className="percentage_change">
-          {(product.PriceIsLowered ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
+          {(product.PriceChange < 100 ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
         </span>
       }
       <section className="product_details">
