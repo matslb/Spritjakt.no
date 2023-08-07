@@ -92,7 +92,8 @@ li {
     border-bottom: 2px solid rgba(0, 0, 0, 0.87);
 }
 
-.main .select__control .select__placeholder {
+.main .select__control .select__placeholder,
+.MuiFormLabel-root.MuiInputLabel-standard   {
     font-size: 0.85rem;
     color: black;
     margin: 0;

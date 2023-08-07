@@ -79,7 +79,7 @@ ul.product-list {
 
 .nav {
     display: grid;
-    grid-template-areas: "search goodfor" "types stores" "countries sorting";
+    grid-template-areas: "search search" "goodfor types" "stores countries " "price sorting";
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     align-items: end;
@@ -153,6 +153,10 @@ ul.product-list {
 
 .filter.BarcodeScanner {
     grid-area: barcode;
+}
+
+filter.price-filter{
+    grid-area: price;
 }
 
 .resetFilter.inactive {

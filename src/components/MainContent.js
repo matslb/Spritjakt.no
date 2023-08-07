@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
 import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
-import { NativeSelect, SwipeableDrawer } from '@mui/material';
+import { NativeSelect, SwipeableDrawer, TextField } from '@mui/material';
 import queryString from "query-string";
 import Notification from "./Notification";
 import Filter from "./Filter";
@@ -20,6 +20,7 @@ import SpritjaktClient from "../services/spritjaktClient";
 import { sortOptions } from "../utils/utils.js";
 import SavedFilterList from "./SavedFilterList";
 import { isMobile } from 'react-device-detect';
+import PriceFilter from './PriceFilter';
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -46,6 +47,7 @@ class MainContent extends React.Component {
         stores: [],
         countries: [],
         isGoodFor: []
+      
       },
       sortOptions: sortOptions
     };
@@ -112,6 +114,8 @@ class MainContent extends React.Component {
     query.isGoodFor = toArray(query.isGoodFor);
     query.page = query.page || 1;
     query.sort = query.sort || sortOptions[0].value;
+    query.min = query.min;
+    query.max = query.max;
     return query;
   }
 
@@ -171,12 +175,17 @@ class MainContent extends React.Component {
 
   createFilter() {
     let query = this.getQuery();
+    
     let newFilter = {
       productTypes: query.types,
       stores: query.stores,
       countries: query.countries,
       isGoodFor: query.isGoodFor,
+      min: query.min,
+      max: query.max
     }
+    
+    //var newFilter = Object.assign({}, query); 
 
     let filterExists = false;
 
@@ -306,6 +315,12 @@ class MainContent extends React.Component {
     }
   };
 
+  SetPriceFilter = (min, max) => {
+    this.setUrlParams("min", min);
+    this.setUrlParams("max", max);
+    this.setPage(1);
+  }
+
   handleFilterClick = (propSlug, items) => {
     this.setUrlParams(propSlug, items);
     this.setPage(1);
@@ -375,7 +390,7 @@ class MainContent extends React.Component {
             notification={this.notification}
           />
           <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
-
+          <PriceFilter SetPriceFilter={this.SetPriceFilter} max={filter.max} min={filter.min} />
           <div className="sorting">
             <label htmlFor="sorting">Sortering
               <NativeSelect
@@ -407,14 +422,7 @@ class MainContent extends React.Component {
       pageSize,
       page,
       productResult,
-      stores,
-      productTypes,
-      productCountries,
-      isGoodFor,
-      filter,
       user,
-      currentFilterExists,
-      isSearch = false,
       found
     } = this.state;
     let anchor = "bottom";
@@ -431,6 +439,7 @@ class MainContent extends React.Component {
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
               useScroll={false}
+              cssAnchor={"top-pagination"}
             />
             <ul className="product-list">
               {loading ?
@@ -465,6 +474,7 @@ class MainContent extends React.Component {
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
               useScroll={true}
+              cssAnchor={"bottom-pagination"}
             />
             <ProductPopUp
               product={this.state.highlightedProduct}

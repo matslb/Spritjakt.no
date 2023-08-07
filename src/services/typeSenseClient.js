@@ -166,6 +166,13 @@ class TypeSenseClient {
         if (filter.isGoodFor && filter.isGoodFor.length > 0) {
             filterString += " && IsGoodForList: [" + filter.isGoodFor.join() + "]";
         }
+        if (filter.max) {
+            filterString += " && LatestPrice:" + "<=" + filter.max;
+        }
+        if (filter.min) {
+            filterString += " && LatestPrice:" + ">=" + filter.min;
+        }
+
         return filterString;
     }
 

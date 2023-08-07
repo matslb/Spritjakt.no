@@ -7,7 +7,8 @@ const Pagination = ({
   page,
   total,
   setPage,
-  useScroll
+  useScroll,
+  cssAnchor
 }) => {
 
   const renderPageButtons = () => {
@@ -51,7 +52,7 @@ const Pagination = ({
       (pageSize * page > total ? total : pageSize * page);
   }
   return (
-    <nav className="Pagination">
+    <nav id={cssAnchor} className="Pagination">
       <ul className="pagelist">{renderPageButtons()}</ul>
       <span>
         Viser {productsShowingtext} av {total} produkter
