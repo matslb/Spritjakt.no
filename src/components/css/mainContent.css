@@ -269,7 +269,7 @@ filter.price-filter{
 @media(max-width: 540px) {
     .nav {
         grid-template-columns: 1fr;
-        grid-template-areas: "barcode" "search" "goodfor" "types" "stores" "countries" "sorting";
+        grid-template-areas: "search" "goodfor" "types" "stores" "countries " "price" "sorting";
     }
 
     ul.product-list {

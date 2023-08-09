@@ -8,7 +8,8 @@ const PriceGraph = ({
 }) => {
 
   const [graphOptions, setGraphOptions] = useState();
-
+  const [prices, setPrices] = useState([]);
+  
   useEffect(() => {
     let config = {
       id: product.Id,
@@ -18,19 +19,43 @@ const PriceGraph = ({
       maxPrice: 0
     };
 
+    var formattedPrices = [];
     for (const date of product.PriceHistorySorted) {
       let price = product["PriceHistory." + date];
       config.minPrice = price < config.minPrice ? price : config.minPrice;
       config.maxPrice = price > config.maxPrice ? price : config.maxPrice;
-      config.data.push({ x: dateFormater.format(date), y: price });
+      let parsedDate = dateFormater.parse(date);
+      formattedPrices.push({date: date, price: price});
+      config.data.push({ x: dateFormater.format(parsedDate), y: price });
     }
+
+    formattedPrices.sort( (x,y )=>  y.date - x.date);
+
+    setPrices(formattedPrices);
     setGraphOptions(config);
   }, [product]);
 
+  const priceLastYear = () => {
+
+    if(prices.length <= 1) return;    
+    let change = 0;
+    var latest = prices[0];
+    for (const p of prices) {
+      if(Math.abs(Date.now() - p.date  ) >= 31536000000){
+         change =  (((latest.price - p.price ) / p.price )* 100).toFixed(1);
+        break;
+        }
+    }
+    if(change === 0) return;
+    return (<p>{change > 0 ? "Opp" : "Ned" } <span>{Math.abs(change)}%</span> det siste året</p>);
+  }
 
   return (
     <div className="priceGraph descriptionText">
       <h3 className="title">Prishistorikk</h3>
+      <div className="summary">
+        {priceLastYear()}
+      </div>
       <div className="graph">
         {graphOptions &&
           <ResponsiveLine

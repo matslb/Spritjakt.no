@@ -47,7 +47,7 @@ const Product = ({
 
   let showDiff = product.PriceChange && product.PriceChange > 100.1 || product.PriceChange < 99.9;
 
-  let lastChangedDate = dateFormater.format(product.LastUpdated);
+  let lastChangedDate = dateFormater.format(dateFormater.parse(product.LastUpdated));
   let isSoldOut = product.Stores.length == 0;
 
   return (

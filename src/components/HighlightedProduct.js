@@ -309,8 +309,8 @@ const HighlightedProduct = ({
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}
+      
       <div className="priceHistoryWrapper">
-
         {showGraph && product.PriceHistorySorted &&
           <PriceGraph product={product} />
         }
@@ -323,7 +323,7 @@ const HighlightedProduct = ({
       </div>
       {product.Stores?.length > 0 &&
         <div className="product_stock descriptionText">
-          <h3 className="title" >På lager i følgende butikker: </h3>
+          <h3 className="title" >Lagerstatus </h3>
           <ul>{renderStoreStock()}</ul>
         </div>
       }
