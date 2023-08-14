@@ -212,14 +212,17 @@ const AccountSettings = ({
     }
 
     const applyFilter = (filter) => {
+        
         let query = queryString.parse(window.location.search, { arrayFormat: 'comma' });
         query.stores = filter.stores;
         query.types = filter.productTypes;
         query.countries = filter.countries;
         query.isGoodFor = filter.isGoodFor;
-
+        query.min = filter.min;
+        query.max = filter.max
         let params = queryString.stringify(query, { arrayFormat: 'comma' });
         window.history.replaceState('', '', '?' + params);
+        
         applyUserFilter();
         firebase.analytics().logEvent("user_apply_filter");
     }
@@ -249,7 +252,7 @@ const AccountSettings = ({
                     <div className="productTypes">{filter.productTypes.length > 0 ? filter.productTypes.join().replace(/,/g, ", ") : "Alle"}</div>
                     <div className="countries">{filter.countries?.length > 0 ? filter.countries?.join().replace(/,/g, ", ") : "Alle"}</div>
                     <div className="isGoodForList">{filter.isGoodFor?.length > 0 ? filter.isGoodFor?.join().replace(/,/g, ", ") : "Alle"}</div>
-
+                    <div className="pris">{`${filter.min || ""} - ${filter.max || ""}`}</div>
                 </div>
                 <div className="operations">
                     <button aria-label="Slett filter" className="iconBtn dark" onClick={(e) => {
@@ -332,6 +335,7 @@ const AccountSettings = ({
                                             <div className="productTypes">Typer</div>
                                             <div className="productCountries">Land</div>
                                             <div className="productCountries">Passer til</div>
+                                            <div className="productCountries">Pris</div>
                                         </div>
                                         <div className="operations">
                                         </div>

@@ -46,7 +46,9 @@ class MainContent extends React.Component {
         productTypes: [],
         stores: [],
         countries: [],
-        isGoodFor: []
+        isGoodFor: [],
+        min: null,
+        max: null
       
       },
       sortOptions: sortOptions
@@ -114,8 +116,8 @@ class MainContent extends React.Component {
     query.isGoodFor = toArray(query.isGoodFor);
     query.page = query.page || 1;
     query.sort = query.sort || sortOptions[0].value;
-    query.min = query.min;
-    query.max = query.max;
+    query.min = query.min || null;
+    query.max = query.max || null;
     return query;
   }
 
@@ -192,13 +194,16 @@ class MainContent extends React.Component {
     if ((newFilter.stores.length === 0
       && newFilter.productTypes.length === 0
       && newFilter.isGoodFor.length === 0
-      && newFilter.countries.length === 0)
+      && newFilter.countries.length === 0
+      && newFilter.min == undefined 
+      && newFilter.max  == undefined )
       || (this.state.user
         && this.state.user.filters.find(f =>
           arraysAreEqual(f.stores, newFilter.stores)
           && arraysAreEqual(f.productTypes, newFilter.productTypes)
           && arraysAreEqual(f.countries, newFilter.countries)
           && arraysAreEqual(f.isGoodFor, newFilter.isGoodFor)
+          && f.min == newFilter.min && f.max == newFilter.max
         )
       )) {
       filterExists = true;

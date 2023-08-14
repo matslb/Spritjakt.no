@@ -2,6 +2,8 @@ import { TextField } from "@mui/material";
 import React, { useState } from "react";
 import "./css/priceFilter.css";
 import { useEffect } from "react";
+import firebase from "firebase/compat/app";
+import "firebase/compat/analytics";
 
 const PriceFilter = ({
     SetPriceFilter,
@@ -10,12 +12,12 @@ const PriceFilter = ({
 }) => {
     useEffect( () => {
         let shrinkUpdate = Object.assign({},  shrink);
-        if(max !== undefined && maxPrice === undefined){
+        if(max !== null && maxPrice === undefined){
             setMaxPrice(max);          
             shrinkUpdate.max = true;
         }
 
-        if(min !== undefined && minPrice === undefined){
+        if(min !== null && minPrice === undefined){
             setMinPrice(min);
             shrinkUpdate.min = true;
         }
@@ -44,7 +46,8 @@ const PriceFilter = ({
   
       setTimeOut(setTimeout(() => {
             SetPriceFilter(min, max);
-      }, 250))
+            firebase.analytics().logEvent(`filter_price`);
+        }, 250))
     }
    const ShouldShrink = (x) => {return x ? { shrink: true } : {}};
     return (

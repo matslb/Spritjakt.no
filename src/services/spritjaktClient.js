@@ -131,6 +131,7 @@ class SpritjaktClient {
   static async SaveUserFilter(filter) {
     const user = firebase.auth().currentUser;
     if (!user) return;
+    console.log(filter);
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       filters: firebase.firestore.FieldValue.arrayUnion(filter)
@@ -142,6 +143,7 @@ class SpritjaktClient {
   static async RemoveUserFilter(filter) {
     const user = firebase.auth().currentUser;
     if (!user) return;
+    delete filter.sort;
     const usersRef = firebase.firestore().collection("Users").doc(user.uid);
     await usersRef.update({
       filters: firebase.firestore.FieldValue.arrayRemove(filter)

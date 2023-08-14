@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Select from 'react-select'
 import sortArray from "sort-array";
+import firebase from "firebase/compat/app";
+import "firebase/compat/analytics";
 
 const Filter = ({
     items,
@@ -18,6 +20,7 @@ const Filter = ({
             options.map(s => list.push(s.value));
         }
         handleFilterChange(propSlug, list);
+        firebase.analytics().logEvent(`filter_${propSlug}`);
     }
 
     useEffect(() => {

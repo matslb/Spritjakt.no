@@ -1,5 +1,6 @@
 const SortArray = require("sort-array");
 const firebase = require("firebase-admin");
+const sortArray = require("sort-array");
 require("firebase/firestore");
 require("firebase/auth");
 
@@ -147,6 +148,152 @@ module.exports = class FirebaseClient {
     }
   }
 
+  static async UpdateProductPriceV2(p) {
+
+    let today = new Date();
+    d.setHours(12);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
+    
+    const productRef = firebase.firestore().collection("Products").doc(p.Id);
+    const productDoc = await productRef.get();
+    let sp = productDoc.data();
+
+    if (sp === undefined) {
+      sp = p;
+      if (p.Buyable == false) {
+        sp.Prices = {
+          [today]: sp.LatestPrice,
+        };
+      }
+      sp.LastUpdated = today;
+      sp.LastPriceFetchDate = today;
+      sp.StockFetchDate = new Date(0, 0, 0, 0);
+      try {
+        await productRef.set(sp);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+
+      if (p.Year != "0000" && !p.VintageComment?.includes("ikke egnet for lagring")) {
+        if (sp.Year !== undefined && sp.Year != p.Year) {
+          var oldYear = sp.Year;
+          var newYear = p.Year;
+          var expiredProduct = Object.assign({}, sp);
+          expiredProduct.Id += "x" + oldYear;
+          expiredProduct.Expired = true;
+          expiredProduct.Buyable = false;
+          expiredProduct.ProductStatusSaleName = "Utgått";
+          expiredProduct.Stores = [];
+          expiredProduct.StoreStock = [];
+          try {
+            console.log("New vintage detected for product " + sp.Id + ". Creating new product " + expiredProduct.Id);
+            firebase.firestore().collection("Products").doc(expiredProduct.Id).set(expiredProduct);
+            // if vintage has already been created prior to this, its fetched and used as a base for pricehistory
+            const existingVintageRef = firebase.firestore().collection("Products").doc(sp.Id += "x" + newYear);
+            if ((await existingVintageRef.get()).exists) {
+              sp = Object.assign({}, (await existingVintageRef.get())?.data());
+              sp.Id = p.Id;
+              existingVintageRef.delete();
+            } else {
+              sp = p;
+              sp.RatingFetchDate = 0;
+              sp.Prices = {
+                [today]: sp.LatestPrice,
+              };
+              sp.LastUpdated = today;
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        else {
+          sp.Year = p.Year;
+        }
+      }
+
+      if (sp.Prices == undefined && p.LatestPrice != null) {
+        sp.Prices = [
+          {date: today, value: p.LatestPrice}
+        ]
+
+        };
+      }
+
+      sp = CopyProjectDatafields(sp, p);
+
+      sortArray(sp.Prices, {
+        by: 'date',
+        order: 'desc'
+      });
+      
+      let ComparingPrice = sp.LatestPrice ?? sp.Prices[0].value;
+
+      if (ComparingPrice === null || ComparingPrice === undefined) {
+        sp = this.HandleProductMeta(sp);
+        try {
+          console.log("Updating: " + sp.Id);
+          await productRef.set(sp);
+          return;
+        } catch (error) {
+          console.log(error);
+        }
+      
+
+      let PriceChange = (LatestPrice / ComparingPrice) * 100;
+
+      if (PriceChange !== 100) {
+        if (PriceChange <= 98 || PriceChange >= 102) {
+          sp.PriceIsLowered = PriceChange < 100;
+          sp.PriceChange = Math.round(PriceChange * 100) / 100;
+        } else {
+          sp.PriceIsLowered = null;
+          sp.PriceChange = 100;
+        }
+        sp.PriceHistory[today] = LatestPrice;
+        sp.LastUpdated = today;
+        sp.LatestPrice = LatestPrice;
+        sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
+          order: "desc",
+        });
+        sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;
+      }
+    }
+
+    sp = this.HandleProductMeta(sp);
+    try {
+      console.log("Updating: " + sp.Id);
+      await productRef.set(sp);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static CopyProjectDatafields(sp, p){
+    sp.ProductStatusSaleName = p.ProductStatusSaleName ?? "";
+    sp.Types = p.Types;
+    sp.Country = p.Country;
+    sp.Name = p.Name
+    sp.Color = p.Color;
+    sp.Smell = p.Smell;
+    sp.Taste = p.Taste;
+    sp.IsGoodFor = p.IsGoodFor;
+    sp.Sweetness = p.Sweetness;
+    sp.Fullness = p.Fullness;
+    sp.Freshness = p.Freshness;
+    sp.Sulfates = p.Sulfates;
+    sp.Expired = p.Expired;
+    sp.Buyable = p.Buyable;
+    sp.Volume = p.Volume;
+    sp.RawMaterials = p.RawMaterials;
+    sp.LatestPrice = p.LatestPrice;
+    sp.VintageComment = p.VintageComment;
+    sp.LastPriceFetchDate = lastPriceFetchDate;
+    return sp;
+  }
+
   static HandleProductMeta(sp) {
     if (sp.Stores == undefined) {
       sp.Stores = [];
@@ -158,6 +305,7 @@ module.exports = class FirebaseClient {
     } else {
       sp.Stores = sp.Stores.filter(s => s !== "online");
     }
+    
     if (sp.Stores?.length > 0 && sp.Alcohol > 0.7) {
       if (sp.PriceHistory != undefined && sp.PriceHistorySorted.length >= 1 && sp.PriceHistory[sp.PriceHistorySorted[1]]) {
         sp.PriceChange = Math.round((sp.LatestPrice / sp.PriceHistory[sp.PriceHistorySorted[1]] * 100) * 100) / 100;
