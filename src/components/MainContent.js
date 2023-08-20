@@ -208,7 +208,6 @@ class MainContent extends React.Component {
       )) {
       filterExists = true;
     }
-
     this.setState({ currentFilterExists: filterExists, filter: newFilter });
   }
 

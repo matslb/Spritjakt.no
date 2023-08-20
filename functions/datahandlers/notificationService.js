@@ -38,6 +38,7 @@ module.exports = class NotificationClient {
                         this.ProductHasFilterTypes(p, filter)
                         && this.ProductHasCountry(p, filter)
                         && this.ProductIsInFilterStore(p, filter)
+                        && this.ProductPriceIsInRange(p, filter)
                     ));
                     if (filterMatchedProducts.length > 0) {
                         userFilterMatches.push({
@@ -105,6 +106,14 @@ module.exports = class NotificationClient {
         return filter.stores === undefined
             || filter.stores.length === 0
             || product.Stores.find(s => filter.stores.includes(s));
+    }
+    static ProductPriceIsInRange(product, filter) {
+        return (filter.min === undefined 
+                || filter.min === null
+                || product.LatestPrice >= filter.min)
+            && (filter.max === undefined
+                || filter.max === null
+                || product.LatestPrice <= filter.max);
     }
 
     static CreateNewsLetterEmail(products) {
@@ -272,7 +281,7 @@ module.exports = class NotificationClient {
     static async SendEmail(email) {
         mg.messages.create(emailConfig.mailgun.domain, email)
             .then(msg => console.log(msg))
-            .catch(err => console.log(err)); // logs any error
+            .catch(err => console.log(err)); 
 
         await sleep(500);
     }

@@ -4,6 +4,7 @@ import "firebase/compat/analytics";
 import SortArray from "sort-array";
 import axios from "axios";
 import UserCacher from "./userCache";
+import sortArray from "sort-array";
 
 class SpritjaktClient {
 
@@ -18,11 +19,13 @@ class SpritjaktClient {
         .then((docs) => {
           docs.forEach((doc) => {
             let p = doc.data();
-            p.order = productIdsCopy.indexOf(p.Id);
             products.push(p);
           })
         });
     }
+    sortArray(products, {
+      by:"Name"
+    })
     return products;
   }
 
