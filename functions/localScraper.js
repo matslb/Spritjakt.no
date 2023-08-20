@@ -29,7 +29,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 16;
+        var runhour = 1;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -45,7 +45,7 @@ async function orchistrator() {
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
                 await reConnectToVpn(getVpnCountry());
                 await UpdatePrices();
-                //await UpdateStocks();
+                await UpdateStocks();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
                 console.log("Finished run. It took " + runtime.toFixed(2) + " hours.");
@@ -93,7 +93,7 @@ async function UpdatePrices() {
     var reconnectAttempted = false;
     var time = new Date();
     let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 25000 : 10000);
+    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 25000 : 1000);
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         console.log("____________________");

@@ -80,7 +80,6 @@ const AccountSettings = ({
                         let userData = doc.data();
                         if (userData) {
                             UserCacher.set(userData);
-                            console.log(userData)
                             if (userData.products && userData.products.length > 0) {
                                 setIsLoading(true);
                                 SpritjaktClient.FetchProductsById(userData.products).then(products => {

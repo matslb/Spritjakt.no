@@ -98,7 +98,7 @@ const Product = ({
           </span>
         }
         <div className="detailsLine">
-          <span className="type">{product.Types[product.Types.length - 1]}</span>
+          <span className="type">{product.Type ?? product.Types[product.Types.length - 1]}</span>
           {product.Rating && !Number.isNaN(product.Rating) &&
             <span title="Vurdering (aperitif.no)" className="rating">
               <FontAwesomeIcon icon={faStar} size="lg" />

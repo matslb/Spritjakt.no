@@ -217,7 +217,7 @@ const HighlightedProduct = ({
           <span className="old_price">{product.PriceHistorySorted?.length > 1 && "Kr " + product["PriceHistory." + [product.PriceHistorySorted[1]]]}</span>
         }
         <span className="details">
-          {product.Types[product.Types.length - 1]}, {product.Country}
+          {product.Type ?? product.Types[product.Types.length - 1]}, {product.Country}
           <br />
           {(product.Volume).toFixed(1)}
           cl, Alk. {product.Alcohol}%
@@ -306,6 +306,7 @@ const HighlightedProduct = ({
         </section>
       }
       {vintages.length > 1 && renderVintages()}
+      {product.Types.length > 1 && renderTextSection(product.Types.join(", "), "Kategorier")}
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}
