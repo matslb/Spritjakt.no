@@ -159,7 +159,7 @@ class VmpClient {
     };
     return await axios(options).then(async function (res) {
 
-      if (res?.data?.main_category?.code === "gaveartikler_og_tilbehør") {
+      if (parser.parse(res?.data).product?.main_category?.code === "gaveartikler_og_tilbehør") {
         return { product: false };
       }
       let p = CreateProduct(parser.parse(res.data).product);
@@ -224,16 +224,26 @@ class VmpClient {
 }
 
 function CreateProduct(productData) {
-  let type = productData.main_category.name;
-  if (!["Rødvin", "Hvitvin", "Musserende vin", "Øl", "Rosévin", "Perlende vin"].includes(type)) {
-    type = productData.main_sub_category ? productData.main_sub_category.name : productData.main_sub_sub_category ? productData.main_sub_sub_category.name : type;
+  let types = [];
+  
+  let type = productData.main_category.name;   
+  types.push(productData.main_category.name.split(",")[0]);
+
+  if(productData.main_sub_category){
+    type = productData.main_sub_category.name.split(",")[0];
+    types.push(type);
+  }
+  if(productData.main_sub_sub_category){
+    type = productData.main_sub_sub_category.name.split(",")[0];
+    types.push(type);
   }
 
-  let types = [];
   if (productData.tags && !Array.isArray(productData.tags)) {
-    types = productData.tags.split(",");
+    types = types.concat(productData.tags.split(","));
   }
-  types.push(type.split(",")[0]);
+
+  types = [...new Set(types)];
+
 
   if( productData.isGoodFor != undefined && !Array.isArray(productData.isGoodFor))
   {
@@ -253,6 +263,7 @@ function CreateProduct(productData) {
     Sugar: productData.sugar ? productData.sugar : "",
     Acid: productData.acid ? productData.acid : "",
     Country: productData.main_country ? productData.main_country.name : null,
+    Type: type,
     Types: types,
     RawMaterials: productData.raastoff || [],
     Color: productData.color || null,
