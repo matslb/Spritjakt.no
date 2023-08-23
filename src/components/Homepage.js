@@ -11,7 +11,6 @@ import { faFire, faStore, faWineBottle } from "@fortawesome/free-solid-svg-icons
 import HallOfFame from "./HallOfFame";
 import { formTypes } from "../utils/utils";
 import BarcodeScanner from "./BarcodeScanner";
-import { isMobile } from "react-device-detect";
 
 class Homepage extends React.Component {
     constructor(props) {

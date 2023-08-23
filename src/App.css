@@ -309,3 +309,12 @@ a.clickable {
 .productWatchBtns .watched {
     color: #90495d;
 }
+.fixed{
+    position: fixed!important;
+}
+.left{
+    left: 1.5rem;
+}
+.bottom{
+    bottom: 1.5rem;
+} 

@@ -208,6 +208,38 @@ filter.price-filter{
     bottom: 0;
 }
 
+.filter-drawer > .MuiPaper-root {
+    overflow: visible;
+}
+
+.handle{
+    top: -4px;
+    position: absolute;
+    background: #1c323a;
+    left: 0;
+    right: 0;
+    height: 14px;
+    margin: auto ;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.MuiFab-root{
+    background: #1c323a!important;
+    color: white!important;
+    z-index: 10!important;
+}
+
+.puller {
+    width: 30px;
+    height: 3px;
+    background-color: white;
+    border-radius: 3px;
+    position: absolute;
+    top: calc(50% - 2px);;
+    left: calc(50% - 15px);
+}
+
 @media(max-width: 1024px) {
     ul.product-list {
         grid-template-columns: 1fr 1fr 1fr;
@@ -216,6 +248,9 @@ filter.price-filter{
 
 @media(max-width: 768px) {
 
+    .MainContent {
+        padding: 0 1rem;
+    }
     .main {
         display: block;
     }

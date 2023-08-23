@@ -10,6 +10,7 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/analytics";
 import Notification from "./Notification";
 import ProductPopUp from "./ProductPopUp";
+import { Fab } from "@mui/material";
 
 
 const BarcodeScanner = () => {
@@ -82,9 +83,9 @@ const BarcodeScanner = () => {
     return (
         <div className="BarcodeScanner">
             {hasCamera &&
-                <button aria-label="Skann strekkode" onClick={openBarcodeScanner} className="clickable iconBtn">
-                    <FontAwesomeIcon size="2x" icon={faWineBottle} />
-                </button>
+            <Fab size="medium" aria-label="Skann strekkode" onClick={openBarcodeScanner} >
+                <FontAwesomeIcon size="2x" icon={faWineBottle} />
+            </Fab>
             }
             {isActive &&
                 <div className={"ScannerPopup " + (isActive ? "active" : "")}>

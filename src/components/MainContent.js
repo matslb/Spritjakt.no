@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
 import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
-import { NativeSelect, SwipeableDrawer, TextField } from '@mui/material';
+import {  Card, CardContent, Fab, NativeSelect, SwipeableDrawer } from '@mui/material';
+import { FilterListOutlined } from '@mui/icons-material';
 import queryString from "query-string";
 import Notification from "./Notification";
 import Filter from "./Filter";
@@ -41,7 +42,7 @@ class MainContent extends React.Component {
       currentFilterExists: true,
       searchString: "",
       forceSearchString: false,
-      anchor: false,
+      drawerState: false,
       filter: {
         productTypes: [],
         stores: [],
@@ -187,8 +188,6 @@ class MainContent extends React.Component {
       max: query.max
     }
     
-    //var newFilter = Object.assign({}, query); 
-
     let filterExists = false;
 
     if ((newFilter.stores.length === 0
@@ -420,6 +419,10 @@ class MainContent extends React.Component {
     )
   }
 
+  toggleDrawer = (x) => {
+    this.setState({drawerState: x });
+  }
+  
   render() {
     let {
       loading,
@@ -427,16 +430,46 @@ class MainContent extends React.Component {
       page,
       productResult,
       user,
-      found
+      found,
+      drawerState
     } = this.state;
-    let anchor = "bottom";
     return (
       <div key="MainContent" className="MainContent" >
         <div className="main">
           <main>
+            { !isMobile &&
             <div className="before-products">
                   {this.getFilterSection()}
             </div>
+            }
+            {isMobile &&
+            <React.Fragment key={"drawer"}>
+              <Fab onClick={() => this.toggleDrawer(true)} className='fixed bottom left' size="medium"  aria-label="add">
+                <FilterListOutlined/>
+              </Fab>
+              <SwipeableDrawer
+                className="filter-drawer"
+                open={drawerState}
+                anchor= "bottom"
+                disableSwipeToOpen={false}
+                swipeAreaWidth={20}
+                ModalProps={{
+                  keepMounted: true,
+                }}
+                onClose={() => this.toggleDrawer(false)}
+                onOpen={() => this.toggleDrawer(true)}
+                >
+                <Card >
+                  <div className="handle">
+                    <span className="puller"></span>
+                  </div>
+                  <CardContent>
+                      {this.getFilterSection()}
+                  </CardContent>
+                </Card>
+              </SwipeableDrawer>                  
+            </React.Fragment>
+            }
             <Pagination
               total={found}
               page={page}

@@ -163,7 +163,10 @@ class VmpClient {
         return { product: false };
       }
       let p = CreateProduct(parser.parse(res.data).product);
-      return { product: p };
+      if(p.LatestPrice === 0)
+        return {product: false};
+      
+        return { product: p };
     })
       .catch(function (err) {
         console.error("Could not fetch price of product " + productId + ": " + err);

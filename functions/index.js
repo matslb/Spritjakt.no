@@ -64,7 +64,7 @@ exports.subscribeClientsToTopic = functions.region("europe-west1").firestore.doc
   }
 });
 
-exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 10 * * *").timeZone("Europe/Paris").onRun(async (context) => {
+exports.sendNotifications = functions.region("europe-west1").runWith(runtimeOpts).pubsub.schedule("1 16 * * *").timeZone("Europe/Paris").onRun(async (context) => {
   let d = new Date();
   d.setHours(0);
   d.setMinutes(0);
