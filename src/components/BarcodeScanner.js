@@ -10,7 +10,7 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/analytics";
 import Notification from "./Notification";
 import ProductPopUp from "./ProductPopUp";
-import { Fab } from "@mui/material";
+import { Fab, SwipeableDrawer } from "@mui/material";
 
 
 const BarcodeScanner = () => {
@@ -87,13 +87,21 @@ const BarcodeScanner = () => {
                 <FontAwesomeIcon size="2x" icon={faWineBottle} />
             </Fab>
             }
-            {isActive &&
-                <div className={"ScannerPopup " + (isActive ? "active" : "")}>
+            <SwipeableDrawer
+              open={isActive}
+              anchor= "bottom"
+              disableSwipeToOpen={true}
+              ModalProps={{
+                keepMounted: true,
+              }}
+              onClose={() => this.setIsActive(false)}
+              onOpen={() => setIsActive(true)}>
+
+                <div className="scanner-popup">
                     {scanning &&
                         <div className="ScanningDescription scannerEffect">
                             <FontAwesomeIcon size="3x" icon={faRobot} />
                             <h3>Biip baap boop</h3>
-                            <h4>...leter etter strekkoder...</h4>
                         </div>
                     }
                     <div ref={scannerRef} className="VideoWrapper" >
@@ -112,12 +120,12 @@ const BarcodeScanner = () => {
                         </button>
                     }
                 </div>
-            }
+            </SwipeableDrawer>
             {product != null &&
                 <ProductPopUp
-                    product={product}
-                    notification={notificationRef}
-                    highlightProduct={async (productId) => {
+                product={product}
+                notification={notificationRef}
+                highlightProduct={async (productId) => {
                         if (productId == null)
                             setProduct(null);
                         var product = await SpritjaktClient.FetchProductById(productId);

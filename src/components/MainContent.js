@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
 import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
-import {  Card, CardContent, Fab, NativeSelect, SwipeableDrawer } from '@mui/material';
+import {  Box, Card, CardContent, Fab, FormControlLabel, NativeSelect, SwipeableDrawer, Switch, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { FilterListOutlined } from '@mui/icons-material';
 import queryString from "query-string";
 import Notification from "./Notification";
@@ -19,9 +19,9 @@ import roundLogo from "../assets/round-logo.svg";
 import SpritjaktClient from "../services/spritjaktClient";
 
 import { sortOptions } from "../utils/utils.js";
-import SavedFilterList from "./SavedFilterList";
 import { isMobile } from 'react-device-detect';
 import PriceFilter from './PriceFilter';
+import Sorting from './Sorting';
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -49,9 +49,8 @@ class MainContent extends React.Component {
         countries: [],
         isGoodFor: [],
         min: null,
-        max: null
-      
-      },
+        max: null,
+       },
       sortOptions: sortOptions
     };
 
@@ -102,6 +101,8 @@ class MainContent extends React.Component {
           case "searchString":
             this.setState({ isSearch: true, searchString: param, forceSearchString: true });
             break;
+          case "view":
+            this.setState({ viewAll: param+"" });
           default:
             break;
         }
@@ -119,6 +120,7 @@ class MainContent extends React.Component {
     query.sort = query.sort || sortOptions[0].value;
     query.min = query.min || null;
     query.max = query.max || null;
+    query.view = (query.view === 'true') || false;
     return query;
   }
 
@@ -277,6 +279,7 @@ class MainContent extends React.Component {
 
   searchProducts(searchString = null) {
     this.setUrlParams("searchString", searchString);
+    this.setUrlParams("view", true);
     if (this.state.forceSearchString) {
       this.fetchProducts();
       this.setState({ forceSearchString: false });
@@ -394,26 +397,9 @@ class MainContent extends React.Component {
           />
           <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <PriceFilter SetPriceFilter={this.SetPriceFilter} max={filter.max} min={filter.min} />
-          <div className="sorting">
-            <label htmlFor="sorting">Sortering
-              <NativeSelect
-                value={this.state.sort}
-                onChange={this.handleSortChange}
-                inputProps={{
-                  name: 'sorting',
-                  id: 'sorting',
-                }}
-              >
-                {this.state.sortOptions.map(option => {
-                  if (option !== undefined) {
-                    return <option key={option?.value} value={option?.value}>{option?.label}</option>
-                  }
-                  return null;
-                })}
-
-              </NativeSelect>
-            </label>
-          </div>
+          {!isMobile && 
+            <Sorting handleSortChange={this.handleSortChange} sortOptions={this.sortOptions} />
+          }
         </div>
       </React.Fragment>
     )
@@ -422,7 +408,13 @@ class MainContent extends React.Component {
   toggleDrawer = (x) => {
     this.setState({drawerState: x });
   }
-  
+
+  toggleDiscountView = (x) => {
+    this.setState({viewAll: x.target.value === 'true'});
+    this.setUrlParams("view", x.target.value);
+    this.setPage(1);
+  }
+
   render() {
     let {
       loading,
@@ -431,7 +423,8 @@ class MainContent extends React.Component {
       productResult,
       user,
       found,
-      drawerState
+      drawerState,
+      viewAll
     } = this.state;
     return (
       <div key="MainContent" className="MainContent" >
@@ -451,7 +444,7 @@ class MainContent extends React.Component {
                 className="filter-drawer"
                 open={drawerState}
                 anchor= "bottom"
-                disableSwipeToOpen={false}
+                disableSwipeToOpen={true}
                 swipeAreaWidth={20}
                 ModalProps={{
                   keepMounted: true,
@@ -470,6 +463,28 @@ class MainContent extends React.Component {
               </SwipeableDrawer>                  
             </React.Fragment>
             }
+            <Box
+                sx={{
+                  paddingTop: '1rem',
+                  display: "flex",
+                  alignItems: "end", 
+                  justifyContent:  isMobile ? "space-between" : "flex-end"
+                }}
+              >
+            {isMobile && 
+              <Sorting handleSortChange={this.handleSortChange} sortOptions={this.sortOptions} />
+            }  
+              <ToggleButtonGroup
+                value={viewAll+""}
+                exclusive
+                size='small'
+                onChange={this.toggleDiscountView}
+                aria-label="Produkter som vises"
+              >
+                <ToggleButton value="false">Tilbud</ToggleButton>
+                <ToggleButton value="true">Alle</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
             <Pagination
               total={found}
               page={page}
@@ -478,6 +493,7 @@ class MainContent extends React.Component {
               useScroll={false}
               cssAnchor={"top-pagination"}
             />
+            
             <ul className="product-list">
               {loading ?
                 <div className="loader-wrapper" style={{ minHeight: "100vh" }}>
