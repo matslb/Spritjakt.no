@@ -9,8 +9,9 @@ import SupportWrapper from "./SupportWrapper";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire, faStore, faWineBottle } from "@fortawesome/free-solid-svg-icons";
 import HallOfFame from "./HallOfFame";
-import { formTypes } from "../utils/utils";
+import { formTypes, theme } from "../utils/utils";
 import BarcodeScanner from "./BarcodeScanner";
+import { ThemeProvider } from "@emotion/react";
 
 class Homepage extends React.Component {
     constructor(props) {
@@ -65,6 +66,7 @@ class Homepage extends React.Component {
     render() {
         let content = this.state.content;
         return (
+            <ThemeProvider theme={theme}>
             <div className="homepage">
                 <nav className="navigation">
                     <ul className="nav-list">
@@ -96,6 +98,7 @@ class Homepage extends React.Component {
                 < AccountSettings applyUserFilter={this.applyUserFilter.bind(this)} />
                 <SupportWrapper />
             </div >
+            </ThemeProvider>
         );
     }
 }

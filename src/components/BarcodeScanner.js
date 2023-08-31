@@ -87,17 +87,8 @@ const BarcodeScanner = () => {
                 <FontAwesomeIcon size="2x" icon={faWineBottle} />
             </Fab>
             }
-            <SwipeableDrawer
-              open={isActive}
-              anchor= "bottom"
-              disableSwipeToOpen={true}
-              ModalProps={{
-                keepMounted: true,
-              }}
-              onClose={() => this.setIsActive(false)}
-              onOpen={() => setIsActive(true)}>
-
-                <div className="scanner-popup">
+            {isActive &&
+            <div className={"ScannerPopup " + (isActive ? "active" : "")}>
                     {scanning &&
                         <div className="ScanningDescription scannerEffect">
                             <FontAwesomeIcon size="3x" icon={faRobot} />
@@ -120,7 +111,7 @@ const BarcodeScanner = () => {
                         </button>
                     }
                 </div>
-            </SwipeableDrawer>
+                }
             {product != null &&
                 <ProductPopUp
                 product={product}

@@ -3,7 +3,7 @@ import facebookImg from "../assets/facebook.png";
 import appleImg from "../assets/apple.svg";
 import emailImg from "../assets/email.svg";
 import firebase from "firebase/compat/app";
-
+import { createTheme } from '@mui/material/styles';
 
 export const arraysAreEqual = (arr1, arr2) => {
     if (arr1?.length !== arr2?.length) {
@@ -120,8 +120,17 @@ export const sortOptions = [
     { label: "Gjerrigknark - Literpris ", value: "cheapskate", typeSenseValue: "_text_match:desc, Literprice:asc" },
     { label: "Student - Billigst fyll", value: "student", typeSenseValue: "_text_match:desc, LiterPriceAlcohol:asc" },
     { label: "Laveste pris", value: "price_low", typeSenseValue: "_text_match:desc, LatestPrice:asc" },
-    { label: "Høyeste pris", value: "price_high", typeSenseValue: "_text_match:desc, LatestPrice:desc" },
+    { label: "Høyeste pris", value: "price_high", typeSenseValue: "_text_match:desc, LatestPrice:desc" }
+];
 
+export const volumeOptions = [
+    { label: "Under 20 cl", value: "<20" },
+    { label: "20 - 33 cl" , value: "20..33" },
+    { label: "34 - 49 cl" , value: "34..49" },
+    { label: "50 - 69 cl" , value: "50..69" },
+    { label: "75 - 99 cl" , value: "75..99" },
+    { label: "1 - 2,9 liter" , value: "100..290"},
+    { label: "3 liter og over" , value: ">=300"},
 ];
 
 export const isInViewport = (element) => {
@@ -144,3 +153,21 @@ export const formatPriceHistory = (p) => {
     }
     return p;
 }
+
+
+export const theme = createTheme({
+  palette: {
+    primary: {
+      light: '#283438',
+      main: '#132328',
+      dark: '#101b1f',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#ff7961',
+      main: '#f44336',
+      dark: '#ba000d',
+      contrastText: '#000',
+    },
+  },
+});

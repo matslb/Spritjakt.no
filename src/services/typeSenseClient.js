@@ -2,7 +2,7 @@ import { SearchClient as TypesenseSearchClient } from "typesense";
 import config from "../config.json";
 import { sortOptions } from "../utils/utils";
 
-const collection = "Products_v1.4";
+const collection = "Products_v1.45";
 
 class TypeSenseClient {
 
@@ -171,6 +171,13 @@ class TypeSenseClient {
         }
         if (filter.min) {
             filterString += " && LatestPrice:" + ">=" + filter.min;
+        }
+        
+        if(filter.volume && filter.volume.length > 0)
+            {
+            filterString +=` && Volume:[${filter.volume.map((v,i) => i > 0 ? ','+v : v)}]`
+            //filter.volume.map((v, i) => filterString += `${i > 0 ? " || " : "" }Volume:${v}` );
+            //filterString += "";
         }
 
         return filterString;

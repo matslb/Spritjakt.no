@@ -13,7 +13,7 @@ import Notification from "./Notification";
 import Filter from "./Filter";
 import SearchBar from "./SearchBar";
 import ProductList from "./ProductList";
-import { arraysAreEqual, cleanForMissingStores, isInViewport, toArray } from "../utils/utils.js";
+import { arraysAreEqual, cleanForMissingStores, isInViewport, toArray, volumeOptions } from "../utils/utils.js";
 import TypeSenseClient from "../services/typeSenseClient";
 import roundLogo from "../assets/round-logo.svg";
 import SpritjaktClient from "../services/spritjaktClient";
@@ -22,6 +22,7 @@ import { sortOptions } from "../utils/utils.js";
 import { isMobile } from 'react-device-detect';
 import PriceFilter from './PriceFilter';
 import Sorting from './Sorting';
+import FilterV2 from './FilterV2';
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -43,14 +44,14 @@ class MainContent extends React.Component {
       searchString: "",
       forceSearchString: false,
       drawerState: false,
-      filter: {
-        productTypes: [],
+     filter: {
         stores: [],
         countries: [],
         isGoodFor: [],
+        volume: [],
         min: null,
         max: null,
-       },
+      },
       sortOptions: sortOptions
     };
 
@@ -116,6 +117,7 @@ class MainContent extends React.Component {
     query.types = toArray(query.types);
     query.countries = toArray(query.countries);
     query.isGoodFor = toArray(query.isGoodFor);
+    query.volume = toArray(query.volume);
     query.page = query.page || 1;
     query.sort = query.sort || sortOptions[0].value;
     query.min = query.min || null;
@@ -187,7 +189,8 @@ class MainContent extends React.Component {
       countries: query.countries,
       isGoodFor: query.isGoodFor,
       min: query.min,
-      max: query.max
+      max: query.max,
+      volume: query.volume
     }
     
     let filterExists = false;
@@ -395,8 +398,12 @@ class MainContent extends React.Component {
             stores={stores}
             notification={this.notification}
           />
+
           <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <PriceFilter SetPriceFilter={this.SetPriceFilter} max={filter.max} min={filter.min} />
+
+          <FilterV2 items={volumeOptions} selectedItems={filter.volume} propSlug={"volume"} label={"Volum"} handleFilterChange={this.handleFilterClick.bind(this)} />
+
           {!isMobile && 
             <Sorting handleSortChange={this.handleSortChange} sortOptions={this.sortOptions} />
           }
