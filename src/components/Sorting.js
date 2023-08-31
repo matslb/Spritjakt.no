@@ -8,10 +8,6 @@ const Sorting = ({
 }) => {
   return (
         <div className="sorting">
-        <label htmlFor="sorting">
-        {!isMobile &&
-            "Sortering"
-        }
         <NativeSelect
             value={sort}
             aria-label="Sortering"
@@ -28,7 +24,6 @@ const Sorting = ({
             return null;
             })}
         </NativeSelect>
-        </label>
     </div>
   );
 }

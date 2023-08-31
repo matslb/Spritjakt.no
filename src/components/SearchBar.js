@@ -51,7 +51,6 @@ const SearchBar = ({
   return (
     <div className="SearchBar">
       <label>
-        <span>Søk</span>
         <input
           className="searchbox"
           type="text"

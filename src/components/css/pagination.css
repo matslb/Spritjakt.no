@@ -51,19 +51,17 @@ nav.Pagination ul {
     nav.Pagination {
         flex-direction: column;
         align-items: center;
+        width: 100%;
     }
 
     nav.Pagination ul {
-        margin: 2rem 0 1rem;
+        margin: 1rem 0 1rem;
         display: grid;
         grid-template-columns: repeat(9, 1fr);
         gap: 5px;
         width: 100%;
     }
 
-    nav.Pagination .pageButton {
-        width: 100%;
-    }
 
     nav.Pagination ul li {
         margin: 0;

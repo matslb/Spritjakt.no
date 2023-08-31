@@ -2,13 +2,20 @@ import React, { useEffect, useState } from "react";
 import firebase from "firebase/compat/app";
 import "firebase/compat/analytics";
 import { Box, Chip, FormControl, Input, InputLabel, MenuItem, OutlinedInput, Select, ThemeProvider } from "@mui/material";
-import { FilterListOutlined, Remove, RemoveCircle } from '@mui/icons-material';
-import { theme } from "../utils/utils";
-import { isMobile } from "react-device-detect";
+import "./css/filter.css";
+import { Delete, RemoveCircle, RemoveCircleTwoTone } from "@mui/icons-material";
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
-
+const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
 const FilterV2 = ({
     items = [],
     selectedItems = [],
@@ -18,17 +25,7 @@ const FilterV2 = ({
 }) => {
     
     const [selectedOptions, setSelectedOptions] = useState([]);
-
-    const MenuProps = {
-        PaperProps: {
-          style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-          },
-        },
-      };
-
-    
+    const [open, setOpen] = useState(true);
 
     const handleChange = (e) => {        
         
@@ -38,22 +35,27 @@ const FilterV2 = ({
         firebase.analytics().logEvent(`filter_${propSlug}`);
     }
 
-    const remove = (e) => {
-        selectedOptions.shift(e.target.value, 1);
-        setSelectedOptions(selectedOptions)
-        handleFilterChange(propSlug, selectedOptions);
+    const remove = (value) => {
+        var selected  = selectedOptions.filter(x => x !== value);
+        setSelectedOptions(selected)
+        handleFilterChange(propSlug, selected);
     }
+
+    useEffect(() => {
+        setSelectedOptions(selectedItems);
+    }, [])
 
     return (
         <div className={"filter " + propSlug} >
-            <FormControl sx={{ width: 500 }}>
-                <InputLabel className={`multiple-chip-label-${propSlug}`}>Filtrer på {label}</InputLabel>
+            <FormControl >
+                <InputLabel focuse={open}  className={`multiple-chip-label-${propSlug}`}>Filtrer på {label}</InputLabel>
                 <Select
                 labelId={`multiple-chip-label-${propSlug}`}
                 id={`multiple-chip-${propSlug}`}
                 multiple
                 value={selectedOptions}
                 onChange={handleChange}
+                MenuProps={MenuProps}
                 input={<Input id={`select-multiple-chip-${propSlug}`} label={"Filtrer på "+ label} />}
                 renderValue={(selected) => {
                     var selectedItems = items.filter(x => selected.includes(x.value));
@@ -63,19 +65,16 @@ const FilterV2 = ({
                             <Chip 
                             key={(x.value)} 
                             label={x.label}
-                            deleteIcon={
-                                <RemoveCircle
-                                onMouseDown={(event) => selectedOptions.length > 0 ? event.stopPropagation() : ""}
-                                />
-                            }
-                            onDelete={remove} 
-                            />
+                            onDelete={() => 1}
+                            onMouseDown={(e) => {remove(x.value); e.stopPropagation()}}
+                            >
+                                 </Chip>
                             ))}
                         </Box>
                     )}
                 }
                 >
-                {items.map((item) => (
+                {items.filter(i => !selectedOptions.includes(i.value) ).map((item) => (
                     <MenuItem
                     key={item.value}
                     value={item.value}
@@ -90,3 +89,4 @@ const FilterV2 = ({
 }
 
 export default FilterV2;
+

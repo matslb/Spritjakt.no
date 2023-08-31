@@ -92,12 +92,6 @@ li {
     border-bottom: 2px solid rgba(0, 0, 0, 0.87);
 }
 
-.main .select__control .select__placeholder,
-.MuiFormLabel-root.MuiInputLabel-standard   {
-    font-size: 0.85rem;
-    color: black;
-    margin: 0;
-}
 
 .noinput.select__indicators {
     width: 100%;
@@ -113,15 +107,6 @@ li {
 
 .MuiInputBase-root {
     display: block !important;
-}
-
-.MuiNativeSelect-select.MuiNativeSelect-standard {
-    padding-right: 0 !important;
-    padding-left: 8px;
-    width: calc(100% - 8px);
-    height: 1.1rem;
-    line-height: 1.1rem;
-    min-height: 25px;
 }
 
 .MuiInput-underline:before {

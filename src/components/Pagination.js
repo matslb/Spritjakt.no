@@ -1,64 +1,55 @@
 import React from "react";
 import "./css/pagination.css";
 import PageButton from "./PageButton";
+import { sortOptions, theme } from "../utils/utils";
+import Sorting from "./Sorting";
+import { Box, Pagination } from "@mui/material";
+import { ThemeProvider } from "@emotion/react";
 
-const Pagination = ({
+const PaginationSection = ({
   pageSize,
   page,
   total,
   setPage,
   useScroll,
-  cssAnchor
+  cssAnchor,
+  handleSortChange = null
 }) => {
-
-  const renderPageButtons = () => {
-    let list = [];
-    let pages = Math.ceil(total / pageSize);
-    for (let i = 1; i <= pages; i++) {
-      if (pages < 8 || (i < 3 || i > (pages - 2) || page === i || page === i + 1 || page === i - 1)) {
-        list.push(
-          <PageButton
-            key={"page-" + i}
-            page={i}
-            isSelected={page === i}
-            setPage={setPage.bind(this)}
-            useScroll={useScroll}
-          />
-        );
-      } else if (
-        (pages >= 8 && i === 3 && page < 3)
-        || (page === i + 2)
-        || (page === i - 2)
-        || (page === pages && i === page - 2)) {
-        list.push(
-          <li key={"page" + i}>
-            <div style={{ pointerEvents: "none" }} className="pageButton clickable inactive dummy">
-              ...
-            </div>
-          </li>
-        );
-      }
-    }
-    return list;
-  };
-
-  let productsShowingtext;
-
+const getPaginationText = () => {
+  let text = "";
   if (page === 1) {
-    productsShowingtext = "1 - " + (pageSize > total ? total : pageSize);
+    text = "1 - " + (pageSize > total ? total : pageSize);
   } else {
-    productsShowingtext = 1 + (pageSize * (page - 1)) +
+    text = 1 + (pageSize * (page - 1)) +
       " - " +
       (pageSize * page > total ? total : pageSize * page);
   }
+  return text;
+}
+  
+  const handleClick = (e, value) => {
+    if (useScroll) {
+      let element = window.document.querySelector("#top-pagination");
+      window.scroll({ top: element.getBoundingClientRect().top + document.documentElement.scrollTop, left: 0, behavior: 'smooth' })
+    }
+    setPage(value);
+  }
+
   return (
     <nav id={cssAnchor} className="Pagination">
-      <ul className="pagelist">{renderPageButtons()}</ul>
-      <span>
-        Viser {productsShowingtext} av {total} produkter
-      </span>
+      <Pagination color="primary" page={page} onChange={handleClick} count={total} on size="small" />
+        <span>
+          Viser {getPaginationText()} av {total} produkter
+        </span>
+      <Box sx={{
+        display: "flex",
+        flexDirection:"column",
+        justifyContent:"space-between"
+      }}>
+        {  handleSortChange != null && <Sorting handleSortChange={handleSortChange} sortOptions={sortOptions} />}
+      </Box>
     </nav>
   );
 }
 
-export default Pagination;
+export default PaginationSection;

@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
 import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
-import {  Box, Card, CardContent, Fab, FormControlLabel, NativeSelect, SwipeableDrawer, Switch, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import {  Box, Button, Card, CardContent, Fab, FormControlLabel, NativeSelect, SwipeableDrawer, Switch, ToggleButton, ToggleButtonGroup, grid2Classes } from '@mui/material';
 import { FilterListOutlined } from '@mui/icons-material';
 import queryString from "query-string";
 import Notification from "./Notification";
@@ -23,6 +23,8 @@ import { isMobile } from 'react-device-detect';
 import PriceFilter from './PriceFilter';
 import Sorting from './Sorting';
 import FilterV2 from './FilterV2';
+import { margin } from 'nivo/lib/PropTypes';
+import PaginationSection from './Pagination';
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -31,9 +33,9 @@ class MainContent extends React.Component {
       stores: [],
       loading: true,
       sort: "LastUpdated_desc",
-      productTypes: {},
+      productTypes: [],
       isGoodFor: [],
-      productCountries: {},
+      productCountries: [],
       highlightedProduct: null,
       productResult: [],
       page: 1,
@@ -215,37 +217,37 @@ class MainContent extends React.Component {
     this.setState({ currentFilterExists: filterExists, filter: newFilter });
   }
 
+  setFacetCount = (selected, facetcounts) => {
+    selected.map(s => s.count = 0);
+    for (const f of facetcounts) {
+      var index = selected.findIndex(x => x.value === f.value)
+      if(index === -1)
+          selected.push({
+              value: f.value,
+              label: `${f.value} (${f.count})`
+          });
+        else
+        selected[index].count = f.count;
+    }
+    return selected;
+  }
+  
   async fetchProducts(query = this.getQuery()) {
 
-    let productTypes = this.state.productTypes;
-    let productCountries = this.state.productCountries;
-    let isGoodFor = this.state.isGoodFor;
     let stores = this.state.stores;
     this.setState({ loading: true });
     let result = await this.typeSenseClient.fetchProducts(query, this.state.pageSize);
     let products = result.hits.map(hit => hit.document);
-    Object.keys(isGoodFor).forEach(gf => isGoodFor[gf].count = 0);
-    Object.keys(productTypes).forEach(pt => productTypes[pt].count = 0);
-    Object.keys(productCountries).forEach(c => productCountries[c].count = 0);
-    stores.map(s => delete s.count);
 
+    stores.map(s => delete s.count);
+    
     for (const f of result.facet_counts) {
       switch (f.field_name) {
         case "Country":
-          for (const c of f?.counts) {
-            if (productCountries[c.value] == undefined) {
-              productCountries[c.value] = {};
-            }
-            productCountries[c.value].count = c.count;
-          }
+       var productCountries = this.setFacetCount(this.state.productCountries, f.counts);
           break;
         case "Types":
-          for (const c of f?.counts) {
-            if (productTypes[c.value] == undefined) {
-              productTypes[c.value] = {};
-            }
-            productTypes[c.value].count = c.count;
-          }
+       var productTypes = this.setFacetCount(this.state.productTypes, f.counts);
           break;
         case "Stores":
           for (const c of f?.counts) {
@@ -258,14 +260,7 @@ class MainContent extends React.Component {
           }
           break;
         case "IsGoodForList":
-          for (const c of f?.counts) {
-            if (isGoodFor[c.value] == undefined) {
-              isGoodFor[c.value] = {};
-            }
-            isGoodFor[c.value].count = c.count;
-          }
-          break;
-        default:
+          var isGoodFor = this.setFacetCount(this.state.isGoodFor, f.counts);
           break;
       }
     }
@@ -276,6 +271,7 @@ class MainContent extends React.Component {
       productTypes: productTypes,
       productCountries: productCountries,
       stores: stores,
+      isGoodFor: isGoodFor,
       found: result.found,
     });
   }
@@ -374,24 +370,10 @@ class MainContent extends React.Component {
     let anchor = "bottom";
     return (
       <React.Fragment key={anchor}>
-        {(!currentFilterExists && filter) &&
-          <div className="filterSaver">
-            <FontAwesomeIcon icon={faInfoCircle} size="sm" />
-            <div>
-              <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
-              {user && !user.notifications.onFilters &&
-                <div>
-                  <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
-                </div>
-              }
-            </div>
-            <button className="greenBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
-          </div>
-        }
         <div className="nav">
           <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
-          <Filter items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
-          <Filter items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
+          <FilterV2 items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
+          <FilterV2 items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <StoreSelector
             updateStore={this.handleFilterClick.bind(this)}
             selectedStores={filter.stores}
@@ -399,14 +381,10 @@ class MainContent extends React.Component {
             notification={this.notification}
           />
 
-          <Filter items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
+          <FilterV2 items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <PriceFilter SetPriceFilter={this.SetPriceFilter} max={filter.max} min={filter.min} />
 
           <FilterV2 items={volumeOptions} selectedItems={filter.volume} propSlug={"volume"} label={"Volum"} handleFilterChange={this.handleFilterClick.bind(this)} />
-
-          {!isMobile && 
-            <Sorting handleSortChange={this.handleSortChange} sortOptions={this.sortOptions} />
-          }
         </div>
       </React.Fragment>
     )
@@ -431,7 +409,9 @@ class MainContent extends React.Component {
       user,
       found,
       drawerState,
-      viewAll
+      viewAll,
+      filter,
+      currentFilterExists
     } = this.state;
     return (
       <div key="MainContent" className="MainContent" >
@@ -470,30 +450,40 @@ class MainContent extends React.Component {
               </SwipeableDrawer>                  
             </React.Fragment>
             }
-            <Box
-                sx={{
-                  paddingTop: '1rem',
-                  display: "flex",
-                  alignItems: "end", 
-                  justifyContent:  isMobile ? "space-between" : "flex-end"
-                }}
-              >
-            {isMobile && 
-              <Sorting handleSortChange={this.handleSortChange} sortOptions={this.sortOptions} />
-            }  
-              <ToggleButtonGroup
-                value={viewAll+""}
-                exclusive
-                size='small'
-                onChange={this.toggleDiscountView}
-                aria-label="Produkter som vises"
-              >
-                <ToggleButton value="false">Tilbud</ToggleButton>
-                <ToggleButton value="true">Alle</ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-            <Pagination
+            <Box sx={{
+              display:'flex',
+              width: "100%",
+              justifyContent: 'center',
+              marginTop: "1rem"              
+            }}>
+                {(!currentFilterExists && filter) &&
+                <div className="filterSaver">
+                <FontAwesomeIcon icon={faInfoCircle} size="sm" />
+                <div>
+                  <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
+                  {user && !user.notifications.onFilters &&
+                    <div>
+                      <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
+                    </div>
+                  }
+                </div>
+                <button className="greenBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
+                </div>
+                }
+                <ToggleButtonGroup
+                  value={viewAll+""}
+                  exclusive
+                  size='small'
+                  onChange={this.toggleDiscountView}
+                  aria-label="Produkter som vises"
+                  >
+                  <ToggleButton value="false">Tilbud</ToggleButton>
+                  <ToggleButton value="true">Alle</ToggleButton>
+                </ToggleButtonGroup>
+                </Box>
+            <PaginationSection
               total={found}
+              handleSortChange={this.handleSortChange}
               page={page}
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
@@ -528,7 +518,7 @@ class MainContent extends React.Component {
                   }}
                 >Her var det ikke noe, gitt...</p>) : ("")}
             </ul>
-            <Pagination
+            <PaginationSection
               total={found}
               page={page}
               setPage={this.setPage.bind(this)}

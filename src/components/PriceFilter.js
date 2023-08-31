@@ -52,13 +52,10 @@ const PriceFilter = ({
    const ShouldShrink = (x) => {return x ? { shrink: true } : {}};
     return (
         <div className='price'>
-            <label>
-                <span>Pris</span>
-            </label>
             <div className="price-wrapper">
             <TextField
                 id="min-price"
-                label="Min"
+                label="Pris - Min"
                 type="number"
                 InputLabelProps={ShouldShrink(shrink.min)} 
                 value={minPrice}
@@ -68,7 +65,7 @@ const PriceFilter = ({
                 />
             <TextField
                 id="max-price"
-                label="Maks"
+                label="Pris - Maks"
                 type="number"
                 InputLabelProps={ShouldShrink(shrink.max)} 
                 value={maxPrice}

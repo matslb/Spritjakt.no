@@ -79,7 +79,7 @@ ul.product-list {
 
 .nav {
     display: grid;
-    grid-template-areas: "search search" "goodfor types" "stores countries " "price sorting";
+    grid-template-areas: "search search" "goodfor types" "volume countries " "stores prices";
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     align-items: end;
@@ -124,7 +124,6 @@ ul.product-list {
 }
 
 .nav .stores,
-.nav .sorting,
 .nav .batchsize {
     width: 100%;
     min-width: 16rem;
@@ -149,6 +148,10 @@ ul.product-list {
 
 .filter.types {
     grid-area: types;
+}
+
+.filter.volume {
+    grid-area: volume;
 }
 
 .filter.BarcodeScanner {
@@ -183,10 +186,11 @@ filter.price-filter{
     padding: 0.25rem .5rem;
     align-items: center;
     grid-area: filtersaver;
+    margin: 5px;
     box-sizing: border-box;
     background: white;
     box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
-    border-radius: 16px;
+    border-radius: 3px;
     max-width: 34rem;
     margin: auto;
     font-size: 0.9rem;
@@ -290,7 +294,6 @@ filter.price-filter{
     }
 
     .nav .stores,
-    .nav .sorting,
     .nav .batchsize {
         width: 100%;
         min-width: unset;
@@ -304,7 +307,7 @@ filter.price-filter{
 @media(max-width: 540px) {
     .nav {
         grid-template-columns: 1fr;
-        grid-template-areas: "search" "goodfor" "types" "stores" "countries " "price" "sorting";
+        grid-template-areas: "search" "goodfor" "types" "countries" "volume" "price" "stores";
     }
 
     ul.product-list {
