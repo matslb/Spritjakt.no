@@ -307,7 +307,7 @@ filter.price-filter{
 @media(max-width: 540px) {
     .nav {
         grid-template-columns: 1fr;
-        grid-template-areas: "search" "goodfor" "types" "countries" "volume" "price" "stores";
+        grid-template-areas: "search" "stores" "goodfor" "types" "countries" "volume" "price";
     }
 
     ul.product-list {

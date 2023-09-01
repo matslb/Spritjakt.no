@@ -37,7 +37,7 @@ const getPaginationText = () => {
 
   return (
     <nav id={cssAnchor} className="Pagination">
-      <Pagination color="primary" page={page} onChange={handleClick} count={total} on size="small" />
+      <Pagination color="primary" page={page} onChange={handleClick} count={Math.ceil(total/pageSize)} on size="small" />
         <span>
           Viser {getPaginationText()} av {total} produkter
         </span>

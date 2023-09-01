@@ -43,7 +43,7 @@ const FilterV2 = ({
 
     useEffect(() => {
         setSelectedOptions(selectedItems);
-    }, [])
+    }, [selectedItems])
 
     return (
         <div className={"filter " + propSlug} >

@@ -25,6 +25,7 @@ import Sorting from './Sorting';
 import FilterV2 from './FilterV2';
 import { margin } from 'nivo/lib/PropTypes';
 import PaginationSection from './Pagination';
+import StoreFilter from './StoreFilter';
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -254,6 +255,8 @@ class MainContent extends React.Component {
             stores = stores.map(s => {
               if (c.value === s.storeId) {
                 s.count = c.count;
+                s.value = s.storeId;
+                s.label = `${s.storeName} (${s.count})`
               }
               return s;
             });
@@ -363,8 +366,6 @@ class MainContent extends React.Component {
       productCountries,
       isGoodFor,
       filter,
-      user,
-      currentFilterExists,
       isSearch = false,
     } = this.state;
     let anchor = "bottom";
@@ -374,7 +375,7 @@ class MainContent extends React.Component {
           <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
           <FilterV2 items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <FilterV2 items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
-          <StoreSelector
+          <StoreFilter
             updateStore={this.handleFilterClick.bind(this)}
             selectedStores={filter.stores}
             stores={stores}
