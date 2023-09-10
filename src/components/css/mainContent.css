@@ -183,31 +183,17 @@ filter.price-filter{
 
 .filterSaver {
     display: flex;
-    padding: 0.25rem .5rem;
     align-items: center;
     grid-area: filtersaver;
-    margin: 5px;
     box-sizing: border-box;
     background: white;
-    box-shadow: 0 0 0 1px rgb(87 87 87 / 10%), 0 8px 8px 0 rgb(234 224 218 / 30%);
-    border-radius: 3px;
-    max-width: 34rem;
-    margin: auto;
     font-size: 0.9rem;
 }
 
-.filterSaver > div {
-    margin-left: .5rem;
-}
-
-.filterSaver > button {
-    margin-left: .5rem;
-    font-size: 0.9rem;
-}
 
 .stores .filterAddonBtn {
     position: absolute;
-    top: 40%;
+    top: 0%;
     right: 2.25rem;
     bottom: 0;
 }
@@ -242,6 +228,15 @@ filter.price-filter{
     position: absolute;
     top: calc(50% - 2px);;
     left: calc(50% - 15px);
+}
+
+.stores .select__placeholder {
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4375em;
+    margin-left: 7px;
+    letter-spacing: 0.00938em;
 }
 
 @media(max-width: 1024px) {

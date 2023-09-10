@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
 import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
-import {  Box, Button, Card, CardContent, Fab, FormControlLabel, NativeSelect, SwipeableDrawer, Switch, ToggleButton, ToggleButtonGroup, grid2Classes } from '@mui/material';
+import {  Box, Button, ButtonGroup, Card, CardContent, Fab, FormControlLabel, NativeSelect, SwipeableDrawer, Switch, ToggleButton, ToggleButtonGroup, grid2Classes } from '@mui/material';
 import { FilterListOutlined } from '@mui/icons-material';
 import queryString from "query-string";
 import Notification from "./Notification";
@@ -21,11 +21,8 @@ import SpritjaktClient from "../services/spritjaktClient";
 import { sortOptions } from "../utils/utils.js";
 import { isMobile } from 'react-device-detect';
 import PriceFilter from './PriceFilter';
-import Sorting from './Sorting';
 import FilterV2 from './FilterV2';
-import { margin } from 'nivo/lib/PropTypes';
 import PaginationSection from './Pagination';
-import StoreFilter from './StoreFilter';
 
 class MainContent extends React.Component {
   constructor(props) {
@@ -125,7 +122,19 @@ class MainContent extends React.Component {
     query.sort = query.sort || sortOptions[0].value;
     query.min = query.min || null;
     query.max = query.max || null;
-    query.view = (query.view === 'true') || false;
+    if(query.view === 'true'){
+      query.view = true;
+    }
+    else if(query.view === 'false'){
+      query.view = false;
+    }
+    else {
+      query.view = (query.countries.length > 0 
+          || query.volume.length > 0 
+          || query.types.length > 0 
+          || query.stores.length > 0 
+          || query.isGoodFor.length > 0 ) ? true : false;
+      }
     return query;
   }
 
@@ -193,9 +202,9 @@ class MainContent extends React.Component {
       isGoodFor: query.isGoodFor,
       min: query.min,
       max: query.max,
-      volume: query.volume
+      volume: query.volume,
+      view: query.view
     }
-    
     let filterExists = false;
 
     if ((newFilter.stores.length === 0
@@ -215,7 +224,11 @@ class MainContent extends React.Component {
       )) {
       filterExists = true;
     }
-    this.setState({ currentFilterExists: filterExists, filter: newFilter });
+    this.setState({ 
+      currentFilterExists: filterExists,
+      filter: newFilter,
+      viewAll: newFilter.view  
+    });
   }
 
   setFacetCount = (selected, facetcounts) => {
@@ -366,16 +379,37 @@ class MainContent extends React.Component {
       productCountries,
       isGoodFor,
       filter,
+      user,
+      currentFilterExists,
       isSearch = false,
+      viewAll
     } = this.state;
     let anchor = "bottom";
     return (
       <React.Fragment key={anchor}>
+        {isMobile &&
+           <Box sx={{
+            display:'flex',
+            width: "100%",
+            justifyContent: 'center',
+          }}>
+            <ToggleButtonGroup
+                  value={viewAll+""}
+                  exclusive
+                  size='small'
+                  onChange={this.toggleDiscountView}
+                  aria-label="Produkter som vises"
+                  >
+                  <ToggleButton value="false">Vis tilbud</ToggleButton>
+                  <ToggleButton value="true">Vis alle</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        }
         <div className="nav">
           <SearchBar searchProducts={this.searchProducts.bind(this)} searchIsActive={isSearch} loading={loading} searchStringProp={this.state.searchString} forceSearchString={this.state.forceSearchString} />
           <FilterV2 items={isGoodFor} selectedItems={filter.isGoodFor} propSlug={"isGoodFor"} label={"Passer til"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <FilterV2 items={productTypes} selectedItems={filter.productTypes} propSlug={"types"} label={"Type"} handleFilterChange={this.handleFilterClick.bind(this)} />
-          <StoreFilter
+          <StoreSelector
             updateStore={this.handleFilterClick.bind(this)}
             selectedStores={filter.stores}
             stores={stores}
@@ -384,8 +418,22 @@ class MainContent extends React.Component {
 
           <FilterV2 items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <PriceFilter SetPriceFilter={this.SetPriceFilter} max={filter.max} min={filter.min} />
-
           <FilterV2 items={volumeOptions} selectedItems={filter.volume} propSlug={"volume"} label={"Volum"} handleFilterChange={this.handleFilterClick.bind(this)} />
+          {isMobile &&
+             <Box sx={{
+              display:'flex',
+              width: "100%",
+              justifyContent: 'center',
+            }}>
+            <ButtonGroup variant="outlined" aria-label="outlined primary button group">
+                      {user && (!currentFilterExists && filter) ? 
+                        <Button size="small"  onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</Button>
+                        :
+                        <Button size="small"  disabled>Lagre filter</Button>
+                      }
+            </ButtonGroup>
+            </Box>
+          }
         </div>
       </React.Fragment>
     )
@@ -451,26 +499,22 @@ class MainContent extends React.Component {
               </SwipeableDrawer>                  
             </React.Fragment>
             }
+              {!isMobile &&  
             <Box sx={{
               display:'flex',
               width: "100%",
-              justifyContent: 'center',
+              justifyContent: isMobile ? 'center' :'space-between',
               marginTop: "1rem"              
             }}>
-                {(!currentFilterExists && filter) &&
-                <div className="filterSaver">
-                <FontAwesomeIcon icon={faInfoCircle} size="sm" />
-                <div>
-                  <span>Få varsel når produkter som matcher dette filteret kommer på tilbud. </span>
-                  {user && !user.notifications.onFilters &&
-                    <div>
-                      <strong>Husk å tillate varsler på lagrede filtre i menyen under "Kontoinnstillinger"</strong>
-                    </div>
-                  }
+              <div className="filterSaver">
+                  <ButtonGroup variant="outlined" aria-label="outlined primary button group">
+                    {user && (!currentFilterExists && filter) ? 
+                      <Button size="small"  onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</Button>
+                      :
+                      <Button size="small"  disabled>Lagre filter</Button>
+                    }
+                  </ButtonGroup>
                 </div>
-                <button className="greenBtn clickable" onClick={(e) => { this.saveUserFilter(e) }}>Lagre filter</button>
-                </div>
-                }
                 <ToggleButtonGroup
                   value={viewAll+""}
                   exclusive
@@ -482,6 +526,7 @@ class MainContent extends React.Component {
                   <ToggleButton value="true">Alle</ToggleButton>
                 </ToggleButtonGroup>
                 </Box>
+              }
             <PaginationSection
               total={found}
               handleSortChange={this.handleSortChange}

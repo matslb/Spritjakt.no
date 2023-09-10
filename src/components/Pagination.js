@@ -8,8 +8,8 @@ import { ThemeProvider } from "@emotion/react";
 
 const PaginationSection = ({
   pageSize,
-  page,
-  total,
+  page = 0,
+  total = 0,
   setPage,
   useScroll,
   cssAnchor,
@@ -37,7 +37,7 @@ const getPaginationText = () => {
 
   return (
     <nav id={cssAnchor} className="Pagination">
-      <Pagination color="primary" page={page} onChange={handleClick} count={Math.ceil(total/pageSize)} on size="small" />
+      <Pagination color="primary" page={page} onChange={handleClick} count={Math.ceil(total/pageSize)} size="small" />
         <span>
           Viser {getPaginationText()} av {total} produkter
         </span>

@@ -98,8 +98,6 @@ const StoreSelector = ({
 
   return (
     <div className="stores" >
-      <label>
-        <span>Butikk</span>
         <Select
           value={selectedOptions}
           onChange={handleStoreUpdate}
@@ -116,7 +114,6 @@ const StoreSelector = ({
             },
           })}
         />
-      </label>
       {"geolocation" in navigator && selectedStores?.length === 0 &&
         <button title="Finn nærmeste butikk" className="filterAddonBtn iconBtn dark" onClick={getUserPosition}>
           <FontAwesomeIcon icon={faCrosshairs} />

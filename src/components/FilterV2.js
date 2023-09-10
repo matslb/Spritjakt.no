@@ -25,7 +25,6 @@ const FilterV2 = ({
 }) => {
     
     const [selectedOptions, setSelectedOptions] = useState([]);
-    const [open, setOpen] = useState(true);
 
     const handleChange = (e) => {        
         
@@ -42,13 +41,14 @@ const FilterV2 = ({
     }
 
     useEffect(() => {
-        setSelectedOptions(selectedItems);
+        if(selectedItems.length !== selectedOptions.length)
+            setSelectedOptions(selectedItems);
     }, [selectedItems])
 
     return (
         <div className={"filter " + propSlug} >
             <FormControl >
-                <InputLabel focuse={open}  className={`multiple-chip-label-${propSlug}`}>Filtrer på {label}</InputLabel>
+                <InputLabel  className={`multiple-chip-label-${propSlug}`}>Filtrer på {label}</InputLabel>
                 <Select
                 labelId={`multiple-chip-label-${propSlug}`}
                 id={`multiple-chip-${propSlug}`}
