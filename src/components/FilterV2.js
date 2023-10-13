@@ -64,7 +64,7 @@ const FilterV2 = ({
                         {selectedItems.map((x) => (
                             <Chip 
                             key={(x.value)} 
-                            label={x.label}
+                            label={ x.count ? `${x.label}  (${x.count})`: x.label}
                             onDelete={() => 1}
                             onMouseDown={(e) => {remove(x.value); e.stopPropagation()}}
                             >
@@ -76,10 +76,12 @@ const FilterV2 = ({
                 >
                 {items.filter(i => !selectedOptions.includes(i.value) ).map((item) => (
                     <MenuItem
+                    disabled={item.count === 0}
                     key={item.value}
                     value={item.value}
                     >
-                    {item.label}
+                        
+                    { item.count ? `${item.label}  (${item.count})`: item.label}
                     </MenuItem>
                 ))}
                 </Select>

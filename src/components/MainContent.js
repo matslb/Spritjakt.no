@@ -238,7 +238,7 @@ class MainContent extends React.Component {
       if(index === -1)
           selected.push({
               value: f.value,
-              label: `${f.value} (${f.count})`
+              label: f.value
           });
         else
         selected[index].count = f.count;

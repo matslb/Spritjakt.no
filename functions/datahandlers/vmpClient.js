@@ -113,7 +113,7 @@ class VmpClient {
       if (expectedResults == 1 && storeStocks.length == 0) {
         fail = true;
       }
-      await new Promise(r => setTimeout(r, (Math.random() * 2000) + 1000));
+      await new Promise(r => setTimeout(r, 1000));
     }
     if (fail) {
       return { failed: fail, statusCode: 429, stocks: null };
