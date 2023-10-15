@@ -258,7 +258,7 @@ module.exports = class FirebaseClient {
     let ids = [];
 
     let d = new Date();
-    d.setDate(d.getDate() - 1);
+    d.setDate(d.getDate() - 4);
     await firebase.firestore()
       .collection("Products")
       .where("StockFetchDate", "<", d)
