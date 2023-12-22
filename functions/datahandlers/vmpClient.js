@@ -6,6 +6,7 @@ const cookieJar = new tough.CookieJar();
 var HTMLParser = require('node-html-parser');
 const { HeaderGenerator, PRESETS } = require('header-generator');
 const { XMLParser} = require("fast-xml-parser");
+const  GetProductFromSearchResult  = require("./Models/ProductSearchResult");
 const parser = new XMLParser();
 axiosCookieJarSupport(axios);
 
@@ -21,15 +22,13 @@ const vmpOptions = () => {
 };
 class VmpClient {
   static async FetchFreshProducts(start) {
-    var date = new Date();
-    date.setDate(date.getDate() - 1);
     let options = vmpOptions();
     options.url += "products/v0/details-normal/";
     options.resolveWithFullResponse = true;
     options.params = {
       changedSince: "2000-01-01",
       start: start,
-      maxResults: 10000,
+      maxResults: 20000,
     };
     return await axios(options)
       .then(function (res) {
@@ -54,6 +53,28 @@ class VmpClient {
           products: null,
           error: true
         };
+      });
+  }
+
+  static async GetProductDetails(productId) 
+  {
+    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
+    var headers = headerGenerator.getHeaders();
+    delete headers["accept"]
+    const options = {
+      method: "get",
+      url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=100&searchType=product&currentPage=0&q=${productId}:relevance`,
+      jar: cookieJar,
+      headers: headers,
+      withCredentials: true,
+    };
+    return await axios(options).then(async function (res) {
+      const jsonData = res.data;
+      return GetProductFromSearchResult(jsonData);
+    })
+      .catch(function (err) {
+        console.error("Could not fetch price of product " + productId + ": " + err);
+        return null;
       });
   }
 

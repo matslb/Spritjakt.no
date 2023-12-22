@@ -1,8 +1,5 @@
 import * as React from 'react';
-import Pagination from "./Pagination";
 import "./css/mainContent.css";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductPopUp from "./ProductPopUp";
 import firebase from "firebase/compat/app";
 import StoreSelector from "./StoreSelector";
@@ -10,14 +7,12 @@ import {  Box, Button, ButtonGroup, Card, CardContent, Fab, FormControlLabel, Na
 import { FilterListOutlined } from '@mui/icons-material';
 import queryString from "query-string";
 import Notification from "./Notification";
-import Filter from "./Filter";
 import SearchBar from "./SearchBar";
 import ProductList from "./ProductList";
 import { arraysAreEqual, cleanForMissingStores, isInViewport, toArray, volumeOptions } from "../utils/utils.js";
 import TypeSenseClient from "../services/typeSenseClient";
 import roundLogo from "../assets/round-logo.svg";
 import SpritjaktClient from "../services/spritjaktClient";
-
 import { sortOptions } from "../utils/utils.js";
 import { isMobile } from 'react-device-detect';
 import PriceFilter from './PriceFilter';
@@ -128,13 +123,6 @@ class MainContent extends React.Component {
     else if(query.view === 'false'){
       query.view = false;
     }
-    else {
-      query.view = (query.countries.length > 0 
-          || query.volume.length > 0 
-          || query.types.length > 0 
-          || query.stores.length > 0 
-          || query.isGoodFor.length > 0 ) ? true : false;
-      }
     return query;
   }
 

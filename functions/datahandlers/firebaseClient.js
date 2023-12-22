@@ -318,36 +318,17 @@ module.exports = class FirebaseClient {
     return products;
   }
 
-  static async UpdateProductStock(stock) {
-    const productRef = firebase
-      .firestore()
-      .collection("Products")
-      .doc(stock.productId);
+  static async SetProductStores(productId, stores){
     try {
-      console.log("Updating Stock " + stock.productId);
-      delete stock.productId;
-      delete stock.stock;
-      const productDoc = await productRef.get();
-      let sp = productDoc.data();
-      if (sp == undefined) {
-        console.log("Product not in database");
-        return;
-      }
-      sp.Stores = [];
-      sp.StoreStock = [];
-      for (const store of stock.Stores) {
-        if (store.stockInfo?.stockLevel)
-          sp.StoreStock.push({
-            store: store.pointOfService.id+"",
-            stock: store.stockInfo.stockLevel
-          });
-        sp.Stores.push(store.pointOfService.id+"");
-      }
-      sp = this.HandleProductMeta(sp);
-      sp.StockFetchDate = new Date();
-      await productRef.set(sp);
-    } catch (e) {
-      console.log(e);
+      const productRef = firebase
+        .firestore()
+        .collection("Products")
+        .doc(productId);
+      productRef.update({Stores: stores});
+      productRef.update({StoreStock: null});
+    }
+    catch (e) {
+      console.log("Update failed for " + result.productId, e);
     }
   }
 

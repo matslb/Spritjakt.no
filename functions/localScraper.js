@@ -29,7 +29,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 1;
+        var runhour = 15;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -45,7 +45,6 @@ async function orchistrator() {
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
                 await reConnectToVpn(getVpnCountry());
                 await UpdatePrices();
-                await UpdateStocks();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
                 console.log("Finished run. It took " + runtime.toFixed(2) + " hours.");
@@ -93,23 +92,23 @@ async function UpdatePrices() {
     var reconnectAttempted = false;
     var time = new Date();
     let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 25000 : 1000);
+    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 25000 : 5000);
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         console.log("____________________");
         console.log("PriceFetch: " + i + " of " + ids.length);
         if (ids[i] !== undefined) {
             let response = await VmpClient.FetchProductPrice(ids[i]);
-            if (response.product) {
+            if(response.product){
                 await FirebaseClient.UpdateProductPrice(response.product);
+            }
+            let product = await VmpClient.GetProductDetails(ids[i]);
+            if (product) {
+                await FirebaseClient.SetProductStores(product.id, product.stores);
                 failcount = 0;
                 reconnectAttempted = false;
-            }
-            else if (response.error) {
+            }else{
                 failcount++;
-            } else {
-                productsToIgnore.push(ids[i]);
-                console.log("Ignoring " + ids[i] + " in future scrapes");
             }
         }
 
@@ -129,58 +128,6 @@ async function UpdatePrices() {
     }
     productsToIgnore = [... new Set(productsToIgnore)];
     FirebaseClient.UpdateConstants(productsToIgnore, "ProductsToIgnore");
-}
-
-
-async function UpdateStocks() {
-    let ids = (await FirebaseClient.GetProductIdsForStock()).filter(id => !id.includes("x"));
-    console.log("Updating " + ids.length + " stocks");
-    var reconnectAttempted = false;
-    let failcount = 0;
-    let lastSuccessfullFetchId = null;
-
-    const stores = await FirebaseClient.GetConstant("Stores");
-    for (let i = 0; i < ids.length; i++) {
-        console.log("---------------------");
-        console.log("StockFetch: " + i + " of " + ids.length);
-        console.log(ids[i]);
-        if (ids[i] !== undefined && !ids[i].includes("x")) {
-            let stockresult = await VmpClient.FetchStoreStock(ids[i], Object.assign([], stores));
-            if (stockresult.failed == false) {
-                let p = {
-                    productId: ids[i],
-                    Stores: stockresult.stocks
-                }
-                await FirebaseClient.UpdateProductStock(p);
-                failcount = 0;
-                lastSuccessfullFetchId = ids[i];
-                reconnectAttempted = false;
-            }
-            else {
-                failcount++;
-            }
-            console.log(new Date());
-            console.log("---------------------");
-        }
-        if (failcount >= 2) {
-            console.log("Suspiciously many products with no stock. Attempting fetch of product known to be in stock (" + lastSuccessfullFetchId + ")...");
-            let stockresult = await VmpClient.FetchStoreStock(lastSuccessfullFetchId, stores);
-            if (stockresult.failed) {
-                console.log("The stock fetch endpoint does not work, something is fucky...");
-                if (reconnectAttempted == false) {
-                    reconnectAttempted = true;
-                    await reConnectToVpn(getVpnCountry());
-                } else {
-                    await NotificationClient.SendFetchErrorEmail("Henting av lagerstatus feilet");
-                    throw 'StockFetch failed';
-                }
-            } else {
-                console.log("Just a coincidence, keeping on truckin'");
-                failcount = 0;
-            }
-        }
-        await new Promise(r => setTimeout(r, (Math.random() * 1500) + 500));
-    }
 }
 
 async function reConnectToVpn(country) {

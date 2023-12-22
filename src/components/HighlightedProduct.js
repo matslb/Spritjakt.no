@@ -124,11 +124,11 @@ const HighlightedProduct = ({
       </li>
       );
     for (const store of stores) {
-      let storeStock = product.StoreStock ? product.StoreStock.find(s => s.store == store.value) : product.Stores.find(s => s == store.value);
+      let storeStock = product.Stores.find(s => s == store.value);
       if (storeStock && storeStock != "online")
         list.push(<li key={store.value}>
           <span>{store.label.split(" (")[0]}</span>
-          <span>{storeStock?.stock || "På lager"}</span>
+          <span>{"På lager"}</span>
         </li>
         );
     }
