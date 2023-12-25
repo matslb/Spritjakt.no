@@ -1,11 +1,18 @@
-module.exports = GetProductFromSearchResult = (jsonData) =>  {
-    const facets = (jsonData.productSearchResult.facets || []).map(facetData => new Facet(facetData));
-    const stores = facets.find(x => x.code === "availableInStores").values.map(f => f.code);
-    this.pagination = jsonData.productSearchResult.pagination || {};
-    this.products = (jsonData.productSearchResult.products || []).map(productData => new Product(productData, stores ));
-    return this.products[0];
-}
+module.exports = class ProductSearchParser {
 
+    static GetProductFromSearchResult = (jsonData) =>  {
+        const facets = (jsonData.productSearchResult.facets || []).map(facetData => new Facet(facetData));
+        const stores = facets.find(x => x.code === "availableInStores")?.values.map(f => f.code);
+        this.pagination = jsonData.productSearchResult.pagination || {};
+        this.products = (jsonData.productSearchResult.products || []).map(productData => new Product(productData, stores ));
+        return this.products[0];
+    }
+
+    static GetProductsFromSearchResult = (jsonData) =>  {
+        this.products = (jsonData.productSearchResult.products || []).map(productData => new Product(productData, [] ));
+        return this.products;
+    }
+}
 class Facet {
     constructor(facetData) {
         this.category = facetData.category || false;

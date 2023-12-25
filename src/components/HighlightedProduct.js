@@ -120,7 +120,7 @@ const HighlightedProduct = ({
     if (product.Stores.includes("online"))
       list.push(<li key="online">
         <span>Nettlager</span>
-        <span>{product.ProductStatusSalename || "Kan bestilles"}</span>
+        <span>{product.ProductStatusSalename}</span>
       </li>
       );
     for (const store of stores) {
@@ -128,7 +128,6 @@ const HighlightedProduct = ({
       if (storeStock && storeStock != "online")
         list.push(<li key={store.value}>
           <span>{store.label.split(" (")[0]}</span>
-          <span>{"På lager"}</span>
         </li>
         );
     }
@@ -326,12 +325,6 @@ const HighlightedProduct = ({
         <div className="product_stock descriptionText">
           <h3 className="title" >Lagerstatus </h3>
           <ul>{renderStoreStock()}</ul>
-        </div>
-      }
-
-      {stockFetchDate &&
-        <div className="descriptionText">
-          <i>Lagerstatus oppdatert for {stockFetchDate}</i>
         </div>
       }
     </article >

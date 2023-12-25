@@ -13,6 +13,7 @@ firebaseAdmin.initializeApp({
 var fs = require('fs');
 var util = require('util');
 const { exec } = require("child_process");
+const { selectClasses } = require("@mui/material");
 var log_stdout = process.stdout;
 let date = new Date();
 var log_file = fs.createWriteStream(__dirname + '/logs/' + date.toDateString() + '.log', { flags: 'w' });
@@ -29,7 +30,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 15;
+        var runhour = 1;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -43,7 +44,7 @@ async function orchistrator() {
             try {
                 console.clear();
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
-                await reConnectToVpn(getVpnCountry());
+               // await reConnectToVpn(getVpnCountry());
                 await UpdatePrices();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
@@ -59,40 +60,16 @@ async function orchistrator() {
     }
 }
 
-async function fetchProductsToUpdate() {
-
-    let moreProductsToFetch = true;
-    let freshProducts = [];
-    let tries = 0;
-    while (moreProductsToFetch && tries < 20) {
-        let { totalCount, products, error } = await VmpClient.FetchFreshProducts(freshProducts.length);
-
-        freshProducts = freshProducts.concat(products);
-        console.log(totalCount);
-        console.info("freshProducts: " + freshProducts.length);
-
-        if (!error && (
-            totalCount === freshProducts.length
-            || products.length === 0
-            || freshProducts.length > 30000
-        )) {
-            moreProductsToFetch = false;
-        } else if (error) {
-            console.info("Could not fetch Products, waiting 1 second until retry");
-            await new Promise(r => setTimeout(r, 35000));
-        }
-        tries++;
-    }
-    var idsToFilterOut = await FirebaseClient.GetProductIdsNotToBeUpdated();
-    freshProducts = freshProducts.filter((id) => idsToFilterOut.indexOf(id) < 0);
-    return freshProducts;
-}
-
 async function UpdatePrices() {
-    var reconnectAttempted = false;
-    var time = new Date();
-    let productsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    var ids = (await fetchProductsToUpdate()).filter((id) => productsToIgnore.indexOf(id) < 0).slice(0, time.getDate() <= 2 ? 25000 : 5000);
+    let reconnectAttempted = false;
+    let  ids = [];
+    
+    for (let i = 0; i < 10; i++) {
+        let newProducts = await VmpClient.GetNewProductList(i);
+        let idsNotFound = await FirebaseClient.GetIdsNotInDb(newProducts.map(x => x.id));
+        ids = ids.concat(idsNotFound);
+    }
+    ids = [ ... new Set(ids.concat(await FirebaseClient.GetProductsToBeUpdated()))];
     var failcount = 0;
     for (let i = 0; i < ids.length; i++) {
         console.log("____________________");
@@ -102,8 +79,9 @@ async function UpdatePrices() {
             if(response.product){
                 await FirebaseClient.UpdateProductPrice(response.product);
             }
+            await new Promise(r => setTimeout(r, 200));
             let product = await VmpClient.GetProductDetails(ids[i]);
-            if (product) {
+            if (response.product && product) {
                 await FirebaseClient.SetProductStores(product.id, product.stores);
                 failcount = 0;
                 reconnectAttempted = false;
@@ -112,7 +90,7 @@ async function UpdatePrices() {
             }
         }
 
-        if (failcount > 50) {
+        if (failcount > 5) {
             if (reconnectAttempted != false) {
                 reconnectAttempted = true;
                 failcount = 0;
@@ -126,8 +104,6 @@ async function UpdatePrices() {
 
         await new Promise(r => setTimeout(r, (Math.random() * 1500) + 200));
     }
-    productsToIgnore = [... new Set(productsToIgnore)];
-    FirebaseClient.UpdateConstants(productsToIgnore, "ProductsToIgnore");
 }
 
 async function reConnectToVpn(country) {

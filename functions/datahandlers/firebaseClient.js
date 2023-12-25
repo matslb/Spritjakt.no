@@ -28,9 +28,8 @@ module.exports = class FirebaseClient {
         };
         sp.PriceHistorySorted = [today];
       }
-      sp.LastUpdated = today;
       sp.LastPriceFetchDate = lastPriceFetchDate;
-      sp.StockFetchDate = new Date(0, 0, 0, 0);
+      sp.LastUpdated = today;
       try {
         await productRef.set(sp);
       } catch (error) {
@@ -65,7 +64,7 @@ module.exports = class FirebaseClient {
                 [today]: sp.LatestPrice,
               };
               sp.PriceHistorySorted = [today];
-              sp.LastUpdated = today;
+              sp.LastPriceFetchDate = lastPriceFetchDate;
             }
           } catch (error) {
             console.log(error);
@@ -75,9 +74,6 @@ module.exports = class FirebaseClient {
           sp.Year = p.Year;
         }
       }
-      sp.ProductStatusSaleName = p.ProductStatusSaleName ? p.ProductStatusSaleName : "";
-      sp.Types = p.Types;
-      sp.Country = p.Country;
       if (sp.PriceHistory == undefined && p.LatestPrice != null) {
         sp.PriceHistory = {
           [today]: p.LatestPrice,
@@ -86,35 +82,20 @@ module.exports = class FirebaseClient {
           order: "desc",
         });
       }
-      delete sp.Stock;
-      sp.Name = p.Name
-      sp.Color = p.Color;
-      sp.Types = p.Types;
-      sp.Type = p.Type;
-      sp.Smell = p.Smell;
-      sp.Taste = p.Taste;
-      sp.IsGoodFor = p.IsGoodFor;
-      sp.Sweetness = p.Sweetness;
-      sp.Fullness = p.Fullness;
-      sp.Freshness = p.Freshness;
-      sp.Sulfates = p.Sulfates;
-      sp.Expired = p.Expired;
-      sp.Buyable = p.Buyable;
-      sp.Volume = p.Volume;
-      sp.RawMaterials = p.RawMaterials;
-      sp.LatestPrice = p.LatestPrice;
-      sp.VintageComment = p.VintageComment;
-      sp.LastPriceFetchDate = lastPriceFetchDate;
-      let ComparingPrice = sp.PriceHistory == undefined ? p.LatestPrice : sp.PriceHistory[sp.PriceHistorySorted[0]];
+
+      p.PriceHistory = sp.PriceHistory; 
+      p.PriceHistorySorted = sp.PriceHistorySorted; 
+     
+      let ComparingPrice = p.PriceHistory == undefined ? p.LatestPrice : p.PriceHistory[p.PriceHistorySorted[0]];
       let LatestPrice = p.LatestPrice !== null ? p.LatestPrice : ComparingPrice;
       if (ComparingPrice === undefined) {
         ComparingPrice = LatestPrice;
       }
       if (ComparingPrice === null || ComparingPrice === undefined) {
-        sp = this.HandleProductMeta(sp);
+        p = this.HandleProductMeta(p);
         try {
-          console.log("Updating: " + sp.Id);
-          await productRef.set(sp);
+          console.log("Updating: " + p.Id);
+          await productRef.set(p);
           return;
         } catch (error) {
           console.log(error);
@@ -151,30 +132,6 @@ module.exports = class FirebaseClient {
   }
 
 
-
-  static CopyProjectDatafields(sp, p){
-    sp.ProductStatusSaleName = p.ProductStatusSaleName ?? "";
-    sp.Types = p.Types;
-    sp.Country = p.Country;
-    sp.Name = p.Name
-    sp.Color = p.Color;
-    sp.Smell = p.Smell;
-    sp.Taste = p.Taste;
-    sp.IsGoodFor = p.IsGoodFor;
-    sp.Sweetness = p.Sweetness;
-    sp.Fullness = p.Fullness;
-    sp.Freshness = p.Freshness;
-    sp.Sulfates = p.Sulfates;
-    sp.Expired = p.Expired;
-    sp.Buyable = p.Buyable;
-    sp.Volume = p.Volume;
-    sp.RawMaterials = p.RawMaterials;
-    sp.LatestPrice = p.LatestPrice;
-    sp.VintageComment = p.VintageComment;
-    sp.LastPriceFetchDate = lastPriceFetchDate;
-    return sp;
-  }
-
   static HandleProductMeta(sp) {
     if (sp.Stores == undefined) {
       sp.Stores = [];
@@ -207,89 +164,42 @@ module.exports = class FirebaseClient {
     return sp
   }
 
-  static async SetPriceUpdateList(ids) {
-    console.log("Updating " + ids.length + " product prices")
-    await firebase.database().ref("/PricesToBeFetched/").set(ids);
+  static async GetIdsNotInDb(ids) {
+    let idsNotFound = [];
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+      
+      await firebase.firestore()
+      .collection("Products")
+      .doc(id)
+      .get().then(function (qs) {
+        if (!qs.exists || qs.data().LastUpdated == undefined) {
+          idsNotFound.push(id);
+        }
+      });
+    }
+      return idsNotFound;
   }
 
-  static async SetStockUpdateList(ids) {
-    await firebase.database().ref("/StocksToBeFetched/").set(ids);
-  }
-
-  static async GetProductIdsNotToBeUpdated() {
+  static async GetProductsToBeUpdated() {
     let ids = [];
     let d = new Date();
     d.setDate(d.getDate() - 3);
     await firebase.firestore()
       .collection("Products")
-      .where("LastPriceFetchDate", ">", d)
-      .get().then(function (qs) {
-        if (!qs.empty) {
-          qs.forEach((p) => {
-            if (!p.id.includes("x")) {
-              ids.push(p.id);
-            }
-          });
-        }
-      });
-
-    var moreIds = await firebase.firestore()
-      .collection("Products")
-      .where("Expired", "==", true)
-      .where("Buyable", "==", false)
-      .get().then(function (qs) {
-        if (!qs.empty) {
-          qs.forEach((p) => {
-            if (!p.id.includes("x")) {
-              ids.push(p.id);
-            }
-          });
-        }
-      });
-
-    if (moreIds)
-      ids = [...new Set(ids.concat(moreIds))];
-
-    console.log("Fetching " + ids.length + " product Ids to be avoided");
-    return ids;
-  }
-
-  static async GetProductIdsForStock() {
-    let ids = [];
-
-    let d = new Date();
-    d.setDate(d.getDate() - 3);
-    await firebase.firestore()
-      .collection("Products")
-      .where("StockFetchDate", "<", d)
-      .where("Expired", "==", null)
-      .orderBy("StockFetchDate", "asc")
+      .orderBy("LastPriceFetchDate", "asc")
+      .where("LastPriceFetchDate", "<", d)
       .limit(5000)
       .get().then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
-            ids.push(p.id);
+            if (!p.id.includes("x")) {
+              ids.push(p.id);
+            }
           });
         }
       });
-
-    let moreIds = await firebase.firestore()
-      .collection("Products")
-      .where("StockFetchDate", "<", d)
-      .where("Buyable", "==", true)
-      .where("Expired", "==", true)
-      .orderBy("StockFetchDate", "asc")
-      .limit(500)
-      .get().then(function (qs) {
-        if (!qs.empty) {
-          qs.forEach((p) => {
-            moreIds.push(p.id);
-          });
-        }
-      });
-    if (moreIds)
-      ids = ids.concat(moreIds);
-
+    console.log("Fetching " + ids.length + " product Ids");
     return ids;
   }
 
@@ -324,11 +234,13 @@ module.exports = class FirebaseClient {
         .firestore()
         .collection("Products")
         .doc(productId);
-      productRef.update({Stores: stores});
-      productRef.update({StoreStock: null});
+      
+        if((await productRef.get() != null)){
+          productRef.update({Stores: stores});
+        }
     }
     catch (e) {
-      console.log("Update failed for " + result.productId, e);
+      console.log("Update failed for " + productId, e);
     }
   }
 

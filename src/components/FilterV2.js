@@ -21,7 +21,8 @@ const FilterV2 = ({
     selectedItems = [],
     propSlug,
     label,
-    handleFilterChange
+    handleFilterChange,
+    sort = true
 }) => {
     
     const [selectedOptions, setSelectedOptions] = useState([]);
@@ -74,7 +75,25 @@ const FilterV2 = ({
                     )}
                 }
                 >
-                {items.filter(i => !selectedOptions.includes(i.value) ).map((item) => (
+{               /* var sortedItems = items;
+                if(sort){
+                    sortedItems
+                }*/
+               items.sort(
+                (a,b) => {
+                    const la = a.label.toUpperCase(); 
+                    const lb = b.label.toUpperCase();
+                    if(!sort) return 0;
+                    if (la < lb) {
+                    return -1;
+                    }
+                    if (la > lb) {
+                    return 1;
+                    }
+                
+                    return 0;
+                }
+            ).filter(i => !selectedOptions.includes(i.value) ).map((item) => (
                     <MenuItem
                     disabled={item.count === 0}
                     key={item.value}
@@ -83,7 +102,8 @@ const FilterV2 = ({
                         
                     { item.count ? `${item.label}  (${item.count})`: item.label}
                     </MenuItem>
-                ))}
+                    ))
+               }
                 </Select>
             </FormControl>
         </div>

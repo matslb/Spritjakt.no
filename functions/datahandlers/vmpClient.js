@@ -6,7 +6,7 @@ const cookieJar = new tough.CookieJar();
 var HTMLParser = require('node-html-parser');
 const { HeaderGenerator, PRESETS } = require('header-generator');
 const { XMLParser} = require("fast-xml-parser");
-const  GetProductFromSearchResult  = require("./Models/ProductSearchResult");
+const  ProductSearchParser  = require("./Models/ProductSearchResult");
 const parser = new XMLParser();
 axiosCookieJarSupport(axios);
 
@@ -21,38 +21,24 @@ const vmpOptions = () => {
   };
 };
 class VmpClient {
-  static async FetchFreshProducts(start) {
-    let options = vmpOptions();
-    options.url += "products/v0/details-normal/";
-    options.resolveWithFullResponse = true;
-    options.params = {
-      changedSince: "2000-01-01",
-      start: start,
-      maxResults: 20000,
+
+  static async GetNewProductList(page)
+  {
+    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
+    var headers = headerGenerator.getHeaders();
+    delete headers["accept"]
+    const options = {
+      method: "get",
+      url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&currentPage=${page}&q=%3Arelevance%3AnewProducts%3Atrue`,
+      jar: cookieJar,
+      headers: headers,
+      withCredentials: true,
     };
-    return await axios(options)
-      .then(function (res) {
-        var raw = res.data;
-        var items = [];
-        raw.map((p) => {
-          if (!items.includes(p.basic.productId)) {
-            items.push(p.basic.productId)
-          }
-        });
-        console.info("Fetched products " + items.length + " from Vinmonopolet");
-        return {
-          totalCount: parseInt(res.headers["x-total-count"]),
-          products: items,
-          error: false
-        };
-      })
+    return await axios(options).then(async function (res) {
+      return ProductSearchParser.GetProductsFromSearchResult(res.data);
+    })
       .catch(function (err) {
-        console.error("vmp fetch failed: " + err);
-        return {
-          totalCount: null,
-          products: null,
-          error: true
-        };
+        return [];
       });
   }
 
@@ -69,82 +55,12 @@ class VmpClient {
       withCredentials: true,
     };
     return await axios(options).then(async function (res) {
-      const jsonData = res.data;
-      return GetProductFromSearchResult(jsonData);
+      return ProductSearchParser.GetProductFromSearchResult(res.data);
     })
       .catch(function (err) {
         console.error("Could not fetch price of product " + productId + ": " + err);
         return null;
       });
-  }
-
-  static async FetchStoreStock(productId, stores = []) {
-    let storeStocks = [];
-    let expectedResults = 1;
-    let fail = false;
-    let tries = 0;
-    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
-
-    while (fail == false && storeStocks.length < expectedResults && stores.length > 0 && tries < 50) {
-      var headers = headerGenerator.getHeaders();
-      let index = Math.floor(Math.random() * stores.length);
-      let options = {
-        method: "get",
-        url: `https://www.vinmonopolet.no/vmpws/v2/vmp/products/${productId}/stock`,
-        params: {
-          pageSize: 1000,
-          currentPage: 0,
-          fields: "BASIC",
-          latitude: stores[index].address.gpsCoord.split(";")[0],
-          longitude: stores[index].address.gpsCoord.split(";")[1],
-        },
-        headers: headers,
-        jar: cookieJar,
-        withCredentials: true
-      };
-
-      stores.splice(index, 1);
-      tries++;
-      await axios(options)
-        .then(async function (res) {
-          var data = parser.parse(res.data).vmpStoreFinderStockSearchPage;
-          if( data.stores == undefined)
-          {
-            data.stores = [];
-          }
-          else if(!Array.isArray(data.stores))
-          {
-            data.stores = [data.stores];
-          }
-          data.stores.forEach(newStore => {
-            if (!storeStocks.some(oldStore => oldStore.pointOfService.id === newStore.pointOfService.id)) {
-              delete newStore.pointOfService.address;
-              delete newStore.pointOfService.formattedDistance;
-              delete newStore.pointOfService.geoPoint;
-              storeStocks.push(newStore);
-              stores = stores.filter(s => s.storeId !== newStore.pointOfService.id);
-            }
-          });
-          expectedResults = data.pagination.totalResults;
-        })
-        .catch(function (err) {
-          console.log("Store stock fetch failed: " + err);
-          fail = true;
-        });
-      if (expectedResults == 1 && storeStocks.length == 0) {
-        fail = true;
-      }
-      await new Promise(r => setTimeout(r, 1000));
-    }
-    if (fail) {
-      return { failed: fail, statusCode: 429, stocks: null };
-    }
-
-    console.log("Expected: " + expectedResults);
-    console.log("Retrieved: " + storeStocks.length);
-    console.log("tries: " + tries);
-
-    return { failed: fail, statusCode: 200, stocks: storeStocks };
   }
 
   static async FetchStores() {
@@ -170,6 +86,7 @@ class VmpClient {
   static async FetchProductPrice(productId) {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     var headers = headerGenerator.getHeaders();
+    delete headers["accept"]
 
     var options = {
       method: "get",
@@ -183,7 +100,8 @@ class VmpClient {
       if (parser.parse(res?.data).product?.main_category?.code === "gaveartikler_og_tilbehør") {
         return { product: false };
       }
-      let p = CreateProduct(parser.parse(res.data).product);
+
+      let p = CreateProduct(res.data);
       if(p.LatestPrice === 0)
         return {product: false};
       
@@ -261,26 +179,9 @@ function CreateProduct(productData) {
     type = productData.main_sub_sub_category.name.split(",")[0];
     types.push(type);
   }
-
-  if (productData.tags && !Array.isArray(productData.tags)) {
-    types = types.concat(productData.tags.split(","));
-  }
-
-  types = [...new Set(types)];
-
-
-  if( productData.isGoodFor != undefined && !Array.isArray(productData.isGoodFor))
-  {
-    productData.isGoodFor = [productData.isGoodFor];
-  }
-
-  if( productData.raastoff != undefined && !Array.isArray(productData.raastoff))
-  {
-    productData.raastoff = [productData.raastoff];
-  }
-
+ 
   return {
-    Id: productData.code + "",
+    Id: productData.code,
     Name: productData.name,
     Volume: productData.volume ? productData.volume.value : null,
     Alcohol: productData.alcohol ? productData.alcohol.value : null,
@@ -302,7 +203,7 @@ function CreateProduct(productData) {
     Buyable: productData.buyable || null,
     LatestPrice: productData.price ? productData.price.value : null,
     ProductStatusSaleName: productData.availability.deliveryAvailability.available ? "" : productData.availability.deliveryAvailability.mainText.split(": ")[1],
-    Stores: productData.availability.deliveryAvailability.available ? ["online"] : [],
+    //Stores: productData.stores || [],
     Year: productData.year || null,
     VintageComment: productData.matured || null
   }

@@ -406,7 +406,7 @@ class MainContent extends React.Component {
 
           <FilterV2 items={productCountries} selectedItems={filter.countries} propSlug={"countries"} label={"Land"} handleFilterChange={this.handleFilterClick.bind(this)} />
           <PriceFilter SetPriceFilter={this.SetPriceFilter} max={filter.max} min={filter.min} />
-          <FilterV2 items={volumeOptions} selectedItems={filter.volume} propSlug={"volume"} label={"Volum"} handleFilterChange={this.handleFilterClick.bind(this)} />
+          <FilterV2 sort={false} items={volumeOptions} selectedItems={filter.volume} propSlug={"volume"} label={"Volum"} handleFilterChange={this.handleFilterClick.bind(this)} />
           {isMobile &&
              <Box sx={{
               display:'flex',
