@@ -30,7 +30,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 1;
+        var runhour = 17;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -44,7 +44,7 @@ async function orchistrator() {
             try {
                 console.clear();
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
-               // await reConnectToVpn(getVpnCountry());
+                //await reConnectToVpn(getVpnCountry());
                 await UpdatePrices();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
@@ -78,14 +78,18 @@ async function UpdatePrices() {
             let response = await VmpClient.FetchProductPrice(ids[i]);
             if(response.product){
                 await FirebaseClient.UpdateProductPrice(response.product);
-            }
-            await new Promise(r => setTimeout(r, 200));
-            let product = await VmpClient.GetProductDetails(ids[i]);
-            if (response.product && product) {
-                await FirebaseClient.SetProductStores(product.id, product.stores);
+                await new Promise(r => setTimeout(r, 200));
+                let detailsRes = await VmpClient.GetProductDetails(ids[i]);
+                if (detailsRes.product) {
+                    await FirebaseClient.SetProductStores(ids[i], detailsRes.product.stores);
+                }else{
+                    console.error("Could not fetch stock of product " + ids[i] + ": " + detailsRes.error);
+                }
                 failcount = 0;
                 reconnectAttempted = false;
-            }else{
+            }   
+            else{
+                console.error("Could not fetch price of product " + ids[i] + ": " + response.error);
                 failcount++;
             }
         }

@@ -55,11 +55,10 @@ class VmpClient {
       withCredentials: true,
     };
     return await axios(options).then(async function (res) {
-      return ProductSearchParser.GetProductFromSearchResult(res.data);
+      return {product : ProductSearchParser.GetProductFromSearchResult(productId, res.data)};
     })
       .catch(function (err) {
-        console.error("Could not fetch price of product " + productId + ": " + err);
-        return null;
+        return {error: err};
       });
   }
 
@@ -109,7 +108,7 @@ class VmpClient {
     })
       .catch(function (err) {
         console.error("Could not fetch price of product " + productId + ": " + err);
-        return { error: true };
+        return { error: err };
       });
   }
 
@@ -199,10 +198,12 @@ function CreateProduct(productData) {
     Fullness: productData.fullness || null,
     Freshness: productData.freshness || null,
     Sulfates: productData.sulfates || null,
-    Expired: productData.expired || null,
-    Buyable: productData.buyable || null,
+    Expired: productData.expired,
+    Buyable: productData.buyable,
+    Status: productData.status || null,
+    Availability: productData.availability.deliveryAvailability.mainText || null,
     LatestPrice: productData.price ? productData.price.value : null,
-    ProductStatusSaleName: productData.availability.deliveryAvailability.available ? "" : productData.availability.deliveryAvailability.mainText.split(": ")[1],
+    ProductStatusSaleName: "",
     //Stores: productData.stores || [],
     Year: productData.year || null,
     VintageComment: productData.matured || null

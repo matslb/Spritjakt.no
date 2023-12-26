@@ -46,6 +46,7 @@ module.exports = class FirebaseClient {
           expiredProduct.Expired = true;
           expiredProduct.Buyable = false;
           expiredProduct.ProductStatusSaleName = "Utgått";
+          expiredProduct.Status= "Utgått";
           expiredProduct.Stores = [];
           expiredProduct.StoreStock = [];
           try {
@@ -85,7 +86,9 @@ module.exports = class FirebaseClient {
 
       p.PriceHistory = sp.PriceHistory; 
       p.PriceHistorySorted = sp.PriceHistorySorted; 
-     
+      if (p.LastUpdated == undefined){
+        p.LastUpdated = today;
+      }
       let ComparingPrice = p.PriceHistory == undefined ? p.LatestPrice : p.PriceHistory[p.PriceHistorySorted[0]];
       let LatestPrice = p.LatestPrice !== null ? p.LatestPrice : ComparingPrice;
       if (ComparingPrice === undefined) {
@@ -106,26 +109,26 @@ module.exports = class FirebaseClient {
 
       if (PriceChange !== 100) {
         if (PriceChange <= 98 || PriceChange >= 102) {
-          sp.PriceIsLowered = PriceChange < 100;
-          sp.PriceChange = Math.round(PriceChange * 100) / 100;
+          p.PriceIsLowered = PriceChange < 100;
+          p.PriceChange = Math.round(PriceChange * 100) / 100;
         } else {
-          sp.PriceIsLowered = null;
-          sp.PriceChange = 100;
+          p.PriceIsLowered = null;
+          p.PriceChange = 100;
         }
-        sp.PriceHistory[today] = LatestPrice;
-        sp.LastUpdated = today;
-        sp.LatestPrice = LatestPrice;
-        sp.PriceHistorySorted = SortArray(Object.keys(sp.PriceHistory), {
+        p.PriceHistory[today] = LatestPrice;
+        p.LastUpdated = today;
+        p.LatestPrice = LatestPrice;
+        p.PriceHistorySorted = SortArray(Object.keys(p.PriceHistory), {
           order: "desc",
         });
-        sp.PriceChanges = sp.PriceHistorySorted ? sp.PriceHistorySorted.length : 0;
+        p.PriceChanges = p.PriceHistorySorted ? p.PriceHistorySorted.length : 0;
       }
     }
 
-    sp = this.HandleProductMeta(sp);
+    p = this.HandleProductMeta(p);
     try {
-      console.log("Updating: " + sp.Id);
-      await productRef.set(sp);
+      console.log("Updating: " + p.Id);
+      await productRef.set(p);
     } catch (error) {
       console.log(error);
     }
@@ -136,7 +139,7 @@ module.exports = class FirebaseClient {
     if (sp.Stores == undefined) {
       sp.Stores = [];
     }
-    if (sp.ProductStatusSaleName === "") {
+    if (sp.Buyable === true) {
       if (!sp.Stores.includes("online")) {
         sp.Stores.push("online");
       }
@@ -160,7 +163,6 @@ module.exports = class FirebaseClient {
       delete sp.PriceIsLowered;
       sp.Buyable = false;
     }
-
     return sp
   }
 
@@ -188,12 +190,11 @@ module.exports = class FirebaseClient {
     await firebase.firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      .where("LastPriceFetchDate", "<", d)
-      .limit(5000)
+      .limit(30000)
       .get().then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
-            if (!p.id.includes("x")) {
+            if (!p.id.includes("x") && p.data().Expired != true && p.data().LastPriceFetchDate < d) {
               ids.push(p.id);
             }
           });
@@ -235,7 +236,7 @@ module.exports = class FirebaseClient {
         .collection("Products")
         .doc(productId);
       
-        if((await productRef.get() != null)){
+        if(((await productRef.get()) !== null)){
           productRef.update({Stores: stores});
         }
     }

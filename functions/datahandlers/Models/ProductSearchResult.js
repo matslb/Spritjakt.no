@@ -1,11 +1,11 @@
 module.exports = class ProductSearchParser {
 
-    static GetProductFromSearchResult = (jsonData) =>  {
+    static GetProductFromSearchResult = (productId, jsonData) =>  {
         const facets = (jsonData.productSearchResult.facets || []).map(facetData => new Facet(facetData));
         const stores = facets.find(x => x.code === "availableInStores")?.values.map(f => f.code);
         this.pagination = jsonData.productSearchResult.pagination || {};
         this.products = (jsonData.productSearchResult.products || []).map(productData => new Product(productData, stores ));
-        return this.products[0];
+        return this.products.find(x => x.id == productId) ?? null;
     }
 
     static GetProductsFromSearchResult = (jsonData) =>  {

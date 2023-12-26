@@ -92,9 +92,9 @@ const Product = ({
         }
       </span>
       <div onClick={() => highlightProduct(product.Id)} className="product_details">
-        {isSoldOut &&
+        {product.Buyable == false &&
           <span className={"soldOutSticker"}>
-            {product.ProductStatusSaleName}
+            {product.Availability ?? "Utgått"}
           </span>
         }
         <div className="detailsLine">
