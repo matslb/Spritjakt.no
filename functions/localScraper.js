@@ -30,7 +30,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 17;
+        var runhour = 18;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {

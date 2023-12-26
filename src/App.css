@@ -176,9 +176,9 @@ button {
 }
 
 .bigGoldBtn {
-    background: #d0b55e;
+    background: #fdb542;
     border: none;
-    color: white;
+    color: black;
     padding: 0.5rem;
     opacity: 1;
     border-radius: 3px;

@@ -66,7 +66,7 @@ const HighlightedProduct = ({
 
   const fetchVintages = async () => {
     const typesenseClient = new TypeSenseClient();
-    const productVintages = await typesenseClient.fetchProducts({searchString: product.Id.split("x")[0] }, 10, false)
+    const productVintages = await typesenseClient.fetchProducts({view: true, searchString: product.Id.split("x")[0] }, 10, false)
     setVintages(sortArray(productVintages.hits?.filter(p => p.document.Id.split("x")[0] == product.Id.split("x")[0] && p.document.Year != undefined).map(p => {
       return { year: p.document.Year, id: p.document.Id }
     }), {

@@ -37,7 +37,7 @@ module.exports = class FirebaseClient {
       }
     } else {
 
-      if (p.Year != "0000" && !p.VintageComment?.includes("ikke egnet for lagring")) {
+      if (p.Year && p.Year != "0000" && !p.VintageComment?.includes("ikke egnet for lagring")) {
         if (sp.Year !== undefined && sp.Year != p.Year) {
           var oldYear = sp.Year;
           var newYear = p.Year;
@@ -45,10 +45,9 @@ module.exports = class FirebaseClient {
           expiredProduct.Id += "x" + oldYear;
           expiredProduct.Expired = true;
           expiredProduct.Buyable = false;
-          expiredProduct.ProductStatusSaleName = "Utgått";
           expiredProduct.Status= "Utgått";
           expiredProduct.Stores = [];
-          expiredProduct.StoreStock = [];
+          delete expiredProduct.StoreStock;
           try {
             console.log("New vintage detected for product " + sp.Id + ". Creating new product " + expiredProduct.Id);
             firebase.firestore().collection("Products").doc(expiredProduct.Id).set(expiredProduct);
@@ -85,7 +84,8 @@ module.exports = class FirebaseClient {
       }
 
       p.PriceHistory = sp.PriceHistory; 
-      p.PriceHistorySorted = sp.PriceHistorySorted; 
+      p.PriceHistorySorted = sp.PriceHistorySorted;
+      p.LastUpdated = sp.LastUpdated; 
       if (p.LastUpdated == undefined){
         p.LastUpdated = today;
       }

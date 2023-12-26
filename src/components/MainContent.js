@@ -119,10 +119,9 @@ class MainContent extends React.Component {
     query.max = query.max || null;
     if(query.view === 'true'){
       query.view = true;
-    }
-    else if(query.view === 'false'){
+    }else
       query.view = false;
-    }
+      
     return query;
   }
 

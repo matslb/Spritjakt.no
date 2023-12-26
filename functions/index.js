@@ -96,22 +96,13 @@ exports.checkProductRatings = functions.region("europe-west1").runWith(runtimeOp
   }
 });
 
-exports.fetchProductRatingAndStockOnCreate = functions.region("europe-west1").runWith(runtimeOpts).firestore.document('Products/{producId}').onCreate(async (snap, context) => {
+exports.fetchProductRatingOnCreate = functions.region("europe-west1").runWith(runtimeOpts).firestore.document('Products/{producId}').onCreate(async (snap, context) => {
   const product = snap.data()
   if (!product.Id.includes("x")) {
     let ratingResult = await VmpClient.FetchProductRating(product.Id, product.Name);
     await FirebaseClient.UpdateProductRating(ratingResult);
   }
 
-  let stores = await FirebaseClient.GetConstant("Stores");
-  let storeStock = await VmpClient.FetchStoreStock(product.Id, stores);
-  if (storeStock !== null) {
-    let p = {
-      productId: product.Id,
-      Stores: storeStock
-    }
-    await FirebaseClient.UpdateProductStock(p);
-  }
 });
 
 
