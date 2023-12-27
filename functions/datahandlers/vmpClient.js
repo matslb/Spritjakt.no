@@ -42,6 +42,38 @@ class VmpClient {
       });
   }
 
+  static async GetProductsInStore(storeId) 
+  {
+    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
+    var headers = headerGenerator.getHeaders();
+    delete headers["accept"]
+    let page = 0;
+    let totalResults = 1;
+    let productsInStore = [];
+    
+    while ( productsInStore.length < totalResults || totalResults == 0 ){      
+      const options = {
+        method: "get",
+        url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&currentPage=${page}&q=%3Arelevance%3AavailableInStores%3A${storeId}`,
+        jar: cookieJar,
+        headers: headers,
+        withCredentials: true,
+      };
+       await axios(options)
+          .then(async function (res) {
+            var pagination = res.data.productSearchResult.pagination;
+            totalResults = pagination.totalResults;
+            productsInStore = productsInStore.concat(ProductSearchParser.GetProductsFromSearchResult(res.data));
+          });
+        
+        await new Promise(r => setTimeout(r, 100));
+      page++;
+    }
+
+    return productsInStore;
+  }
+
+
   static async GetProductDetails(productId) 
   {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);

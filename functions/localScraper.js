@@ -30,7 +30,7 @@ async function orchistrator() {
     while (true) {
         var time = new Date();
         console.log("The time is " + time.getHours());
-        var runhour = 18;
+        var runhour = 3;
         var nextRunTime = new Date();
         nextRunTime.setHours(runhour, 0, 0);
         if (time.getHours() > runhour) {
@@ -44,8 +44,9 @@ async function orchistrator() {
             try {
                 console.clear();
                 log_file = fs.createWriteStream(__dirname + '/logs/' + time.toDateString() + '.log', { flags: 'w' });
-                //await reConnectToVpn(getVpnCountry());
-                await UpdatePrices();
+                await reConnectToVpn(getVpnCountry());
+               // await UpdatePrices();
+                await UpdateStock();
                 var stoppedTime = new Date();
                 var runtime = (stoppedTime.getTime() - time.getTime()) / 1000 / 60 / 60;
                 console.log("Finished run. It took " + runtime.toFixed(2) + " hours.");
@@ -58,6 +59,43 @@ async function orchistrator() {
             await new Promise(r => setTimeout(r, msLeft));
         }
     }
+}
+
+async function UpdateStock(){
+    var stores = await FirebaseClient.GetConstant("Stores");
+    var productsWithStock = {};
+    const start = Date.now();
+    console.log(`--------------------------`)
+    console.log(`Stock fetch status:`);
+    try {
+        for (const i in stores) {
+            var store = stores[i];
+            var productsInStore = await VmpClient.GetProductsInStore(store.storeId);
+            for (const product of productsInStore) {
+                const id = product.id;
+                if(productsWithStock[id] == undefined){
+                    productsWithStock[id] = [store.storeId];
+                }
+                else{
+                    productsWithStock[id].push(store.storeId);
+                }
+            }
+            const dots = ".".repeat((i+1)/9)
+            const left = (stores.length - i+1)
+            const empty = " ".repeat(left / 9)
+            const end = Date.now();
+            const elapsed = (end - start)/1000;
+            process.stdout.write(`\r[${dots}${empty}] ${((i+1 / stores.length) * 100).toFixed(0)}% | Stores: ${i} | Products: ${Object.keys(productsWithStock).length} | Elapsed: ${elapsed.toFixed()}s | Remaining: ${((i / elapsed) * left).toFixed(0)}s`)
+        }
+        for (const id in productsWithStock) {
+            await FirebaseClient.SetProductStores(id, productsWithStock[id]);
+        }
+    }
+    catch (e)  {
+        console.log(`\nStockfetch failed. Error: ${e})`);
+    }
+    console.log(`\nStockfetch finished`)
+    console.log(`_________________________________`)
 }
 
 async function UpdatePrices() {
@@ -79,12 +117,6 @@ async function UpdatePrices() {
             if(response.product){
                 await FirebaseClient.UpdateProductPrice(response.product);
                 await new Promise(r => setTimeout(r, 200));
-                let detailsRes = await VmpClient.GetProductDetails(ids[i]);
-                if (detailsRes.product) {
-                    await FirebaseClient.SetProductStores(ids[i], detailsRes.product.stores);
-                }else{
-                    console.error("Could not fetch stock of product " + ids[i] + ": " + detailsRes.error);
-                }
                 failcount = 0;
                 reconnectAttempted = false;
             }   

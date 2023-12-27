@@ -186,15 +186,17 @@ module.exports = class FirebaseClient {
   static async GetProductsToBeUpdated() {
     let ids = [];
     let d = new Date();
-    d.setDate(d.getDate() - 3);
+    d.setDate(d.getDate() - 7);
     await firebase.firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      .limit(30000)
+      .where("LastPriceFetchDate", "<", d)
+      .where("Expired", "==", false)
+      .limit(3000)
       .get().then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
-            if (!p.id.includes("x") && p.data().Expired != true && p.data().LastPriceFetchDate < d) {
+            if (!p.id.includes("x")) {
               ids.push(p.id);
             }
           });
@@ -289,13 +291,6 @@ module.exports = class FirebaseClient {
   static async UpdateStores(stores) {
     const storesRef = firebase.firestore().collection("Stores").doc("1");
     storesRef.set({ StoreList: stores });
-  }
-
-  static async GetStores() {
-    const storesRef = firebase.firestore().collection("Stores").doc("1");
-    let storeObject = storesRef.get();
-    storeObject = (await storeObject).data();
-    return storeObject.StoreList;
   }
 
   static async UpdateConstants(data, type) {
