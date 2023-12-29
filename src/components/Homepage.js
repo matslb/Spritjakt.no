@@ -108,7 +108,7 @@ class Homepage extends React.Component {
             </ul>
           </nav>
           <LoginPage ref={this.LoginPage} />
-          <BarcodeScanner />
+          {/*<BarcodeScanner />*/}
           {this.state.content === "hall-of-fame" ? (
             <HallOfFame />
           ) : (

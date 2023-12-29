@@ -113,6 +113,20 @@
         "name": "Volume",
         "optional": true,
         "type": "float"
+    },
+    {
+        "facet": false,
+        "index": true,
+        "name": "IsVintage",
+        "optional": true,
+        "type": "bool"
+    },
+    {
+        "facet": false,
+        "index": true,
+        "name": "Expired",
+        "optional": true,
+        "type": "bool"
     }
     ]
 }

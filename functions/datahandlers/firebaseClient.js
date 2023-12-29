@@ -101,6 +101,7 @@ module.exports = class FirebaseClient {
     expiredProduct.Buyable = false;
     expiredProduct.Status = "Utgått";
     expiredProduct.Stores = [];
+    expiredProduct.IsVintage = true;
     delete expiredProduct.StoreStock;
 
     firebase
@@ -132,14 +133,15 @@ module.exports = class FirebaseClient {
   static async GetProductsToBeUpdated() {
     let ids = [];
     let d = new Date();
-    d.setDate(d.getDate() - 2);
+    let today = d.getDate();
+    d.setDate(d.getDate() - 3);
     await firebase
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
       .where("LastPriceFetchDate", "<", d)
-      //.where("Expired", "==", false)
-      .limit(5000)
+      .where("IsVintage", "!=", true)
+      //.limit(today == 1 ? 20000 : 5000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {

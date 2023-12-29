@@ -66,7 +66,10 @@ const HallOfFame = () => {
                 <p>
                   Bare{" "}
                   <strong>
-                    {hallOfFameProducts.cheapestByAlcohol.LiterPriceAlcohol} kr
+                    {new Intl.NumberFormat().format(
+                      hallOfFameProducts.cheapestByAlcohol.LiterPriceAlcohol
+                    )}{" "}
+                    kr
                   </strong>{" "}
                   per liter ren alkohol
                 </p>
@@ -133,10 +136,10 @@ const HallOfFame = () => {
                 <p>
                   Hele{" "}
                   <strong>
-                    {
+                    {new Intl.NumberFormat().format(
                       hallOfFameProducts.mostExpensiveByAlcohol
                         .LiterPriceAlcohol
-                    }{" "}
+                    )}{" "}
                     kr
                   </strong>{" "}
                   per liter ren alkohol

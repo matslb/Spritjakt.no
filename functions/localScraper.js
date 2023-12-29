@@ -31,7 +31,7 @@ async function orchistrator() {
   var lastRunDate = 0;
   while (true) {
     var time = new Date();
-    var runhour = 22;
+    var runhour = 23;
     var nextRunTime = new Date();
     nextRunTime.setHours(runhour, 0, 0);
     if (time.getHours() > runhour) {
@@ -142,7 +142,7 @@ async function UpdatePrices() {
           return;
         }
       }
-      await new Promise((r) => setTimeout(r, Math.random() * 1500 + 200));
+      await new Promise((r) => setTimeout(r, Math.random() * 500 + 200));
     } catch (e) {
       customLog(`Pricefetch failed. Error: ${e}`, true);
     }
