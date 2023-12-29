@@ -302,7 +302,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
       )}
       <section className="product_details">
         <h2 className="name">{product.Name}</h2>
-        {product.LatestPrice ? (
+        {product.LatestPrice && !product.Expired ? (
           <span className="price">Kr {product.LatestPrice}</span>
         ) : (
           <span className="price">Utgått</span>
@@ -416,8 +416,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
         </section>
       )}
       {vintages.length > 1 && renderVintages()}
-      {product.Types.length > 1 &&
-        renderTextSection(product.Types.join(", "), "Kategorier")}
+      {renderTextSection(product.Types.join(", "), "Kategorier")}
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}

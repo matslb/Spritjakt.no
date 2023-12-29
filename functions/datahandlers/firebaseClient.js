@@ -1,18 +1,15 @@
-const SortArray = require("sort-array");
 const firebase = require("firebase-admin");
-const sortArray = require("sort-array");
 require("firebase/firestore");
 require("firebase/auth");
 
 module.exports = class FirebaseClient {
-  static async CreateNewProduct(p) {
+  static async UpsertProduct(p) {
     let today = this.GetTodayTimeStamp();
     const productRef = firebase.firestore().collection("Products").doc(p.Id);
 
-    p.PriceHistory = {
-      [today]: p.LatestPrice,
-    };
-    p.PriceHistorySorted = [today];
+    if (p.ProductHistory == undefined) {
+      p = this.SetProductHistory(p);
+    }
     p.LastPriceFetchDate = new Date(1, 1);
     p.LastUpdated = today;
     try {
@@ -50,21 +47,20 @@ module.exports = class FirebaseClient {
     ) {
       await this.CreateNewProductVintage(sp);
       // Resetting fiels that will be copied to vintage.
-      p.PriceHistory = {
-        [today]: p.Price,
-      };
-      p.PriceHistorySorted = [today];
+      p = this.SetProductHistory(p);
       delete p.PriceIsLowered;
       delete p.PriceChange;
-    } else {
+    } else if (sp.PriceHistory) {
       p.PriceHistory = sp.PriceHistory;
+    } else {
+      p = this.SetProductHistory(p);
     }
     if (p.Price !== null || p.Price !== undefined) {
       p.LatestPrice = p.Price;
       p.Literprice = Math.ceil((p.Price / p.Volume) * 100);
       p.LiterPriceAlcohol = Math.ceil((100 / sp.Alcohol) * p.Literprice);
 
-      let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? p.Price;
+      let ComparingPrice = p.PriceHistory[p.LastUpdated] ?? p.Price;
       let PriceChange = (p.Price / ComparingPrice) * 100;
 
       if (PriceChange !== 100 && (PriceChange <= 98 || PriceChange >= 102)) {
@@ -81,9 +77,21 @@ module.exports = class FirebaseClient {
     await productRef.update({ ...p });
   }
 
+  static SetProductHistory(p) {
+    let today = this.GetTodayTimeStamp();
+    p.PriceHistory = {
+      [today]: p.Price,
+    };
+    p.PriceHistorySorted = [today];
+    return p;
+  }
+
   static async ExpireProduct(id) {
     const productRef = firebase.firestore().collection("Products").doc(id);
-    await productRef.update({ Expired: true });
+    await productRef.update({
+      LastPriceFetchDate: new Date(),
+      Expired: true,
+    });
   }
 
   static async CreateNewProductVintage(sp) {
@@ -124,14 +132,13 @@ module.exports = class FirebaseClient {
   static async GetProductsToBeUpdated() {
     let ids = [];
     let d = new Date();
-    d.setDate(d.getDate() - 3);
+    d.setDate(d.getDate() - 2);
     await firebase
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
       .where("LastPriceFetchDate", "<", d)
-      .where("Expired", "==", false)
-      .limit(10000)
+      //.where("Expired", "==", false)
       .get()
       .then(function (qs) {
         if (!qs.empty) {

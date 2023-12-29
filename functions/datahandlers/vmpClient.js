@@ -256,7 +256,8 @@ function CreateProduct(productData) {
     Status: productData.status || null,
     AvailableOnline:
       productData.availability.deliveryAvailability.available || false,
-    LatestPrice: productData.price ? productData.price.value : null,
+    LatestPrice: productData.price.value || null,
+    Price: productData.price.value || null,
     ProductStatusSaleName: "",
     Year: productData.year || null,
     VintageComment: productData.matured || null,

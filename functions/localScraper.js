@@ -16,7 +16,7 @@ const { exec } = require("child_process");
 var log_stdout = process.stdout;
 let date = new Date();
 var log_file = fs.createWriteStream(
-  __dirname + "/logs/" + date.toDateString() + ".log",
+  __dirname + "/logs/" + date.toLocaleDateString() + ".log",
   { flags: "w" }
 );
 
@@ -31,7 +31,7 @@ async function orchistrator() {
   var lastRunDate = 0;
   while (true) {
     var time = new Date();
-    var runhour = 2;
+    var runhour = 22;
     var nextRunTime = new Date();
     nextRunTime.setHours(runhour, 0, 0);
     if (time.getHours() > runhour) {
@@ -41,10 +41,6 @@ async function orchistrator() {
 
     if (time.getHours() == runhour && lastRunDate != time.getDate()) {
       customLog(`Current time: ${new Date()}`, false);
-      log_file = fs.createWriteStream(
-        __dirname + "/logs/" + time.toLocaleDateString() + ".log",
-        { flags: "w" }
-      );
       lastRunDate = time.getDate();
       try {
         //await reConnectToVpn(getVpnCountry());
@@ -59,9 +55,9 @@ async function orchistrator() {
       }
     } else {
       customLog(
-        `Not yet.. Sleeping for ${new Date(nextRunTime - time)
-          .toISOString()
-          .slice(11, 19)}`
+        `Not yet.. Sleeping for ${
+          (new Date(nextRunTime - time).toISOString().slice(11, 19), true)
+        }`
       );
       await new Promise((r) => setTimeout(r, msLeft));
     }
@@ -79,7 +75,7 @@ async function UpdatePrices() {
     try {
       let response = await VmpClient.FetchProductPrice(id);
       if (response.product) {
-        await FirebaseClient.CreateNewProduct(response.product);
+        await FirebaseClient.UpsertProduct(response.product);
       }
     } catch (e) {
       customLog(e, true);
@@ -96,6 +92,7 @@ async function UpdatePrices() {
   let statusMessage = "";
   const progressbarWidth = 50;
   for (const i in ids) {
+    console.clear();
     const processed = parseInt(i) + 1;
     const id = ids[i];
     const percentage = processed / ids.length;
@@ -121,25 +118,28 @@ async function UpdatePrices() {
         await FirebaseClient.UpdateProduct(detailsRes.product);
       } else if (detailsRes.error) {
         customLog(
-          `\nCould not fetch price of product ${id}. Error: ${detailsRes.error}`,
-          true
+          `\nCould not fetch price of product ${id}. Error: ${detailsRes.error}`
         );
         failcount++;
       } else {
-        customLog(`\nProduct ${id} was not found. Marking as 'Expired'`);
+        customLog(`Product ${id} was not found. Marking as 'Expired'`);
         await FirebaseClient.ExpireProduct(id);
       }
 
-      if (failcount > 5) {
+      if (failcount > 3) {
         if (reconnectAttempted != false) {
           reconnectAttempted = true;
+          customLog(
+            `\n${failcount} products failed in a row. Attempting to re-connect`
+          );
           failcount = 0;
           await reConnectToVpn(getVpnCountry());
         } else {
           await NotificationClient.SendFetchErrorEmail(
             "Henting av nye priser feilet"
           );
-          throw "Pricefetch failed";
+          customLog("Pricefetch failed");
+          return;
         }
       }
       await new Promise((r) => setTimeout(r, Math.random() * 1500 + 200));
@@ -156,7 +156,7 @@ async function reConnectToVpn(country) {
   customLog("Attempting to re-connect to VPN...");
   customLog("Country: " + country);
   exec("vpnConnector.cmd " + country, { encoding: "utf-8" });
-  customLog("Waiting 10 seconds for VPN to start up...");
+  customLog("Waiting 10 seconds for VPN to start up...", true);
   await new Promise((r) => setTimeout(r, 10000));
 }
 
