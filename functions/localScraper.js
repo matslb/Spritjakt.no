@@ -47,13 +47,13 @@ async function orchistrator() {
       );
       lastRunDate = time.getDate();
       try {
-        // await reConnectToVpn(getVpnCountry());
+        //await reConnectToVpn(getVpnCountry());
         await UpdatePrices();
         const log = `Finished run. It took ${new Date(new Date() - time)
           .toISOString()
           .slice(11, 19)} hours.`;
         customLog(log, true);
-        //reConnectToVpn("Norway");
+        reConnectToVpn("Norway");
       } catch (e) {
         customLog(e);
       }
@@ -94,26 +94,27 @@ async function UpdatePrices() {
   let failcount = 0;
   const start = Date.now();
   let statusMessage = "";
+  const progressbarWidth = 50;
   for (const i in ids) {
+    const processed = parseInt(i) + 1;
+    const id = ids[i];
+    const percentage = processed / ids.length;
+    const filled = progressbarWidth * percentage;
+    const empty = progressbarWidth - filled;
+    const left = ids.length - processed;
+    const end = Date.now();
+    const elapsed = end - start;
+    const elapsedString = new Date(elapsed).toISOString().slice(11, 19);
+    const remainingString = new Date((elapsed / (processed + 1)) * left)
+      .toISOString()
+      .slice(11, 19);
+    statusMessage = `\r[${"=".repeat(filled)}${".".repeat(empty)}] ${(
+      percentage * 100
+    ).toFixed(0)}% | Fetched ${processed} of ${
+      Object.keys(ids).length
+    } products | Elapsed: ${elapsedString} | Remaining time: ${remainingString} `;
+    process.stdout.write(statusMessage);
     try {
-      const processed = parseInt(i) + 1;
-      const id = ids[i];
-      const dots = "=".repeat(processed / 100);
-      const left = ids.length - processed;
-      const empty = " ".repeat(left / 100);
-      const end = Date.now();
-      const elapsed = end - start;
-      const elapsedString = new Date(elapsed).toISOString().slice(11, 19);
-      const remainingString = new Date((elapsed / (processed + 1)) * left)
-        .toISOString()
-        .slice(11, 19);
-      statusMessage = `\r[${dots}${empty}] ${(
-        (processed / ids.length) *
-        100
-      ).toFixed(0)}% | Fetched ${processed} of ${
-        Object.keys(ids).length
-      } products | Elapsed: ${elapsedString} | Remaining time: ${remainingString} |`;
-      process.stdout.write(statusMessage);
       customLog(`Updating product ${id}`);
       var detailsRes = await VmpClient.GetProductDetails(id);
       if (detailsRes.product) {
@@ -125,7 +126,7 @@ async function UpdatePrices() {
         );
         failcount++;
       } else {
-        customLog(`\nProduct ${id} was not found. Marking as 'Expired'`, true);
+        customLog(`\nProduct ${id} was not found. Marking as 'Expired'`);
         await FirebaseClient.ExpireProduct(id);
       }
 

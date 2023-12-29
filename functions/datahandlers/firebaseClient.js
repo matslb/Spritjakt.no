@@ -124,14 +124,14 @@ module.exports = class FirebaseClient {
   static async GetProductsToBeUpdated() {
     let ids = [];
     let d = new Date();
-    d.setDate(d.getDate() - 7);
+    d.setDate(d.getDate() - 3);
     await firebase
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
       .where("LastPriceFetchDate", "<", d)
       .where("Expired", "==", false)
-      .limit(5)
+      .limit(10000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {
@@ -142,7 +142,6 @@ module.exports = class FirebaseClient {
           });
         }
       });
-    console.log("Fetching " + ids.length + " product Ids");
     return ids;
   }
 
