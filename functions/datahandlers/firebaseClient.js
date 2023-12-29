@@ -139,6 +139,7 @@ module.exports = class FirebaseClient {
       .orderBy("LastPriceFetchDate", "asc")
       .where("LastPriceFetchDate", "<", d)
       //.where("Expired", "==", false)
+      .limit(5000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {

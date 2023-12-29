@@ -89,10 +89,8 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
 
   const fetchVintages = async () => {
     const typesenseClient = new TypeSenseClient();
-    const productVintages = await typesenseClient.fetchProducts(
-      { view: true, searchString: product.Id.split("x")[0] },
-      10,
-      false
+    const productVintages = await typesenseClient.fetchProductVintages(
+      product.Id.split("x")[0]
     );
     setVintages(
       sortArray(

@@ -92,6 +92,37 @@ class TypeSenseClient {
     };
   }
 
+  async fetchProductVintages(productId) {
+    let searchParameters = {
+      per_page: 15,
+      page: 1,
+    };
+
+    let multiSearchRequest = {
+      searches: [searchParameters],
+    };
+
+    let request = await this.client.multiSearch.perform(multiSearchRequest, {
+      collection: collection,
+      query_by: "Id",
+      q: productId,
+      sort_by: sortOptions[0].typeSenseValue,
+      max_facet_values: 1000,
+      use_cache: false,
+      cache_ttl: 300,
+      num_typos: 0,
+      min_len_1typo: 5,
+      min_len_2typo: 8,
+    });
+    let result = request.results[0];
+    if (result.hits == undefined) {
+      result.hits = [];
+      result.facet_counts = [];
+    }
+
+    return result;
+  }
+
   async fetchProducts(filter, pageSize, doFacetSearch = true) {
     let searchParameters = {
       facet_by: "Types,Country,Stores,IsGoodForList",
@@ -175,10 +206,8 @@ class TypeSenseClient {
   }
 
   createFilterString(filter) {
-    let filterString = "";
-    if (filter.searchString == null) {
-      filterString += " && Buyable:=true";
-    }
+    let filterString = "Buyable:= true";
+
     if (!filter.view) filterString += " && PriceChange:" + "<99.9";
 
     if (filter.types && filter.types.length > 0) {
