@@ -1,18 +1,18 @@
 .priceGraph {
-    width: 100%;
-    max-width: 25rem;
-    margin-top: 1rem;
+  width: 100%;
+  max-width: 25rem;
+  margin-top: 1rem;
 }
 
 .HighlightedProduct .priceGraph.fake {
-    height: 12rem;
-    max-height: 30vh;
+  height: 12rem;
+  max-height: 30vh;
 }
 
 .priceGraph .graph,
 .priceGraph img {
-    height: 12rem;
-    max-height: 30vh;
-    grid-area: gra;
-    margin: 0 0.5rem 0 -0.25rem;
+  height: 12rem;
+  max-height: 30vh;
+  grid-area: gra;
+  margin: 0 0.5rem 0 -0.25rem;
 }

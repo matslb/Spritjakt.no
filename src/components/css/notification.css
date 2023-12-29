@@ -1,54 +1,54 @@
 .notification {
-    position: absolute;
-    z-index: 99999;
-    color: white;
-    padding: 8px;
-    box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
-    border-radius: 16px;
-    font-size: 0.8rem;
-    height: 32px;
-    min-width: 38px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    transition: opacity 0.2s, top 0s 0.2s ease-in-out;
+  position: absolute;
+  z-index: 99999;
+  color: white;
+  padding: 8px;
+  box-shadow: 2px 2px 9px rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  font-size: 0.8rem;
+  height: 32px;
+  min-width: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  transition: opacity 0.2s, top 0s 0.2s ease-in-out;
 }
 
 .notification.false {
-    opacity: 0;
-    top: -5rem !important;
+  opacity: 0;
+  top: -5rem !important;
 }
 
 .notification.true {
-    transition: opacity 0.2s, top 0s 0s ease-in-out;
-    opacity: 1;
-    max-height: 50rem;
-    animation: wiggle 0.2s 1;
+  transition: opacity 0.2s, top 0s 0s ease-in-out;
+  opacity: 1;
+  max-height: 50rem;
+  animation: wiggle 0.2s 1;
 }
 
 @keyframes wiggle {
-    0% {
-        transform: translateY(0);
-    }
+  0% {
+    transform: translateY(0);
+  }
 
-    30% {
-        transform: translateY(20px);
-    }
+  30% {
+    transform: translateY(20px);
+  }
 
-    80% {
-        transform: translateY(-10px);
-    }
+  80% {
+    transform: translateY(-10px);
+  }
 
-    100% {
-        transform: translateY(0);
-    }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .notification.success {
-    background: #1c323a;
+  background: #1c323a;
 }
 
 .notification.error {
-    background: #a00b35;
+  background: #a00b35;
 }

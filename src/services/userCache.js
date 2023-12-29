@@ -1,18 +1,18 @@
 class UserCacher {
-    static set(userData) {
-        delete userData.notificationTokens;
-        localStorage.setItem("SPRITJAKT_USER", JSON.stringify(userData))
+  static set(userData) {
+    delete userData.notificationTokens;
+    localStorage.setItem("SPRITJAKT_USER", JSON.stringify(userData));
+  }
+  static get() {
+    let string = localStorage.getItem("SPRITJAKT_USER");
+    if (string) {
+      return JSON.parse(string);
     }
-    static get() {
-        let string = localStorage.getItem("SPRITJAKT_USER");
-        if (string) {
-            return JSON.parse(string);
-        }
-        return false;
-    }
-    static delete() {
-        localStorage.setItem("SPRITJAKT_USER", "");
-    }
+    return false;
+  }
+  static delete() {
+    localStorage.setItem("SPRITJAKT_USER", "");
+  }
 }
 
 export default UserCacher;

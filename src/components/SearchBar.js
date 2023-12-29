@@ -10,9 +10,8 @@ const SearchBar = ({
   searchStringProp = "",
   searchIsActive,
   loading,
-  searchProducts
+  searchProducts,
 }) => {
-
   const [searchString, setSearchString] = useState("");
   const [productFetchTimeout, setProductFetchTimeout] = useState(null);
 
@@ -21,23 +20,24 @@ const SearchBar = ({
     let string = event.target.value;
     setSearchString(string);
 
-
-    setProductFetchTimeout(setTimeout(() => {
-      if (string.trim().length < 3) {
-        setSearchString(string);
-        return;
-      }
-      firebase.analytics().logEvent("search", { search_term: string });
-      searchProducts(string);
-    }, 500))
-  }
+    setProductFetchTimeout(
+      setTimeout(() => {
+        if (string.trim().length < 3) {
+          setSearchString(string);
+          return;
+        }
+        firebase.analytics().logEvent("search", { search_term: string });
+        searchProducts(string);
+      }, 500)
+    );
+  };
 
   const handleKeyPress = async (event) => {
-    if (event.key !== 'Enter') {
-      return
+    if (event.key !== "Enter") {
+      return;
     }
     searchProducts(searchString);
-  }
+  };
 
   useEffect(() => {
     if (forceSearchString && searchString !== searchStringProp) {
@@ -46,7 +46,7 @@ const SearchBar = ({
         searchProducts(searchStringProp);
       }
     }
-  }, [searchStringProp, forceSearchString])
+  }, [searchStringProp, forceSearchString]);
 
   return (
     <div className="SearchBar">
@@ -62,19 +62,23 @@ const SearchBar = ({
         {(searchString.length >= 2 || searchIsActive) && (
           <button
             className="close"
-            onClick={() => { setSearchString(""); searchProducts(null); }}
+            onClick={() => {
+              setSearchString("");
+              searchProducts(null);
+            }}
           >
-            {loading ?
+            {loading ? (
               <div className="product-list-loader">
                 <FontAwesomeIcon icon={faCircleNotch} />
               </div>
-              : <FontAwesomeIcon icon={faTimes} />
-            }
+            ) : (
+              <FontAwesomeIcon icon={faTimes} />
+            )}
           </button>
         )}
       </label>
-    </div >
+    </div>
   );
-}
+};
 
 export default SearchBar;

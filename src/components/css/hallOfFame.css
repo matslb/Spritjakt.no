@@ -1,76 +1,82 @@
 .hall-of-fame {
-    min-height: 50vh;
-    margin: 1rem auto;
-    padding: 1rem;
-    max-width: 1200px;
+  min-height: 50vh;
+  margin: 1rem auto;
+  padding: 1rem;
+  max-width: 1200px;
 }
 
 .fa-circle-notch {
-    opacity: 0.4;
+  opacity: 0.4;
 }
 
 ul.product-list.hall-of-fame {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 ul.product-list.hall-of-fame.negative {
-    grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
 .famed-product {
-    padding: 1rem;
-    text-align: center;
-    position: relative;
-    font-weight: 400;
-    border-radius: 16px;
-    min-height: 12rem;
-    list-style: none;
+  padding: 1rem;
+  text-align: center;
+  position: relative;
+  font-weight: 400;
+  border-radius: 16px;
+  min-height: 12rem;
+  list-style: none;
 }
 
 .famed-product > div > p {
-    min-height: 3rem;
-    text-transform: uppercase;
-
+  min-height: 3rem;
+  text-transform: uppercase;
 }
 
 .famed-product.positive svg {
-    color: #fdb542;
+  color: #fdb542;
 }
 
-
 .gold {
-    background: linear-gradient(90deg, rgba(186,148,62,1) 0%, rgba(236,172,32,1) 20%, rgba(186,148,62,1) 39%, rgba(249,244,180,1) 50%, rgba(186,148,62,1) 60%, rgba(236,172,32,1) 80%, rgba(186,148,62,1) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 10s infinite;
-    animation-delay: 1s;
-    background-size: 200%;
-    background-position: left;
+  background: linear-gradient(
+    90deg,
+    rgba(186, 148, 62, 1) 0%,
+    rgba(236, 172, 32, 1) 20%,
+    rgba(186, 148, 62, 1) 39%,
+    rgba(249, 244, 180, 1) 50%,
+    rgba(186, 148, 62, 1) 60%,
+    rgba(236, 172, 32, 1) 80%,
+    rgba(186, 148, 62, 1) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 10s infinite;
+  animation-delay: 1s;
+  background-size: 200%;
+  background-position: left;
 }
 
 @keyframes shine {
-    0% {
-        background-position: left;
-    }
+  0% {
+    background-position: left;
+  }
 
-    12% {
-        background-position: right;
-    }
+  12% {
+    background-position: right;
+  }
 
-    100% {
-        background-position: right;
-    }
+  100% {
+    background-position: right;
+  }
 }
 
-
-@media(max-width: 1200px) {
-    ul.product-list.hall-of-fame {
-        grid-template-columns: 1fr 1fr !important;
-    }
+@media (max-width: 1200px) {
+  ul.product-list.hall-of-fame {
+    grid-template-columns: 1fr 1fr !important;
+  }
 }
 
-@media(max-width: 768px) {
-    ul.product-list.hall-of-fame {
-        grid-template-columns: 1fr !important;
-    }
+@media (max-width: 768px) {
+  ul.product-list.hall-of-fame {
+    grid-template-columns: 1fr !important;
+  }
 }

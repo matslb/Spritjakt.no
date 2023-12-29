@@ -1,134 +1,131 @@
 .BarcodeScanner .drawingBuffer {
-    display: none;
+  display: none;
 }
 
 .VideoWrapper > video {
-    max-width: 100vw;
-    min-height: 100%;
+  max-width: 100vw;
+  min-height: 100%;
 }
 
 .ScannerPopup {
-    display: none;
-    justify-content: space-evenly;
-    flex-direction: column;
-    align-items: center;
+  display: none;
+  justify-content: space-evenly;
+  flex-direction: column;
+  align-items: center;
 }
 
 .ScannerPopup.active {
-    display: flex;
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    right: 0;
-    margin: auto;
-    bottom: 0;
-    top: 0;
-    background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  right: 0;
+  margin: auto;
+  bottom: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.9);
 }
 
 .BarcodeScanner .VideoWrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 25rem;
-    height: 100%;
-    max-height: 25rem;
-    border-radius: 16px;
-    transition: 0.2s;
-    overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 25rem;
+  height: 100%;
+  max-height: 25rem;
+  border-radius: 16px;
+  transition: 0.2s;
+  overflow: hidden;
 }
 
 .ScanningDescription {
-    color: white;
-    text-align: center;
-    padding: 2rem 1rem 1rem;
+  color: white;
+  text-align: center;
+  padding: 2rem 1rem 1rem;
 }
 
 .BarcodeScanner .torch {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    z-index: 2;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
 }
 
 .BarcodeScanner .torch:focus {
-    color: white !important;
+  color: white !important;
 }
 
 .BarcodeScanner .torch.active svg {
-    color: #d0b55e !important;
-    background: rgba(255, 194, 28, 0.3);
-    border-radius: 100%;
-    box-shadow: 0 0 16px 7px rgb(255 194 28 / 30%);
+  color: #d0b55e !important;
+  background: rgba(255, 194, 28, 0.3);
+  border-radius: 100%;
+  box-shadow: 0 0 16px 7px rgb(255 194 28 / 30%);
 }
 
 .ErrorMessage {
-    position: absolute;
-    text-align: center;
-    color: white;
-    top: 0;
-    bottom: 0;
-    margin: auto;
+  position: absolute;
+  text-align: center;
+  color: white;
+  top: 0;
+  bottom: 0;
+  margin: auto;
 }
 
 .BarcodeScanner > .MuiFab-root {
-    border-radius: 100%;
-    position: fixed;
-    z-index: 3;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    box-shadow: 2px 2px 12px rgb(0 0 0 / 40%);
-    overflow: hidden;
-
+  border-radius: 100%;
+  position: fixed;
+  z-index: 3;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  box-shadow: 2px 2px 12px rgb(0 0 0 / 40%);
+  overflow: hidden;
 }
 
-
 .BarcodeScanner > .MuiFab-root:after {
-    content: "";
-    width: 65%;
-    position: absolute;
-    background: red;
-    height: 1.5px;
-    left: 0;
-    right: 0;
-    margin: auto;
-    z-index: 1;
-    animation: scanSmall 1s 0s infinite alternate-reverse;
+  content: "";
+  width: 65%;
+  position: absolute;
+  background: red;
+  height: 1.5px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 1;
+  animation: scanSmall 1s 0s infinite alternate-reverse;
 }
 
 .VideoWrapper:after {
-    content: "";
-    width: 35%;
-    min-width: 8rem;
-    position: absolute;
-    background: red;
-    height: 1px;
-    left: 0;
-    right: 0;
-    margin: auto;
-    z-index: 1;
-    box-shadow: 0 0 6px 4px rgb(255 39 106 / 30%);
-    animation: scanBig 1s 0s infinite alternate-reverse;
+  content: "";
+  width: 35%;
+  min-width: 8rem;
+  position: absolute;
+  background: red;
+  height: 1px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 1;
+  box-shadow: 0 0 6px 4px rgb(255 39 106 / 30%);
+  animation: scanBig 1s 0s infinite alternate-reverse;
 }
 
 @keyframes scanBig {
-    0% {
-        transform: translateY(-50px);
-    }
+  0% {
+    transform: translateY(-50px);
+  }
 
-    100% {
-        transform: translateY(50px);
-    }
+  100% {
+    transform: translateY(50px);
+  }
 }
 
 @keyframes scanSmall {
-    0% {
-        transform: translateY(-10px);
-    }
+  0% {
+    transform: translateY(-10px);
+  }
 
-    100% {
-        transform: translateY(10px);
-    }
-
+  100% {
+    transform: translateY(10px);
+  }
 }

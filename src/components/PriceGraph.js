@@ -3,20 +3,17 @@ import { ResponsiveLine } from "@nivo/line";
 import "./css/priceGraph.css";
 import dateFormater from "../dateFormater";
 
-const PriceGraph = ({
-  product
-}) => {
-
+const PriceGraph = ({ product }) => {
   const [graphOptions, setGraphOptions] = useState();
   const [prices, setPrices] = useState([]);
-  
+
   useEffect(() => {
     let config = {
       id: product.Id,
       color: "#1c323a",
       data: [],
       minPrice: 99999,
-      maxPrice: 0
+      maxPrice: 0,
     };
 
     var formattedPrices = [];
@@ -25,39 +22,41 @@ const PriceGraph = ({
       config.minPrice = price < config.minPrice ? price : config.minPrice;
       config.maxPrice = price > config.maxPrice ? price : config.maxPrice;
       let parsedDate = dateFormater.parse(date);
-      formattedPrices.push({date: date, price: price});
+      formattedPrices.push({ date: date, price: price });
       config.data.push({ x: dateFormater.format(parsedDate), y: price });
     }
 
-    formattedPrices.sort( (x,y )=>  y.date - x.date);
+    formattedPrices.sort((x, y) => y.date - x.date);
 
     setPrices(formattedPrices);
     setGraphOptions(config);
   }, [product]);
 
   const priceLastYear = () => {
-
-    if(prices.length <= 1) return;    
+    if (prices.length <= 1) return;
     let change = 0;
     var latest = prices[0];
     for (const p of prices) {
-      if(Math.abs(Date.now() - p.date  ) >= 31536000000){
-         change =  (((latest.price - p.price ) / p.price )* 100).toFixed(1);
+      if (Math.abs(Date.now() - p.date) >= 31536000000) {
+        change = (((latest.price - p.price) / p.price) * 100).toFixed(1);
         break;
-        }
+      }
     }
-    if(change === 0) return;
-    return (<p>{change > 0 ? "Opp" : "Ned" } <span>{Math.abs(change)}%</span> det siste året</p>);
-  }
+    if (change < 1) return;
+    return (
+      <p>
+        {change > 0 ? "Opp" : "Ned"} <span>{Math.abs(change)}%</span> det siste
+        året
+      </p>
+    );
+  };
 
   return (
     <div className="priceGraph descriptionText">
       <h3 className="title">Prishistorikk</h3>
-      <div className="summary">
-        {priceLastYear()}
-      </div>
+      <div className="summary">{priceLastYear()}</div>
       <div className="graph">
-        {graphOptions &&
+        {graphOptions && (
           <ResponsiveLine
             data={[graphOptions]}
             margin={{
@@ -104,7 +103,7 @@ const PriceGraph = ({
             enablePoints={true}
             pointSize={6}
             pointColor="#fdb542"
-            pointBorderColor={{ from: 'serieColor' }}
+            pointBorderColor={{ from: "serieColor" }}
             pointBorderWidth={2}
             areaOpacity={0.5}
             crosshairType="x"
@@ -136,10 +135,10 @@ const PriceGraph = ({
               );
             }}
           />
-        }
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default PriceGraph;

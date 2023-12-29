@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./css/highlightedProduct.css";
-import { faExternalLinkAlt, faHeart, faLink, faSeedling, faStar, faWineBottle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faExternalLinkAlt,
+  faHeart,
+  faLink,
+  faSeedling,
+  faStar,
+  faWineBottle,
+} from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
 import firebase from "firebase/compat/app";
 import { getImageUrl } from "../utils/utils.js";
 import PriceGraph from "./PriceGraph";
-import copy from 'copy-to-clipboard';
+import copy from "copy-to-clipboard";
 import StoreCacher from "../services/storeCache";
 import debounce from "lodash.debounce";
 import emptyGraph from "../assets/emptyGraph.png";
@@ -15,18 +22,15 @@ import { isMobile } from "react-device-detect";
 import TypeSenseClient from "../services/typeSenseClient";
 import sortArray from "sort-array";
 
-const HighlightedProduct = ({
-  product,
-  notification,
-  highlightProduct
-}) => {
-
+const HighlightedProduct = ({ product, notification, highlightProduct }) => {
   const [user, setUser] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showGraph, setShowGraph] = useState(!isMobile);
   const [stockFetchDate, setStockFetchDate] = useState(false);
-  const background = { backgroundImage: "url(" + getImageUrl(product.Id, 300) + ")" };
-  const showDiff = (product.PriceChange > 100.1 || product.PriceChange < 99.9);
+  const background = {
+    backgroundImage: "url(" + getImageUrl(product.Id, 300) + ")",
+  };
+  const showDiff = product.PriceChange > 100.1 || product.PriceChange < 99.9;
   const stores = StoreCacher.get();
   const [vintages, setVintages] = useState([]);
   const rootRef = useRef(null);
@@ -37,7 +41,7 @@ const HighlightedProduct = ({
       if (user) {
         setUser(user);
       } else {
-        setIsFavorite(false)
+        setIsFavorite(false);
       }
     });
   }, []);
@@ -46,14 +50,33 @@ const HighlightedProduct = ({
     fetchVintages();
     setStockFetchDate(false);
     if (product.StockFetchDate) {
-      var diff = Math.floor((new Date().getTime() - new Date((product.StockFetchDate.seconds ?? product.StockFetchDate) * 1000).getTime()) / 1000 / 60 / 60 / 24);
+      var diff = Math.floor(
+        (new Date().getTime() -
+          new Date(
+            (product.StockFetchDate.seconds ?? product.StockFetchDate) * 1000
+          ).getTime()) /
+          1000 /
+          60 /
+          60 /
+          24
+      );
       if (diff < 1000) {
-        setStockFetchDate(diff == 0 ? "mindre enn et døgn siden" : diff + " dag" + (diff > 1 ? "er" : "") + " siden.");
+        setStockFetchDate(
+          diff == 0
+            ? "mindre enn et døgn siden"
+            : diff + " dag" + (diff > 1 ? "er" : "") + " siden."
+        );
       } else {
-        setStockFetchDate(" helt tullete mange dager siden, om i det hele tatt.");
+        setStockFetchDate(
+          " helt tullete mange dager siden, om i det hele tatt."
+        );
       }
     }
-    setRatingUrl(product?.RatingUrl || "https://www.aperitif.no/pollisten?query=" + encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, "")));
+    setRatingUrl(
+      product?.RatingUrl ||
+        "https://www.aperitif.no/pollisten?query=" +
+          encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, ""))
+    );
 
     rootRef?.current?.focus();
 
@@ -66,122 +89,180 @@ const HighlightedProduct = ({
 
   const fetchVintages = async () => {
     const typesenseClient = new TypeSenseClient();
-    const productVintages = await typesenseClient.fetchProducts({view: true, searchString: product.Id.split("x")[0] }, 10, false)
-    setVintages(sortArray(productVintages.hits?.filter(p => p.document.Id.split("x")[0] == product.Id.split("x")[0] && p.document.Year != undefined).map(p => {
-      return { year: p.document.Year, id: p.document.Id }
-    }), {
-      by: "year"
-    }));
-  }
+    const productVintages = await typesenseClient.fetchProducts(
+      { view: true, searchString: product.Id.split("x")[0] },
+      10,
+      false
+    );
+    setVintages(
+      sortArray(
+        productVintages.hits
+          ?.filter(
+            (p) =>
+              p.document.Id.split("x")[0] == product.Id.split("x")[0] &&
+              p.document.Year != undefined
+          )
+          .map((p) => {
+            return { year: p.document.Year, id: p.document.Id };
+          }),
+        {
+          by: "year",
+        }
+      )
+    );
+  };
 
-  const debouncedChangeHandler = useCallback(debounce(() => setShowGraph(true), 200), [product, 200]);
+  const debouncedChangeHandler = useCallback(
+    debounce(() => setShowGraph(true), 200),
+    [product, 200]
+  );
 
   useEffect(() => {
-    if (!user)
-      return;
+    if (!user) return;
 
-    firebase.firestore().collection("Users").doc(user.uid)
+    firebase
+      .firestore()
+      .collection("Users")
+      .doc(user.uid)
       .onSnapshot(async (doc) => {
         let userData = doc.data();
         if (userData) {
-          let isFavorite = userData.products !== undefined ? userData.products.includes(product.Id) : false;
-          setIsFavorite(isFavorite)
+          let isFavorite =
+            userData.products !== undefined
+              ? userData.products.includes(product.Id)
+              : false;
+          setIsFavorite(isFavorite);
         }
       });
   }, [user, product]);
 
   const toggleProdctWatch = (e) => {
-
     if (isFavorite) {
       SpritjaktClient.RemoveProductFromUser(product.Id);
       notification.current.setNotification(e, "Fjernet", "success");
-
     } else {
-      SpritjaktClient.AddProductToUser(product.Id)
+      SpritjaktClient.AddProductToUser(product.Id);
       notification.current.setNotification(e, "Lagt til", "success");
     }
     setIsFavorite(!isFavorite);
-  }
+  };
   const copyLink = (event) => {
-    let link = window.location.href.includes("product") ? window.location.href : window.location.origin + "?product=" + product.Id;
+    let link = window.location.href.includes("product")
+      ? window.location.href
+      : window.location.origin + "?product=" + product.Id;
     copy(link);
-    notification.current.setNotification(event, "Kopiert til utklippstavlen", "success");
+    notification.current.setNotification(
+      event,
+      "Kopiert til utklippstavlen",
+      "success"
+    );
     firebase.analytics().logEvent("user_link_copied");
-  }
+  };
 
   const createPieChartCss = (value) => {
     return {
-      background: "conic-gradient(#2e2e2e 0.00%" + (value * 100 / 12) + "%, white 0%)"
+      background:
+        "conic-gradient(#2e2e2e 0.00%" + (value * 100) / 12 + "%, white 0%)",
     };
   };
 
   const renderStoreStock = () => {
     let list = [];
     if (product.Stores.includes("online"))
-      list.push(<li key="online">
-        <span>Nettlager</span>
-        <span>{product.ProductStatusSalename}</span>
-      </li>
+      list.push(
+        <li key="online">
+          <span>Nettlager</span>
+          <span>{product.ProductStatusSalename}</span>
+        </li>
       );
     for (const store of stores) {
-      let storeStock = product.Stores.find(s => s == store.value);
+      let storeStock = product.Stores.find((s) => s == store.value);
       if (storeStock && storeStock != "online")
-        list.push(<li key={store.value}>
-          <span>{store.label.split(" (")[0]}</span>
-        </li>
+        list.push(
+          <li key={store.value}>
+            <span>{store.label.split(" (")[0]}</span>
+          </li>
         );
     }
 
     return list;
-  }
+  };
 
   const renderIsGoodFor = () => {
     let foods = [];
     if (product.IsGoodFor)
       for (const food of product.IsGoodFor) {
-        foods.push(<li className="food" key={food.code}>
-          <div><img src={"/images/icons/" + food.code + ".png"} /></div>
-          {food.name}
-        </li>);
+        foods.push(
+          <li className="food" key={food.code}>
+            <div>
+              <img src={"/images/icons/" + food.code + ".png"} />
+            </div>
+            {food.name}
+          </li>
+        );
       }
     return foods;
-  }
+  };
   const renderRawMaterials = () => {
     let materials = [];
     if (product.RawMaterials)
       for (const material of product.RawMaterials) {
-        materials.push(<li className="material" key={material.code}>
-          {materials.length === 0 &&
-            <FontAwesomeIcon icon={faSeedling} size="lg" />}
-          {material.name}{material.percentage && ", " + material.percentage + "%"}
-        </li>);
+        materials.push(
+          <li className="material" key={material.code}>
+            {materials.length === 0 && (
+              <FontAwesomeIcon icon={faSeedling} size="lg" />
+            )}
+            {material.name}
+            {material.percentage && ", " + material.percentage + "%"}
+          </li>
+        );
       }
     return materials;
-  }
+  };
   const renderTasteProfile = (value, label) => {
-    return value ? <li key={label} className="pieChartWrapper">
-      <div aria-label={value} className="pieChart" style={createPieChartCss(value)}></div>
-      {label}
-    </li> : null
-  }
+    return value ? (
+      <li key={label} className="pieChartWrapper">
+        <div
+          aria-label={value}
+          className="pieChart"
+          style={createPieChartCss(value)}
+        ></div>
+        {label}
+      </li>
+    ) : null;
+  };
 
   const renderTextSection = (text, label) => {
-    return text ? <section className="descriptionText">
-      <h3>{label}</h3>
-      <p>{text}</p>
-    </section> : null
-  }
+    return text ? (
+      <section className="descriptionText">
+        <h3>{label}</h3>
+        <p>{text}</p>
+      </section>
+    ) : null;
+  };
 
   const renderVintages = () => {
-    return <section className="vintages descriptionText">
-      <h3>Årganger</h3>
-      <div className="vintageButtons">
-        {
-          vintages.map(v => <button key={v.year} onClick={() => product.Year == v.year ? null : highlightProduct(v.id)} className={"clickable" + (v.year == product.Year ? " bigGoldBtn" : "")}>{v.year}</button>)
-        }
-      </div>
-    </section>
-  }
+    return (
+      <section className="vintages descriptionText">
+        <h3>Årganger</h3>
+        <div className="vintageButtons">
+          {vintages.map((v) => (
+            <button
+              key={v.year}
+              onClick={() =>
+                product.Year == v.year ? null : highlightProduct(v.id)
+              }
+              className={
+                "clickable" + (v.year == product.Year ? " bigGoldBtn" : "")
+              }
+            >
+              {v.year}
+            </button>
+          ))}
+        </div>
+      </section>
+    );
+  };
 
   return (
     <article
@@ -192,51 +273,76 @@ const HighlightedProduct = ({
       }
     >
       <span className="productWatchBtns">
-        {isFavorite &&
-          <button aria-label="Fjern fra favoritter" className="iconBtn watched" onClick={toggleProdctWatch}><FontAwesomeIcon icon={faHeart} size="lg" /></button>
-        }
-        {isFavorite === false && user != false &&
-          <button aria-label="Legg til i favoritter" className="watch iconBtn dark" onClick={toggleProdctWatch}><FontAwesomeIcon icon={faHeartRegular} size="lg" /></button>
-        }
+        {isFavorite && (
+          <button
+            aria-label="Fjern fra favoritter"
+            className="iconBtn watched"
+            onClick={toggleProdctWatch}
+          >
+            <FontAwesomeIcon icon={faHeart} size="lg" />
+          </button>
+        )}
+        {isFavorite === false && user != false && (
+          <button
+            aria-label="Legg til i favoritter"
+            className="watch iconBtn dark"
+            onClick={toggleProdctWatch}
+          >
+            <FontAwesomeIcon icon={faHeartRegular} size="lg" />
+          </button>
+        )}
       </span>
       <div className="product_img" style={background}></div>
-      {showDiff &&
+      {showDiff && (
         <span className="percentage_change">
-          {(product.PriceChange < 100 ? "" : "+") + (product.PriceChange - 100).toFixed(1)}%
+          {(product.PriceChange < 100 ? "" : "+") +
+            (product.PriceChange - 100).toFixed(1)}
+          %
         </span>
-      }
+      )}
       <section className="product_details">
         <h2 className="name">{product.Name}</h2>
-        {product.LatestPrice ?
+        {product.LatestPrice ? (
           <span className="price">Kr {product.LatestPrice}</span>
-          :
+        ) : (
           <span className="price">Utgått</span>
-        }
-        {product.PriceHistorySorted &&
-          <span className="old_price">{product.PriceHistorySorted?.length > 1 && "Kr " + product["PriceHistory." + [product.PriceHistorySorted[1]]]}</span>
-        }
+        )}
+        {product.PriceHistorySorted && (
+          <span className="old_price">
+            {product.PriceHistorySorted?.length > 1 &&
+              "Kr " +
+                product["PriceHistory." + [product.PriceHistorySorted[1]]]}
+          </span>
+        )}
         <span className="details">
-          {product.Type ?? product.Types[product.Types.length - 1]}, {product.Country}
+          {product.Type ?? product.Types[product.Types.length - 1]},{" "}
+          {product.Country}
           <br />
-          {(product.Volume).toFixed(1)}
+          {product.Volume.toFixed(1)}
           cl, Alk. {product.Alcohol}%
         </span>
-        {product.Literprice &&
-          <span className="liter_price"> {product.Literprice.toFixed(0)} Kr/l</span>
-        }
-        {product.Alcohol > 0.7 && product.LiterPriceAlcohol &&
-          <span className="liter_price_alchohol"> {product.LiterPriceAlcohol.toFixed(0)} Kr/l alkohol</span>
-        }
-        {product.Sugar &&
+        {product.Literprice && (
+          <span className="liter_price">
+            {" "}
+            {product.Literprice.toFixed(0)} Kr/l
+          </span>
+        )}
+        {product.Alcohol > 0.7 && product.LiterPriceAlcohol && (
+          <span className="liter_price_alchohol">
+            {" "}
+            {product.LiterPriceAlcohol.toFixed(0)} Kr/l alkohol
+          </span>
+        )}
+        {product.Sugar && (
           <span className="sugar">
-            <span>Sukker:</span>  {product.Sugar} g/l
+            <span>Sukker:</span> {product.Sugar} g/l
           </span>
-        }
-        {product.Acid &&
+        )}
+        {product.Acid && (
           <span className="acid">
-            <span>Syre:</span>  {product.Acid} g/l
+            <span>Syre:</span> {product.Acid} g/l
           </span>
-        }
+        )}
 
         <div className="description">
           <div className="tasteProfile">
@@ -246,24 +352,20 @@ const HighlightedProduct = ({
               {renderTasteProfile(product.Sulfates, "Garvestoffer")}
               {renderTasteProfile(product.Sweetness, "Sødme")}
             </ul>
-            <ul className="isGoodFor">
-              {renderIsGoodFor()}
-            </ul>
+            <ul className="isGoodFor">{renderIsGoodFor()}</ul>
           </div>
-          {product.VintageComment &&
+          {product.VintageComment && (
             <div className="vintageComment">
               <FontAwesomeIcon icon={faWineBottle} size="lg" />
-              {product.VintageComment}</div>
-          }
-          <ul className="rawMaterials">
-            {renderRawMaterials()}
-          </ul>
+              {product.VintageComment}
+            </div>
+          )}
+          <ul className="rawMaterials">{renderRawMaterials()}</ul>
         </div>
-
       </section>
 
       <section className="buttons">
-        {!product.Id.includes("x") ?
+        {!product.Id.includes("x") ? (
           <a
             rel="noopener noreferrer"
             className="clickable bigGoldBtn"
@@ -274,61 +376,71 @@ const HighlightedProduct = ({
             Se hos vinmonopolet
             <FontAwesomeIcon icon={faExternalLinkAlt} />
           </a>
-          :
-          <button
-            className="clickable dark"
-            disabled={true}
-          >
+        ) : (
+          <button className="clickable dark" disabled={true}>
             Ikke lenger tilgjengelig hos vinmonopolet
             <FontAwesomeIcon icon={faExternalLinkAlt} />
           </button>
-        }
-        <button onClick={copyLink} className="clickable bigGreenBtn" aria-label="kopier link">Kopier link <FontAwesomeIcon icon={faLink} /></button>
-        <input type="text" style={{ display: "none" }} id="productLink_hidden" />
+        )}
+        <button
+          onClick={copyLink}
+          className="clickable bigGreenBtn"
+          aria-label="kopier link"
+        >
+          Kopier link <FontAwesomeIcon icon={faLink} />
+        </button>
+        <input
+          type="text"
+          style={{ display: "none" }}
+          id="productLink_hidden"
+        />
       </section>
-      {product.Rating && !Number.isNaN(product.Rating) &&
+      {product.Rating && !Number.isNaN(product.Rating) && (
         <section className="descriptionText">
           <h3>Vurdering, aperitif.no</h3>
-          <div className="ratingWrapper" >
-            {product.RatingComment &&
+          <div className="ratingWrapper">
+            {product.RatingComment && (
               <p>
                 <i>{'"' + product.RatingComment + '"'}</i>
                 <br />
-                <a rel="noopener noreferrer" target="_blank" href={ratingUrl}>Les mer på aperitif.no</a>
+                <a rel="noopener noreferrer" target="_blank" href={ratingUrl}>
+                  Les mer på aperitif.no
+                </a>
               </p>
-            }
+            )}
             <div title="Vurdering (aperitif.no)" className="rating">
               <FontAwesomeIcon icon={faStar} size="lg" />
               {product.Rating}
             </div>
           </div>
         </section>
-      }
+      )}
       {vintages.length > 1 && renderVintages()}
-      {product.Types.length > 1 && renderTextSection(product.Types.join(", "), "Kategorier")}
+      {product.Types.length > 1 &&
+        renderTextSection(product.Types.join(", "), "Kategorier")}
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}
-      
+
       <div className="priceHistoryWrapper">
-        {showGraph && product.PriceHistorySorted &&
+        {showGraph && product.PriceHistorySorted && (
           <PriceGraph product={product} />
-        }
-        {!showGraph && product.PriceHistory != undefined &&
+        )}
+        {!showGraph && product.PriceHistory != undefined && (
           <div className="priceGraph fake descriptionText">
             <h3 className="title">Prishistorikk</h3>
             <img src={emptyGraph} />
           </div>
-        }
+        )}
       </div>
-      {product.Stores?.length > 0 &&
+      {product.Stores?.length > 0 && (
         <div className="product_stock descriptionText">
-          <h3 className="title" >Lagerstatus </h3>
+          <h3 className="title">Lagerstatus </h3>
           <ul>{renderStoreStock()}</ul>
         </div>
-      }
-    </article >
+      )}
+    </article>
   );
-}
+};
 
 export default HighlightedProduct;

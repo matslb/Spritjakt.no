@@ -1,64 +1,78 @@
 module.exports = class ProductSearchParser {
+  static GetProductFromSearchResult = (productId, jsonData) => {
+    const facets = (jsonData.productSearchResult.facets || []).map(
+      (facetData) => new Facet(facetData)
+    );
+    const stores = facets
+      .find((x) => x.code === "availableInStores")
+      ?.values.map((f) => f.code);
 
-    static GetProductFromSearchResult = (productId, jsonData) =>  {
-        const facets = (jsonData.productSearchResult.facets || []).map(facetData => new Facet(facetData));
-        const stores = facets.find(x => x.code === "availableInStores")?.values.map(f => f.code);
-        this.pagination = jsonData.productSearchResult.pagination || {};
-        this.products = (jsonData.productSearchResult.products || []).map(productData => new Product(productData, stores ));
-        return this.products.find(x => x.id == productId) ?? null;
-    }
+    const year =
+      facets.find((x) => x.code === "year")?.values?.map((f) => f.code)[0] ||
+      "0000";
 
-    static GetProductsFromSearchResult = (jsonData) =>  {
-        this.products = (jsonData.productSearchResult.products || []).map(productData => new Product(productData, [] ));
-        return this.products;
-    }
-}
+    const products = jsonData.productSearchResult.products.map((productData) =>
+      NewProductUpdateRecord(productData, stores, year)
+    );
+    return products.find((x) => x.Id == productId) ?? null;
+  };
+
+  static GetProductsFromSearchResult = (jsonData) => {
+    this.products = (jsonData.productSearchResult.products || []).map(
+      (productData) => new Product(productData, [])
+    );
+    return this.products;
+  };
+};
 class Facet {
-    constructor(facetData) {
-        this.category = facetData.category || false;
-        this.code = facetData.code || "";
-        this.multiSelect = facetData.multiSelect || false;
-        this.name = facetData.name || "";
-        this.priority = facetData.priority || 0;
-        this.values = (facetData.values || []).map(valueData => new FacetValue(valueData));
-        this.visible = facetData.visible || true;
-    }
+  constructor(facetData) {
+    this.category = facetData.category || false;
+    this.code = facetData.code || "";
+    this.multiSelect = facetData.multiSelect || false;
+    this.name = facetData.name || "";
+    this.priority = facetData.priority || 0;
+    this.values = (facetData.values || []).map(
+      (valueData) => new FacetValue(valueData)
+    );
+    this.visible = facetData.visible || true;
+  }
 }
 
 class FacetValue {
-    constructor(valueData) {
-        this.code = valueData.code || "";
-        this.count = valueData.count || 0;
-        this.name = valueData.name || "";
-        this.query = valueData.query || {};
-        this.selected = valueData.selected || false;
-    }
+  constructor(valueData) {
+    this.code = valueData.code || "";
+    this.count = valueData.count || 0;
+    this.name = valueData.name || "";
+    this.query = valueData.query || {};
+    this.selected = valueData.selected || false;
+  }
 }
 
-class Product {
-    constructor(productData, stores) {
-        this.availability = productData.availability || {};
-        this.buyable = productData.buyable || false;
-        this.id = productData.code || "";
-        this.district = productData.district || {};
-        this.expired = productData.expired || false;
-        this.main_category = productData.main_category || {};
-        this.main_country = productData.main_country || {};
-        this.main_sub_category = productData.main_sub_category || {};
-        this.name = productData.name || "";
-        this.price = productData.price || {};
-        this.product_selection = productData.product_selection || "";
-        this.releaseMode = productData.releaseMode || false;
-        this.status = productData.status || "";
-        this.sub_District = productData.sub_District || {};
-        this.sustainable = productData.sustainable || false;
-        this.url = productData.url || "";
-        this.volume = productData.volume || {};
-        this.stores = stores || [];
-        
-        if(this.availability?.deliveryAvailability?.available === true){
-            this.stores.push("online");
-        }
-    }
-}
-
+NewProductUpdateRecord = (productData, stores, year) => {
+  return {
+    AvailableOnline:
+      productData.availability.deliveryAvailability.available || false,
+    Buyable: productData.buyable || false,
+    Id: productData.code || "",
+    //    district:productData.district || {},
+    Expired: productData.expired || false,
+    //    main_category:productData.main_category || {},
+    //    main_country:productData.main_country || {},
+    //    main_sub_category:productData.main_sub_category || {},
+    Name: productData.name || "",
+    Price: productData.price.value || {},
+    //    product_selection:productData.product_selection || "",
+    ReleaseMode: productData.releaseMode || false,
+    Status: productData.status || "",
+    //    sub_District:productData.sub_District || {},
+    //    sustainable:productData.sustainable || false,
+    //    url:productData.url || "",
+    Volume: productData.volume.value || {},
+    Year: year,
+    Stores: (stores || []).concat(
+      productData.availability?.deliveryAvailability?.available === true
+        ? ["online"]
+        : []
+    ),
+  };
+};
