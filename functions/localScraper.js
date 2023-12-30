@@ -28,13 +28,14 @@ customLog = function (message, useConsole = false) {
 orchistrator();
 
 async function orchistrator() {
-  var lastRunDate = 0;
+  var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 23;
+    var runhour = 2;
     var nextRunTime = new Date();
+
     nextRunTime.setHours(runhour, 0, 0);
-    if (time.getHours() > runhour) {
+    if (time.getHours() > runhour || lastRunDate == nextRunTime.getDate()) {
       nextRunTime.setDate(nextRunTime.getDate() + 1);
     }
     var msLeft = Math.abs(nextRunTime.getTime() - time.getTime());
@@ -55,9 +56,10 @@ async function orchistrator() {
       }
     } else {
       customLog(
-        `Not yet.. Sleeping for ${
-          (new Date(nextRunTime - time).toISOString().slice(11, 19), true)
-        }`
+        `Not yet.. Sleeping for ${new Date(nextRunTime - time)
+          .toISOString()
+          .slice(11, 19)}`,
+        true
       );
       await new Promise((r) => setTimeout(r, msLeft));
     }
@@ -90,7 +92,7 @@ async function UpdatePrices() {
   let failcount = 0;
   const start = Date.now();
   let statusMessage = "";
-  const progressbarWidth = 50;
+  const progressbarWidth = 40;
   for (const i in ids) {
     console.clear();
     const processed = parseInt(i) + 1;

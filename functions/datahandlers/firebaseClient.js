@@ -140,15 +140,14 @@ module.exports = class FirebaseClient {
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
       .where("LastPriceFetchDate", "<", d)
-      .where("IsVintage", "!=", true)
-      //.limit(today == 1 ? 20000 : 5000)
+      .where("Expired", "==", false)
+      .where("IsVintage", "==", false)
+      .limit(today == 1 ? 30000 : 5000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
-            if (!p.id.includes("x")) {
-              ids.push(p.id);
-            }
+            ids.push(p.id);
           });
         }
       });

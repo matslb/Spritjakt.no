@@ -69,6 +69,7 @@ NewProductUpdateRecord = (productData, stores, year) => {
     //    url:productData.url || "",
     Volume: productData.volume.value || {},
     Year: year,
+    IsVintage: false,
     Stores: (stores || []).concat(
       productData.availability?.deliveryAvailability?.available === true
         ? ["online"]

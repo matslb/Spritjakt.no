@@ -2,7 +2,7 @@ import { SearchClient as TypesenseSearchClient } from "typesense";
 import config from "../config.json";
 import { sortOptions } from "../utils/utils";
 
-const collection = "Products_v1.45";
+const collection = "Products_v1.5";
 
 class TypeSenseClient {
   constructor() {
@@ -206,10 +206,14 @@ class TypeSenseClient {
   }
 
   createFilterString(filter) {
-    let filterString = "Buyable:= true";
+    let filterString = "IsVintage:!= true && Expired:!= true ";
 
-    if (!filter.view) filterString += " && PriceChange:" + "<99.9";
-
+    if (!filter.searchString) {
+      filterString = "&& Buyable:=true";
+    }
+    if (!filter.view) {
+      filterString += " && PriceChange:" + "<99.9";
+    }
     if (filter.types && filter.types.length > 0) {
       filterString += " && Types: [" + filter.types.join() + "]";
     }
