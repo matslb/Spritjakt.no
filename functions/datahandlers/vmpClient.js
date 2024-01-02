@@ -23,22 +23,33 @@ const vmpOptions = () => {
 class VmpClient {
   static async GetNewProductList() {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
-    var headers = headerGenerator.getHeaders();
-    delete headers["accept"];
-    const options = {
-      method: "get",
-      url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&currentPage=${1}&q=%3Arelevance%3AnewProducts%3Atrue`,
-      jar: cookieJar,
-      headers: headers,
-      withCredentials: true,
-    };
-    return await axios(options)
-      .then(async function (res) {
-        return ProductSearchParser.GetProductsFromSearchResult(res.data);
-      })
-      .catch(function (err) {
-        return [];
-      });
+    let totalResults = 1;
+    let products = [];
+    let page = 0;
+    while (products.length != totalResults || totalResults == 0) {
+      var headers = headerGenerator.getHeaders();
+      delete headers["accept"];
+      const options = {
+        method: "get",
+        url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&currentPage=${page}&q=%3Arelevance%3AnewProducts%3Atrue`,
+        jar: cookieJar,
+        headers: headers,
+        withCredentials: true,
+      };
+      products = products.concat(
+        await axios(options)
+          .then(async function (res) {
+            totalResults =
+              res.data.productSearchResult.pagination.totalResults || 0;
+            return ProductSearchParser.GetProductsFromSearchResult(res.data);
+          })
+          .catch(function (err) {
+            return [];
+          })
+      );
+      page++;
+    }
+    return products;
   }
 
   static async GetProductsInStore(storeId) {
@@ -148,9 +159,6 @@ class VmpClient {
         return { product: p };
       })
       .catch(function (err) {
-        console.error(
-          "Could not fetch price of product " + productId + ": " + err
-        );
         return { error: err };
       });
   }
@@ -260,6 +268,7 @@ function CreateProduct(productData) {
     Price: productData.price.value || null,
     ProductStatusSaleName: "",
     Year: productData.year || null,
+    IsVintage: false,
     VintageComment: productData.matured || null,
     Stores:
       productData.availability?.deliveryAvailability?.available === true

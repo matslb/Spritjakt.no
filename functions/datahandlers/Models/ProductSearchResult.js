@@ -18,10 +18,9 @@ module.exports = class ProductSearchParser {
   };
 
   static GetProductsFromSearchResult = (jsonData) => {
-    this.products = (jsonData.productSearchResult.products || []).map(
-      (productData) => new Product(productData, [])
+    return (jsonData.productSearchResult.products || []).map((productData) =>
+      NewProductUpdateRecord(productData, [])
     );
-    return this.products;
   };
 };
 class Facet {

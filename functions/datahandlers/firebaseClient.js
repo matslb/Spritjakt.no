@@ -1,4 +1,5 @@
 const firebase = require("firebase-admin");
+const sortArray = require("sort-array");
 require("firebase/firestore");
 require("firebase/auth");
 
@@ -60,7 +61,7 @@ module.exports = class FirebaseClient {
       p.Literprice = Math.ceil((p.Price / p.Volume) * 100);
       p.LiterPriceAlcohol = Math.ceil((100 / sp.Alcohol) * p.Literprice);
 
-      let ComparingPrice = p.PriceHistory[p.LastUpdated] ?? p.Price;
+      let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? p.Price;
       let PriceChange = (p.Price / ComparingPrice) * 100;
 
       if (PriceChange !== 100 && (PriceChange <= 98 || PriceChange >= 102)) {
@@ -68,7 +69,7 @@ module.exports = class FirebaseClient {
         p.PriceChange = Math.round(PriceChange * 100) / 100;
         p.PriceHistory[today] = p.Price;
         p.LastUpdated = today;
-        p.PriceHistorySorted = SortArray(Object.keys(p.PriceHistory), {
+        p.PriceHistorySorted = sortArray(Object.keys(p.PriceHistory), {
           order: "desc",
         });
       }
@@ -139,10 +140,10 @@ module.exports = class FirebaseClient {
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      .where("LastPriceFetchDate", "<", d)
+      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
       .where("Expired", "==", false)
       .where("IsVintage", "==", false)
-      .limit(today == 1 ? 30000 : 5000)
+      .limit(today == 1 ? 30000 : 6000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {
@@ -162,6 +163,7 @@ module.exports = class FirebaseClient {
       .where("LastUpdated", ">=", lastUpdated)
       .orderBy("LastUpdated")
       .where("PriceIsLowered", "==", true)
+      .where("Buyable", "==", true)
       .get()
       .then(function (qs) {
         if (!qs.empty) {

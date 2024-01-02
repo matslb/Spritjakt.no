@@ -31,7 +31,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 2;
+    var runhour = 1;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -67,21 +67,29 @@ async function orchistrator() {
 }
 
 async function UpdatePrices() {
+  customLog("Fetching new products:", true);
   let reconnectAttempted = false;
   // Creating new products in db
   let newProducts = await VmpClient.GetNewProductList();
   let idsNotFound = await FirebaseClient.GetIdsNotInDb(
-    newProducts.map((x) => x.id)
+    newProducts.map((x) => x.Id)
+  );
+  customLog(
+    `${idsNotFound.length} new products found. Creating them in database`,
+    true
   );
   for (const id of idsNotFound) {
+    process.stdout.write(
+      `\r${idsNotFound.indexOf(id)} of ${idsNotFound.length} Created`
+    );
     try {
       let response = await VmpClient.FetchProductPrice(id);
       if (response.product) {
         await FirebaseClient.UpsertProduct(response.product);
       }
+      await new Promise((r) => setTimeout(r, Math.random() * 1000 + 200));
     } catch (e) {
-      customLog(e, true);
-      customLog("", true);
+      customLog(e);
     }
   }
 
@@ -144,7 +152,7 @@ async function UpdatePrices() {
           return;
         }
       }
-      await new Promise((r) => setTimeout(r, Math.random() * 500 + 200));
+      await new Promise((r) => setTimeout(r, Math.random() * 1000 + 200));
     } catch (e) {
       customLog(`Pricefetch failed. Error: ${e}`, true);
     }
