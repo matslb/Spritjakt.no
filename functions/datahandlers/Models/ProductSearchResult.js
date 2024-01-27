@@ -11,10 +11,20 @@ module.exports = class ProductSearchParser {
       facets.find((x) => x.code === "year")?.values?.map((f) => f.code)[0] ||
       "0000";
 
-    const products = jsonData.productSearchResult.products.map((productData) =>
-      NewProductUpdateRecord(productData, stores, year)
-    );
-    return products.find((x) => x.Id == productId) ?? null;
+    const productData = jsonData.productSearchResult.products[0];
+
+    let product = NewProductUpdateRecord(productData, stores, year);
+
+    product.Types = facets
+      .find((x) => x.code === "mainCategory")
+      ?.values.map((f) => f.name);
+
+    const categoriesInFacets = ["Vegansk", "Oransjevin", "Naturvn"];
+    categoriesInFacets.forEach((cat) => {
+      const exists = facets.find((x) => x.name === cat);
+      if (exists) product.Types.push(cat);
+    });
+    return product ?? null;
   };
 
   static GetProductsFromSearchResult = (jsonData) => {

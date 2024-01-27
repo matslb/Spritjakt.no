@@ -49,8 +49,9 @@ module.exports = class FirebaseClient {
       await this.CreateNewProductVintage(sp);
       // Resetting fiels that will be copied to vintage.
       p = this.SetProductHistory(p);
-      delete p.PriceIsLowered;
-      delete p.PriceChange;
+      p.LastUpdated = today;
+      p.PriceChange = 100;
+      p.PriceIsLowered = false;
     } else if (sp.PriceHistory) {
       p.PriceHistory = sp.PriceHistory;
     } else {
@@ -135,7 +136,7 @@ module.exports = class FirebaseClient {
     let ids = [];
     let d = new Date();
     let today = d.getDate();
-    d.setDate(d.getDate() - 3);
+    d.setDate(d.getDate() - 2);
     await firebase
       .firestore()
       .collection("Products")
@@ -143,7 +144,7 @@ module.exports = class FirebaseClient {
       .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
       .where("Expired", "==", false)
       .where("IsVintage", "==", false)
-      .limit(today == 1 ? 30000 : 6000)
+      .limit(today == 1 ? 30000 : 8000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {

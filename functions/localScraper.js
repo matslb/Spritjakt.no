@@ -31,7 +31,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 1;
+    var runhour = 15;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);

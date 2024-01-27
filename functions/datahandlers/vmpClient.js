@@ -228,15 +228,10 @@ function CreateProduct(productData) {
   let types = [];
 
   let type = productData.main_category.name;
-  types.push(productData.main_category.name.split(",")[0]);
+  types.push(productData.main_category.name);
 
-  if (productData.main_sub_category) {
-    type = productData.main_sub_category.name.split(",")[0];
-    types.push(type);
-  }
-  if (productData.main_sub_sub_category) {
-    type = productData.main_sub_sub_category.name.split(",")[0];
-    types.push(type);
+  if (productData.tags) {
+    types = types.concat(productData.tags);
   }
 
   return {
