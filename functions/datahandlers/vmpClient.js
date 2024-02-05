@@ -7,7 +7,11 @@ var HTMLParser = require("node-html-parser");
 const { HeaderGenerator, PRESETS } = require("header-generator");
 const { XMLParser } = require("fast-xml-parser");
 const ProductSearchParser = require("./Models/ProductSearchResult");
+const { error } = require("firebase-functions/logger");
 const parser = new XMLParser();
+const firebase = require("firebase-admin");
+require("firebase/firestore");
+
 axiosCookieJarSupport(axios);
 
 const vmpOptions = () => {
@@ -26,7 +30,8 @@ class VmpClient {
     let totalResults = 1;
     let products = [];
     let page = 0;
-    while (products.length != totalResults || totalResults == 0) {
+    let errors = 0;
+    while (products.length < totalResults && totalResults > 0 && errors < 3) {
       var headers = headerGenerator.getHeaders();
       delete headers["accept"];
       const options = {
@@ -41,9 +46,25 @@ class VmpClient {
           .then(async function (res) {
             totalResults =
               res.data.productSearchResult.pagination.totalResults || 0;
-            return ProductSearchParser.GetProductsFromSearchResult(res.data);
+            let new_products = ProductSearchParser.GetProductsFromSearchResult(
+              res.data
+            );
+
+            if (new_products.length > 0) {
+              const productRef = firebase
+                .firestore()
+                .collection("Products")
+                .doc(new_products[new_products.length - 1].Id);
+              const productDoc = await productRef.get();
+              if (productDoc.exists) {
+                totalResults = 0;
+                new_products = [];
+              }
+              return new_products;
+            }
           })
           .catch(function (err) {
+            errors++;
             return [];
           })
       );
@@ -258,11 +279,11 @@ function CreateProduct(productData) {
     Buyable: productData.buyable,
     Status: productData.status || null,
     AvailableOnline:
-      productData.availability.deliveryAvailability.available || false,
+      productData.availability?.deliveryAvailability?.available || false,
     LatestPrice: productData.price.value || null,
     Price: productData.price.value || null,
     ProductStatusSaleName: "",
-    Year: productData.year || null,
+    Year: productData?.year || null,
     IsVintage: false,
     VintageComment: productData.matured || null,
     Stores:

@@ -12,6 +12,7 @@ module.exports = class ProductSearchParser {
       "0000";
 
     const productData = jsonData.productSearchResult.products[0];
+    if (productData === null || productData === undefined) return null;
 
     let product = NewProductUpdateRecord(productData, stores, year);
 
@@ -60,7 +61,7 @@ class FacetValue {
 NewProductUpdateRecord = (productData, stores, year) => {
   return {
     AvailableOnline:
-      productData.availability.deliveryAvailability.available || false,
+      productData.availability?.deliveryAvailability?.available || false,
     Buyable: productData.buyable || false,
     Id: productData.code || "",
     //    district:productData.district || {},
@@ -77,7 +78,7 @@ NewProductUpdateRecord = (productData, stores, year) => {
     //    sustainable:productData.sustainable || false,
     //    url:productData.url || "",
     Volume: productData.volume.value || {},
-    Year: year,
+    Year: year || null,
     IsVintage: false,
     Stores: (stores || []).concat(
       productData.availability?.deliveryAvailability?.available === true

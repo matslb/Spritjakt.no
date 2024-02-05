@@ -3,6 +3,8 @@ const VmpClient = require("./datahandlers/vmpClient");
 const firebaseAdmin = require("firebase-admin");
 const serviceAccount = require("./configs/serviceAccountKey.json");
 const NotificationClient = require("./datahandlers/notificationService");
+const firebase = require("firebase-admin");
+require("firebase/firestore");
 
 // Initialize the app with a service account, granting admin privileges
 firebaseAdmin.initializeApp({
@@ -13,6 +15,7 @@ firebaseAdmin.initializeApp({
 var fs = require("fs");
 var util = require("util");
 const { exec } = require("child_process");
+const { Console } = require("console");
 var log_stdout = process.stdout;
 let date = new Date();
 var log_file = fs.createWriteStream(
@@ -31,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 15;
+    var runhour = 23;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -44,7 +47,7 @@ async function orchistrator() {
       customLog(`Current time: ${new Date()}`, false);
       lastRunDate = time.getDate();
       try {
-        await reConnectToVpn(getVpnCountry());
+        //    await reConnectToVpn(getVpnCountry());
         await UpdatePrices();
         const log = `Finished run. It took ${new Date(new Date() - time)
           .toISOString()
@@ -71,91 +74,104 @@ async function UpdatePrices() {
   let reconnectAttempted = false;
   // Creating new products in db
   let newProducts = await VmpClient.GetNewProductList();
-  let idsNotFound = await FirebaseClient.GetIdsNotInDb(
-    newProducts.map((x) => x.Id)
-  );
-  customLog(
-    `${idsNotFound.length} new products found. Creating them in database`,
-    true
-  );
-  for (const id of idsNotFound) {
-    process.stdout.write(
-      `\r${idsNotFound.indexOf(id)} of ${idsNotFound.length} Created`
+  if (newProducts.length > 0) {
+    customLog("Getting ids not in db:", true);
+    let idsNotFound = await FirebaseClient.GetIdsNotInDb(
+      newProducts.map((x) => x.Id)
     );
-    try {
-      let response = await VmpClient.FetchProductPrice(id);
-      if (response.product) {
-        await FirebaseClient.UpsertProduct(response.product);
+    customLog(
+      `${idsNotFound.length} new products found. Creating them in database`,
+      true
+    );
+    for (const id of idsNotFound) {
+      process.stdout.write(
+        `\r${idsNotFound.indexOf(id)} of ${idsNotFound.length} Created`
+      );
+      try {
+        let response = await VmpClient.FetchProductPrice(id);
+        if (response.product) {
+          await FirebaseClient.UpsertProduct(response.product);
+        }
+        await new Promise((r) => setTimeout(r, Math.random() * 1000 + 200));
+      } catch (e) {
+        customLog(e);
       }
-      await new Promise((r) => setTimeout(r, Math.random() * 1000 + 200));
-    } catch (e) {
-      customLog(e);
     }
   }
 
   customLog(`-----------------------------`), true;
   customLog("Starting Product price fetch", true);
   //Updating existing products
-  const ids = await FirebaseClient.GetProductsToBeUpdated();
+  const products = await FirebaseClient.GetProductsToBeUpdated();
+  const p_batches = chunk(products, 100);
   let failcount = 0;
   const start = Date.now();
   let statusMessage = "";
-  const progressbarWidth = 40;
-  for (const i in ids) {
-    console.clear();
-    const processed = parseInt(i) + 1;
-    const id = ids[i];
-    const percentage = processed / ids.length;
-    const filled = progressbarWidth * percentage;
-    const empty = progressbarWidth - filled;
-    const left = ids.length - processed;
-    const end = Date.now();
-    const elapsed = end - start;
-    const elapsedString = new Date(elapsed).toISOString().slice(11, 19);
-    const remainingString = new Date((elapsed / (processed + 1)) * left)
-      .toISOString()
-      .slice(11, 19);
-    statusMessage = `\r[${"=".repeat(filled)}${".".repeat(empty)}] ${(
-      percentage * 100
-    ).toFixed(0)}% | Fetched ${processed} of ${
-      Object.keys(ids).length
-    } products | Elapsed: ${elapsedString} | Remaining time: ${remainingString} `;
-    process.stdout.write(statusMessage);
-    try {
-      customLog(`Updating product ${id}`);
-      var detailsRes = await VmpClient.GetProductDetails(id);
-      if (detailsRes.product) {
-        await FirebaseClient.UpdateProduct(detailsRes.product);
-      } else if (detailsRes.error) {
-        customLog(
-          `\nCould not fetch price of product ${id}. Error: ${detailsRes.error}`
-        );
-        failcount++;
-      } else {
-        customLog(`Product ${id} was not found. Marking as 'Expired'`);
-        await FirebaseClient.ExpireProduct(id);
-      }
+  const progressbarWidth = 35;
 
-      if (failcount > 3) {
-        if (reconnectAttempted != false) {
-          reconnectAttempted = true;
+  for (const batch of p_batches) {
+    var db_batch = firebase.firestore().batch();
+
+    for (const product of batch) {
+      console.clear();
+      const processed = products.indexOf(product) + 1;
+      const percentage = processed / products.length;
+      const filled = progressbarWidth * percentage;
+      const empty = progressbarWidth - filled;
+      const left = products.length - processed;
+      const end = Date.now();
+      const elapsed = end - start;
+      const elapsedString = new Date(elapsed).toISOString().slice(11, 19);
+      const remainingString = new Date((elapsed / (processed + 1)) * left)
+        .toISOString()
+        .slice(11, 19);
+      statusMessage = `\r[${"=".repeat(filled)}${".".repeat(empty)}] ${(
+        percentage * 100
+      ).toFixed(0)}% | Fetched ${processed} of ${
+        products.length
+      } products | Elapsed: ${elapsedString} | Remaining time: ${remainingString} `;
+      process.stdout.write(statusMessage);
+      try {
+        customLog(`Updating product ${product.Id}`);
+        var detailsRes = await VmpClient.GetProductDetails(product.Id);
+        if (detailsRes.product) {
+          await FirebaseClient.UpdateProduct(
+            db_batch,
+            product,
+            detailsRes.product
+          );
+        } else if (detailsRes.error) {
           customLog(
-            `\n${failcount} products failed in a row. Attempting to re-connect`
+            `\nCould not fetch price of product ${product}. Error: ${detailsRes.error}`
           );
-          failcount = 0;
-          await reConnectToVpn(getVpnCountry());
+          failcount++;
         } else {
-          await NotificationClient.SendFetchErrorEmail(
-            "Henting av nye priser feilet"
-          );
-          customLog("Pricefetch failed");
-          return;
+          customLog(`Product ${product} was not found. Marking as 'Expired'`);
+          await FirebaseClient.ExpireProduct(db_batch, product.Id);
         }
+
+        if (failcount > 3) {
+          if (reconnectAttempted != false) {
+            reconnectAttempted = true;
+            customLog(
+              `\n${failcount} products failed in a row. Attempting to re-connect`
+            );
+            failcount = 0;
+            await reConnectToVpn(getVpnCountry());
+          } else {
+            await NotificationClient.SendFetchErrorEmail(
+              "Henting av nye priser feilet"
+            );
+            customLog("Pricefetch failed");
+            return;
+          }
+        }
+        await new Promise((r) => setTimeout(r, Math.random() * 500));
+      } catch (e) {
+        customLog(`Pricefetch failed. Error: ${e}`, true);
       }
-      await new Promise((r) => setTimeout(r, Math.random() * 1000 + 200));
-    } catch (e) {
-      customLog(`Pricefetch failed. Error: ${e}`, true);
     }
+    await db_batch.commit();
   }
   customLog(statusMessage);
   customLog("", true);
@@ -184,3 +200,7 @@ function getVpnCountry() {
   ];
   return countries[Math.floor(Math.random() * (countries.length - 1))];
 }
+const chunk = (arr, size) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+    arr.slice(i * size, i * size + size)
+  );

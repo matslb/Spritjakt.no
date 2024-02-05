@@ -29,54 +29,52 @@ module.exports = class FirebaseClient {
     return d.getTime();
   }
 
-  static async UpdateProduct(p) {
+  static async UpdateProduct(db_batch, sp, new_p) {
     let today = this.GetTodayTimeStamp();
-
-    const productRef = firebase.firestore().collection("Products").doc(p.Id);
-    const productDoc = await productRef.get();
-    let sp = productDoc.data();
-
-    productRef.update({ LastPriceFetchDate: new Date() });
+    const productRef = firebase.firestore().collection("Products").doc(sp.Id);
+    db_batch.update(productRef, { LastPriceFetchDate: new Date() });
 
     if (
-      p.Year &&
+      new_p.Year &&
       sp.Year &&
-      p.Year != "0000" &&
+      new_p.Year != "0000" &&
       sp.Year != "0000" &&
-      sp.Year != p.Year &&
-      !p.VintageComment?.includes("ikke egnet for lagring")
+      sp.Year != new_p.Year &&
+      !new_p.VintageComment?.includes("ikke egnet for lagring")
     ) {
       await this.CreateNewProductVintage(sp);
       // Resetting fiels that will be copied to vintage.
-      p = this.SetProductHistory(p);
-      p.LastUpdated = today;
-      p.PriceChange = 100;
-      p.PriceIsLowered = false;
+      new_p = this.SetProductHistory(new_p);
+      new_p.LastUpdated = today;
+      new_p.PriceChange = 100;
+      new_p.PriceIsLowered = false;
     } else if (sp.PriceHistory) {
-      p.PriceHistory = sp.PriceHistory;
+      new_p.PriceHistory = sp.PriceHistory;
     } else {
-      p = this.SetProductHistory(p);
+      new_p = this.SetProductHistory(new_p);
     }
-    if (p.Price !== null || p.Price !== undefined) {
-      p.LatestPrice = p.Price;
-      p.Literprice = Math.ceil((p.Price / p.Volume) * 100);
-      p.LiterPriceAlcohol = Math.ceil((100 / sp.Alcohol) * p.Literprice);
+    if (new_p.Price !== null || new_p.Price !== undefined) {
+      new_p.LatestPrice = new_p.Price;
+      new_p.Literprice = Math.ceil((new_p.Price / new_p.Volume) * 100);
+      new_p.LiterPriceAlcohol = Math.ceil(
+        (100 / sp.Alcohol) * new_p.Literprice
+      );
 
-      let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? p.Price;
-      let PriceChange = (p.Price / ComparingPrice) * 100;
+      let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? new_p.Price;
+      let PriceChange = (new_p.Price / ComparingPrice) * 100;
 
       if (PriceChange !== 100 && (PriceChange <= 98 || PriceChange >= 102)) {
-        p.PriceIsLowered = PriceChange < 100;
-        p.PriceChange = Math.round(PriceChange * 100) / 100;
-        p.PriceHistory[today] = p.Price;
-        p.LastUpdated = today;
-        p.PriceHistorySorted = sortArray(Object.keys(p.PriceHistory), {
+        new_p.PriceIsLowered = PriceChange < 100;
+        new_p.PriceChange = Math.round(PriceChange * 100) / 100;
+        new_p.PriceHistory[today] = new_p.Price;
+        new_p.LastUpdated = today;
+        new_p.PriceHistorySorted = sortArray(Object.keys(new_p.PriceHistory), {
           order: "desc",
         });
       }
     }
-    p.PriceChanges = p.PriceHistorySorted?.length || 0;
-    await productRef.update({ ...p });
+    new_p.PriceChanges = new_p.PriceHistorySorted?.length || 0;
+    db_batch.update(productRef, { ...new_p });
   }
 
   static SetProductHistory(p) {
@@ -88,9 +86,9 @@ module.exports = class FirebaseClient {
     return p;
   }
 
-  static async ExpireProduct(id) {
+  static async ExpireProduct(db_batch, id) {
     const productRef = firebase.firestore().collection("Products").doc(id);
-    await productRef.update({
+    db_batch.update(productRef, {
       LastPriceFetchDate: new Date(),
       Expired: true,
     });
@@ -133,10 +131,10 @@ module.exports = class FirebaseClient {
   }
 
   static async GetProductsToBeUpdated() {
-    let ids = [];
+    let products = [];
     let d = new Date();
     let today = d.getDate();
-    d.setDate(d.getDate() - 2);
+    d.setDate(d.getDate() - 1);
     await firebase
       .firestore()
       .collection("Products")
@@ -144,16 +142,16 @@ module.exports = class FirebaseClient {
       .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
       .where("Expired", "==", false)
       .where("IsVintage", "==", false)
-      .limit(today == 1 ? 30000 : 8000)
+      .limit(today == 1 ? 30000 : 15000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
-            ids.push(p.id);
+            products.push(p.data());
           });
         }
       });
-    return ids;
+    return products;
   }
 
   static async GetProductsOnSale(lastUpdated) {
