@@ -25,6 +25,43 @@ const vmpOptions = () => {
   };
 };
 class VmpClient {
+  static async FetchFreshProducts(start = 0) {
+    var date = new Date();
+    date.setDate(date.getDate() - 1);
+    let options = vmpOptions();
+    options.url += "products/v0/details-normal/";
+    options.resolveWithFullResponse = true;
+    options.params = {
+      changedSince: "2000-01-01",
+      start: start,
+      maxResults: 60000,
+    };
+    return await axios(options)
+      .then(function (res) {
+        var raw = res.data;
+        var items = [];
+        raw.map((p) => {
+          if (!items.includes(p.basic.productId)) {
+            items.push(p.basic.productId);
+          }
+        });
+        console.info("Fetched products " + items.length + " from Vinmonopolet");
+        return {
+          totalCount: parseInt(res.headers["x-total-count"]),
+          products: items,
+          error: false,
+        };
+      })
+      .catch(function (err) {
+        console.error("vmp fetch failed: " + err);
+        return {
+          totalCount: null,
+          products: null,
+          error: true,
+        };
+      });
+  }
+
   static async GetNewProductList() {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     let totalResults = 1;
@@ -71,38 +108,6 @@ class VmpClient {
       page++;
     }
     return products;
-  }
-
-  static async GetProductsInStore(storeId) {
-    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
-    var headers = headerGenerator.getHeaders();
-    delete headers["accept"];
-    let page = 0;
-    let totalResults = 1;
-    let productsInStore = [];
-
-    while (productsInStore.length < totalResults || totalResults == 0) {
-      const options = {
-        method: "get",
-        url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&currentPage=${page}&q=%3Arelevance%3AavailableInStores%3A${storeId}`,
-        jar: cookieJar,
-        headers: headers,
-        withCredentials: true,
-      };
-      await axios(options).then(async function (res) {
-        var pagination = res.data.productSearchResult.pagination;
-        totalResults = pagination.totalResults;
-        productsInStore = productsInStore.concat(
-          ProductSearchParser.GetProductsFromSearchResult(res.data)
-        );
-      });
-      page++;
-    }
-
-    return {
-      products: productsInStore,
-      requests: page,
-    };
   }
 
   static async GetProductDetails(productId) {

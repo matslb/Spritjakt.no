@@ -11,16 +11,26 @@ module.exports = class ProductSearchParser {
       facets.find((x) => x.code === "year")?.values?.map((f) => f.code)[0] ||
       "0000";
 
-    const productData = jsonData.productSearchResult.products[0];
+    const productData = jsonData.productSearchResult.products.filter(
+      (p) => p.code == productId
+    )[0];
+    if (!productData) return null;
+
     if (productData === null || productData === undefined) return null;
 
     let product = NewProductUpdateRecord(productData, stores, year);
 
-    product.Types = facets
-      .find((x) => x.code === "mainCategory")
-      ?.values.map((f) => f.name);
+    product.Types = [
+      ...new Set(
+        product.Types.concat(
+          facets
+            .find((x) => x.code === "mainCategory")
+            ?.values.map((f) => f.name)
+        )
+      ),
+    ];
 
-    const categoriesInFacets = ["Vegansk", "Oransjevin", "Naturvn"];
+    const categoriesInFacets = ["Vegansk", "Oransjevin", "Naturvin"];
     categoriesInFacets.forEach((cat) => {
       const exists = facets.find((x) => x.name === cat);
       if (exists) product.Types.push(cat);
@@ -59,6 +69,13 @@ class FacetValue {
 }
 
 NewProductUpdateRecord = (productData, stores, year) => {
+  let types = [];
+
+  if (productData.main_category) types.push(productData.main_category.name);
+
+  if (productData.main_sub_category?.name)
+    types.push(productData.main_sub_category.name);
+
   return {
     AvailableOnline:
       productData.availability?.deliveryAvailability?.available || false,
@@ -66,6 +83,7 @@ NewProductUpdateRecord = (productData, stores, year) => {
     Id: productData.code || "",
     //    district:productData.district || {},
     Expired: productData.expired || false,
+    Types: types,
     //    main_category:productData.main_category || {},
     //    main_country:productData.main_country || {},
     //    main_sub_category:productData.main_sub_category || {},

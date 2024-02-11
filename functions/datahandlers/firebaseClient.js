@@ -1,5 +1,6 @@
 const firebase = require("firebase-admin");
 const sortArray = require("sort-array");
+const VmpClient = require("./vmpClient");
 require("firebase/firestore");
 require("firebase/auth");
 
@@ -8,11 +9,12 @@ module.exports = class FirebaseClient {
     let today = this.GetTodayTimeStamp();
     const productRef = firebase.firestore().collection("Products").doc(p.Id);
 
-    if (p.ProductHistory == undefined) {
-      p = this.SetProductHistory(p);
+    if (p.PriceHistory == undefined) {
+      p = this.SetPriceHistory(p);
     }
     p.LastPriceFetchDate = new Date(1, 1);
     p.LastUpdated = today;
+    p = this.CalculatePrices(p);
     try {
       await productRef.set(p);
     } catch (error) {
@@ -31,9 +33,26 @@ module.exports = class FirebaseClient {
 
   static async UpdateProduct(db_batch, sp, new_p) {
     let today = this.GetTodayTimeStamp();
-    const productRef = firebase.firestore().collection("Products").doc(sp.Id);
-    db_batch.update(productRef, { LastPriceFetchDate: new Date() });
+    const productRef = firebase
+      .firestore()
+      .collection("Products")
+      .doc(new_p.Id);
 
+    if (sp == undefined) {
+      let response = await VmpClient.FetchProductPrice(new_p.Id);
+      if (response.product) {
+        await FirebaseClient.UpsertProduct(response.product);
+        sp = response.product;
+      }
+    }
+
+    if (!sp) {
+      return false;
+    }
+
+    if (db_batch)
+      db_batch.update(productRef, { LastPriceFetchDate: new Date() });
+    else productRef.update({ ...new_p });
     if (
       new_p.Year &&
       sp.Year &&
@@ -44,21 +63,18 @@ module.exports = class FirebaseClient {
     ) {
       await this.CreateNewProductVintage(sp);
       // Resetting fiels that will be copied to vintage.
-      new_p = this.SetProductHistory(new_p);
+      new_p = this.SetPriceHistory(new_p);
       new_p.LastUpdated = today;
       new_p.PriceChange = 100;
       new_p.PriceIsLowered = false;
     } else if (sp.PriceHistory) {
       new_p.PriceHistory = sp.PriceHistory;
     } else {
-      new_p = this.SetProductHistory(new_p);
+      new_p = this.SetPriceHistory(new_p);
     }
     if (new_p.Price !== null || new_p.Price !== undefined) {
-      new_p.LatestPrice = new_p.Price;
-      new_p.Literprice = Math.ceil((new_p.Price / new_p.Volume) * 100);
-      new_p.LiterPriceAlcohol = Math.ceil(
-        (100 / sp.Alcohol) * new_p.Literprice
-      );
+      new_p.Alcohol = sp.Alcohol;
+      new_p = this.CalculatePrices(new_p);
 
       let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? new_p.Price;
       let PriceChange = (new_p.Price / ComparingPrice) * 100;
@@ -68,16 +84,26 @@ module.exports = class FirebaseClient {
         new_p.PriceChange = Math.round(PriceChange * 100) / 100;
         new_p.PriceHistory[today] = new_p.Price;
         new_p.LastUpdated = today;
-        new_p.PriceHistorySorted = sortArray(Object.keys(new_p.PriceHistory), {
-          order: "desc",
-        });
       }
     }
+    new_p.PriceHistorySorted = sortArray(Object.keys(new_p.PriceHistory), {
+      order: "desc",
+    });
     new_p.PriceChanges = new_p.PriceHistorySorted?.length || 0;
-    db_batch.update(productRef, { ...new_p });
+    if (db_batch) db_batch.update(productRef, { ...new_p });
+    else productRef.update({ ...new_p });
+
+    return true;
   }
 
-  static SetProductHistory(p) {
+  static CalculatePrices(p) {
+    p.LatestPrice = p.Price;
+    p.Literprice = Math.ceil((p.Price / p.Volume) * 100);
+    p.LiterPriceAlcohol = Math.ceil((100 / p.Alcohol) * p.Literprice);
+    return p;
+  }
+
+  static SetPriceHistory(p) {
     let today = this.GetTodayTimeStamp();
     p.PriceHistory = {
       [today]: p.Price,
@@ -88,6 +114,9 @@ module.exports = class FirebaseClient {
 
   static async ExpireProduct(db_batch, id) {
     const productRef = firebase.firestore().collection("Products").doc(id);
+    if (!(await productRef.get()).exists) {
+      return;
+    }
     db_batch.update(productRef, {
       LastPriceFetchDate: new Date(),
       Expired: true,
@@ -113,21 +142,16 @@ module.exports = class FirebaseClient {
 
   static async GetIdsNotInDb(ids) {
     let idsNotFound = [];
-    for (let i = 0; i < ids.length; i++) {
-      const id = ids[i];
-
-      await firebase
-        .firestore()
-        .collection("Products")
-        .doc(id)
-        .get()
-        .then(function (qs) {
-          if (!qs.exists || qs.data().LastUpdated == undefined) {
-            idsNotFound.push(id);
-          }
-        });
-    }
-    return idsNotFound;
+    const idsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
+    const filteredIds = ids.filter((id) => !idsToIgnore.includes(id));
+    return await firebase
+      .firestore()
+      .collection("Products")
+      .get()
+      .then((qs) => {
+        var idsInDb = qs.docs.map((d) => d.id);
+        return filteredIds.filter((id) => !idsInDb.includes(id));
+      });
   }
 
   static async GetProductsToBeUpdated() {
@@ -139,7 +163,7 @@ module.exports = class FirebaseClient {
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
+      //.where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
       .where("Expired", "==", false)
       .where("IsVintage", "==", false)
       .limit(today == 1 ? 30000 : 15000)

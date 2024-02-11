@@ -34,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 23;
+    var runhour = 18;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -47,7 +47,7 @@ async function orchistrator() {
       customLog(`Current time: ${new Date()}`, false);
       lastRunDate = time.getDate();
       try {
-        //    await reConnectToVpn(getVpnCountry());
+        //await reConnectToVpn(getVpnCountry());
         await UpdatePrices();
         const log = `Finished run. It took ${new Date(new Date() - time)
           .toISOString()
@@ -74,11 +74,12 @@ async function UpdatePrices() {
   let reconnectAttempted = false;
   // Creating new products in db
   let newProducts = await VmpClient.GetNewProductList();
-  if (newProducts.length > 0) {
+  let newProductIds = newProducts.map((p) => p.Id);
+  //.concat((await VmpClient.FetchFreshProducts(40000)).products);
+
+  if (newProductIds.length > 0) {
     customLog("Getting ids not in db:", true);
-    let idsNotFound = await FirebaseClient.GetIdsNotInDb(
-      newProducts.map((x) => x.Id)
-    );
+    let idsNotFound = await FirebaseClient.GetIdsNotInDb(newProductIds);
     customLog(
       `${idsNotFound.length} new products found. Creating them in database`,
       true
@@ -98,7 +99,6 @@ async function UpdatePrices() {
       }
     }
   }
-
   customLog(`-----------------------------`), true;
   customLog("Starting Product price fetch", true);
   //Updating existing products
@@ -135,18 +135,28 @@ async function UpdatePrices() {
         customLog(`Updating product ${product.Id}`);
         var detailsRes = await VmpClient.GetProductDetails(product.Id);
         if (detailsRes.product) {
-          await FirebaseClient.UpdateProduct(
+          var found = await FirebaseClient.UpdateProduct(
             db_batch,
             product,
             detailsRes.product
           );
+          if (found == false) {
+            customLog(`Could not update Product ${product.Id}`);
+            /*
+            let response = await VmpClient.FetchProductPrice(product.Id);
+            if (response.product) {
+              await FirebaseClient.UpsertProduct(response.product);
+            }*/
+          }
         } else if (detailsRes.error) {
           customLog(
             `\nCould not fetch price of product ${product}. Error: ${detailsRes.error}`
           );
           failcount++;
         } else {
-          customLog(`Product ${product} was not found. Marking as 'Expired'`);
+          customLog(
+            `Product ${product.Id} was not found. Marking as 'Expired'`
+          );
           await FirebaseClient.ExpireProduct(db_batch, product.Id);
         }
 
