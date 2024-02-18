@@ -448,7 +448,7 @@ class MainContent extends React.Component {
               onChange={this.toggleDiscountView}
               aria-label="Produkter som vises"
             >
-              <ToggleButton value="false">Vis tilbud</ToggleButton>
+              <ToggleButton value="false">På lager</ToggleButton>
               <ToggleButton value="true">Vis alle</ToggleButton>
             </ToggleButtonGroup>
           </Box>
@@ -634,7 +634,7 @@ class MainContent extends React.Component {
                   onChange={this.toggleDiscountView}
                   aria-label="Produkter som vises"
                 >
-                  <ToggleButton value="false">Tilbud</ToggleButton>
+                  <ToggleButton value="false">På lager</ToggleButton>
                   <ToggleButton value="true">Alle</ToggleButton>
                 </ToggleButtonGroup>
               </Box>

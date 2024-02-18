@@ -9,6 +9,8 @@ const { XMLParser } = require("fast-xml-parser");
 const ProductSearchParser = require("./Models/ProductSearchResult");
 const { error } = require("firebase-functions/logger");
 const parser = new XMLParser();
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
 const firebase = require("firebase-admin");
 require("firebase/firestore");
 
@@ -248,6 +250,48 @@ class VmpClient {
         };
       });
   }
+
+  static async GetProductRatingFromVivino(productName) {
+    const searchUrl = `https://www.vivino.com/search/wines?q=${encodeURIComponent(
+      productName
+    )}`;
+
+    try {
+      const response = await fetch(searchUrl);
+      const html = await response.text();
+      const dom = new JSDOM(html);
+      const document = dom.window.document;
+      let result = null;
+
+      const cards = document.querySelectorAll(".search-results-list .card");
+      cards.forEach((card) => {
+        const nameElement = card.querySelector(".wine-card__name a");
+        const name = nameElement.textContent.trim();
+        const averageRating = card.querySelector(".average__number")
+          ? card.querySelector(".average__number").textContent.trim()
+          : null;
+        const url = nameElement.href
+          ? `https://www.vivino.com${nameElement.getAttribute("href")}`
+          : null;
+
+        if (name.toLowerCase() === productName.toLowerCase() && averageRating) {
+          result = { rating: averageRating, url: url };
+          return false;
+        }
+      });
+
+      if (result) {
+        console.log(`Found match for ${productName}:`, result);
+        return result;
+      } else {
+        console.log(`No exact match found for ${productName}`);
+        return { error: "No exact match found" };
+      }
+    } catch (error) {
+      console.error("Failed to get product rating from Vivino:", error);
+      throw error;
+    }
+  }
 }
 
 function CreateProduct(productData) {
@@ -257,7 +301,7 @@ function CreateProduct(productData) {
   types.push(productData.main_category.name);
 
   if (productData.tags) {
-    types = types.concat(productData.tags);
+    types = types.concat(productData.tags).map((t) => t.replaceAll(",", "."));
   }
 
   return {

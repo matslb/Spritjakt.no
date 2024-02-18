@@ -109,6 +109,7 @@ const StoreSelector = ({
       <Select
         value={selectedOptions}
         onChange={handleStoreUpdate}
+        style={{ zIndex: 1 }}
         isMulti
         options={storeOptions}
         noOptionsMessage={() => "Fant niks og nada"}

@@ -52,7 +52,8 @@ module.exports = class FirebaseClient {
 
     if (db_batch)
       db_batch.update(productRef, { LastPriceFetchDate: new Date() });
-    else productRef.update({ ...new_p });
+    else productRef.update({ LastPriceFetchDate: new Date() });
+
     if (
       new_p.Year &&
       sp.Year &&
@@ -120,6 +121,9 @@ module.exports = class FirebaseClient {
     db_batch.update(productRef, {
       LastPriceFetchDate: new Date(),
       Expired: true,
+      Buyable: false,
+      Stores: [],
+      AvailableOnline: false,
     });
   }
 
@@ -159,19 +163,42 @@ module.exports = class FirebaseClient {
     let d = new Date();
     let today = d.getDate();
     d.setDate(d.getDate() - 1);
+
     await firebase
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      //.where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
+      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
       .where("Expired", "==", false)
       .where("IsVintage", "==", false)
-      .limit(today == 1 ? 30000 : 15000)
+      .limit(today == 1 ? 30000 : 14000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {
           qs.forEach((p) => {
-            products.push(p.data());
+            let data = p.data();
+            data.Id = p.id;
+            products.push(data);
+          });
+        }
+      });
+
+    await firebase
+      .firestore()
+      .collection("Products")
+      .orderBy("LastPriceFetchDate", "asc")
+      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
+      .where("Buyable", "==", true)
+      .where("Expired", "==", true)
+      .where("IsVintage", "==", false)
+      .limit(1000)
+      .get()
+      .then(function (qs) {
+        if (!qs.empty) {
+          qs.forEach((p) => {
+            let data = p.data();
+            data.Id = p.id;
+            products.push(data);
           });
         }
       });

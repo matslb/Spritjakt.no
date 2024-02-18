@@ -137,5 +137,16 @@ exports.fetchProductRatingOnCreate = functions
         product.Name
       );
       await FirebaseClient.UpdateProductRating(ratingResult);
+
+      var productRef = firebaseAdmin.firestore().collection("Products").doc(Id);
+      var p = (await productRef.get()).data();
+      let { rating, url } = await VmpClient.GetProductRatingFromVivino(p.Name);
+      if (rating != null) {
+        productRef.update({
+          VivinoRating: rating,
+          VivinoUrl: url,
+          VivinoFetchDate: new Date(),
+        });
+      }
     }
   });

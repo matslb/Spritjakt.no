@@ -208,11 +208,8 @@ class TypeSenseClient {
   createFilterString(filter) {
     let filterString = "IsVintage:!= true && Expired:!= true ";
 
-    if (!filter.searchString) {
-      filterString = "&& Buyable:=true";
-    }
     if (!filter.view) {
-      filterString += " && PriceChange:" + "<99.9";
+      filterString = "&& Buyable:=true";
     }
     if (filter.types && filter.types.length > 0) {
       filterString += " && Types: [" + filter.types.join() + "]";

@@ -53,7 +53,9 @@ li {
   border-bottom-right-radius: 16px;
   border-top-right-radius: 16px;
 }
-
+.select__menu {
+  z-index: 2;
+}
 .main .select__control {
   border-radius: 0;
   border: none;

@@ -34,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 18;
+    var runhour = 1;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -47,7 +47,7 @@ async function orchistrator() {
       customLog(`Current time: ${new Date()}`, false);
       lastRunDate = time.getDate();
       try {
-        //await reConnectToVpn(getVpnCountry());
+        await reConnectToVpn(getVpnCountry());
         await UpdatePrices();
         const log = `Finished run. It took ${new Date(new Date() - time)
           .toISOString()

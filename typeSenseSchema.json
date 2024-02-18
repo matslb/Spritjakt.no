@@ -1,5 +1,5 @@
 {
-    "name": "Products_v1.5",
+    "name": "Products_v1.52",
     "fields": 
     [
       {
@@ -127,6 +127,13 @@
         "name": "Expired",
         "optional": true,
         "type": "bool"
+    },
+    {
+        "facet": false,
+        "index": true,
+        "name": "VivinoRating",
+        "optional": true,
+        "type": "float"
     }
     ]
 }

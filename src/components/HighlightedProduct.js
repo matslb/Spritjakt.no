@@ -48,12 +48,12 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
 
   useEffect(() => {
     fetchVintages();
-    setStockFetchDate(false);
-    if (product.StockFetchDate) {
+    if (product.LastPriceFetchDate) {
       var diff = Math.floor(
         (new Date().getTime() -
           new Date(
-            (product.StockFetchDate.seconds ?? product.StockFetchDate) * 1000
+            (product.LastPriceFetchDate.seconds ?? product.LastPriceFetchDate) *
+              1000
           ).getTime()) /
           1000 /
           60 /
@@ -434,6 +434,11 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
         <div className="product_stock descriptionText">
           <h3 className="title">Lagerstatus </h3>
           <ul>{renderStoreStock()}</ul>
+        </div>
+      )}
+      {stockFetchDate && (
+        <div className="descriptionText">
+          <i>Lagerstatus oppdatert for {stockFetchDate}</i>
         </div>
       )}
     </article>

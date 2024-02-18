@@ -40,15 +40,7 @@ export function debouncer(fn, delay) {
 }
 
 export function getImageUrl(id, size) {
-  return (
-    "https://bilder.vinmonopolet.no/cache/" +
-    size +
-    "x" +
-    size +
-    "/" +
-    id +
-    "-1.jpg"
-  );
+  return `https://bilder.vinmonopolet.no/cache/${size}x${size}-0/${id}-1.jpg`;
 }
 
 export const formTypes = {
@@ -121,6 +113,11 @@ export const iosCopyToClipboard = (href) => {
 };
 
 export const sortOptions = [
+  {
+    label: "Siste tilbud",
+    value: "latest_discount",
+    typeSenseValue: "PriceIsLowered:desc, LastUpdated:desc , PriceChange:asc",
+  },
   {
     label: "Sist oppdatert",
     value: "new",

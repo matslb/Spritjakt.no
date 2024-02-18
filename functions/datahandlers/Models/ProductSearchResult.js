@@ -26,7 +26,7 @@ module.exports = class ProductSearchParser {
           facets
             .find((x) => x.code === "mainCategory")
             ?.values.map((f) => f.name)
-        )
+        ).map((t) => t.replaceAll(",", "."))
       ),
     ];
 
@@ -73,8 +73,12 @@ NewProductUpdateRecord = (productData, stores, year) => {
 
   if (productData.main_category) types.push(productData.main_category.name);
 
-  if (productData.main_sub_category?.name)
+  if (productData.main_sub_category?.name) {
+    if (productData.main_sub_category.name.includes(", ")) {
+      types.push(productData.main_sub_category.name.split(", ")[0]);
+    }
     types.push(productData.main_sub_category.name);
+  }
 
   return {
     AvailableOnline:
