@@ -1,6 +1,5 @@
 import { NativeSelect } from "@mui/material";
 import { sortOptions } from "../utils/utils";
-import { isMobile } from "react-device-detect";
 
 const Sorting = ({ sort, handleSortChange }) => {
   return (

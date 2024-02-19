@@ -121,6 +121,20 @@ exports.checkProductRatings = functions
       if (!p.Id.includes("x")) {
         let ratingResult = await VmpClient.FetchProductRating(p.Id, p.Name);
         await FirebaseClient.UpdateProductRating(ratingResult);
+        var productRef = firebaseAdmin
+          .firestore()
+          .collection("Products")
+          .doc(p.Id);
+        let { rating, url } = await VmpClient.GetProductRatingFromVivino(
+          p.Name
+        );
+        if (rating != null) {
+          productRef.update({
+            VivinoRating: rating,
+            VivinoUrl: url,
+            VivinoFetchDate: new Date(),
+          });
+        }
       }
     }
   });

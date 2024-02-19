@@ -303,3 +303,10 @@ a.clickable {
 .bottom {
   bottom: 1.5rem;
 }
+.rating {
+  display: flex;
+  align-content: center;
+  gap: 4px;
+  align-items: center;
+  font-weight: 400;
+}

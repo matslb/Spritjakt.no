@@ -10,6 +10,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
 import { getImageUrl } from "../utils/utils.js";
 import SpritjaktClient from "../services/spritjaktClient";
+import vivinoLogo from "../assets/vivino.svg";
+import aperitifLogo from "../assets/aperitif.ico";
 
 const Product = ({
   product,
@@ -128,20 +130,23 @@ const Product = ({
             {product.Expired ? "Utgått" : "Utsolgt"}
           </span>
         )}
-        <div className="detailsLine">
-          <span className="type">
-            {product.Type ?? product.Types[product.Types.length - 1]}
-          </span>
+        <div className="type">
+          {product.Country},{" "}
+          {product.Type ?? product.Types[product.Types.length - 1]}
+        </div>
+        <div className="rating-wrapper">
           {product.Rating && !Number.isNaN(product.Rating) && (
-            <span title="Vurdering (aperitif.no)" className="rating">
-              <FontAwesomeIcon icon={faStar} size="lg" />
-              {product.Rating}
-            </span>
+            <div title="Vurdering aperitif.no" className="rating">
+              <span>{product.Rating}</span>
+              <img width="14px" height="17px" src={aperitifLogo} />
+            </div>
           )}
-          <span className={"stock"} title="Lagerstatus">
-            {product.Country}
-            <FontAwesomeIcon icon={faGlobeEurope} />
-          </span>
+          {product.VivinoRating && (
+            <div title="Vurdering vivino.com" className="rating vivino-rating">
+              <span>{product.VivinoRating}</span>
+              <img width="14px" src={vivinoLogo} />
+            </div>
+          )}
         </div>
         <h2 className="name">{product.Name}</h2>
         {product.LatestPrice && (

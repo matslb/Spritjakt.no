@@ -21,6 +21,8 @@ import emptyGraph from "../assets/emptyGraph.png";
 import { isMobile } from "react-device-detect";
 import TypeSenseClient from "../services/typeSenseClient";
 import sortArray from "sort-array";
+import vivinoLogo from "../assets/vivino.svg";
+import aperitifLogo from "../assets/aperitif.ico";
 
 const HighlightedProduct = ({ product, notification, highlightProduct }) => {
   const [user, setUser] = useState(false);
@@ -393,26 +395,33 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
           id="productLink_hidden"
         />
       </section>
-      {product.Rating && !Number.isNaN(product.Rating) && (
-        <section className="descriptionText">
-          <h3>Vurdering, aperitif.no</h3>
-          <div className="ratingWrapper">
-            {product.RatingComment && (
-              <p>
-                <i>{'"' + product.RatingComment + '"'}</i>
-                <br />
-                <a rel="noopener noreferrer" target="_blank" href={ratingUrl}>
-                  Les mer på aperitif.no
-                </a>
-              </p>
-            )}
-            <div title="Vurdering (aperitif.no)" className="rating">
-              <FontAwesomeIcon icon={faStar} size="lg" />
-              {product.Rating}
-            </div>
+
+      {product.Rating &&
+        renderTextSection(
+          <p>
+            <i>{'"' + product.RatingComment + '"'}</i>
+            <br />
+            <a rel="noopener noreferrer" target="_blank" href={ratingUrl}>
+              Les mer på aperitif.no
+            </a>
+          </p>,
+          <div title="Vurdering aperitif.no" className="rating">
+            <img width="14px" height="17px" src={aperitifLogo} />
+            Apéritif -<strong>{product.Rating}</strong>
           </div>
-        </section>
-      )}
+        )}
+
+      {product.VivinoRating &&
+        renderTextSection(
+          <a rel="noopener noreferrer" target="_blank" href={product.VivinoUrl}>
+            Les mer på vivino.com
+          </a>,
+          <div title="Vurdering vivino.com" className="rating ">
+            <img width="14px" src={vivinoLogo} /> Vivino -
+            <strong>{product.VivinoRating}</strong>
+          </div>
+        )}
+
       {vintages.length > 1 && renderVintages()}
       {renderTextSection(product.Types.join(", "), "Kategorier")}
       {renderTextSection(product.Smell, "Lukt")}

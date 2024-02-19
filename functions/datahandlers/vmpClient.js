@@ -252,13 +252,22 @@ class VmpClient {
   }
 
   static async GetProductRatingFromVivino(productName) {
-    const searchUrl = `https://www.vivino.com/search/wines?q=${encodeURIComponent(
-      productName
-    )}`;
+    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
+    var headers = headerGenerator.getHeaders();
+    delete headers["accept"];
 
+    var options = {
+      method: "get",
+      url: `https://www.vivino.com/search/wines?q=${encodeURIComponent(
+        productName
+      )}`,
+      jar: cookieJar,
+      headers: headers,
+      withCredentials: true,
+    };
     try {
-      const response = await fetch(searchUrl);
-      const html = await response.text();
+      const response = await axios(options);
+      const html = await response.data;
       const dom = new JSDOM(html);
       const document = dom.window.document;
       let result = null;
@@ -274,8 +283,16 @@ class VmpClient {
           ? `https://www.vivino.com${nameElement.getAttribute("href")}`
           : null;
 
-        if (name.toLowerCase() === productName.toLowerCase() && averageRating) {
-          result = { rating: averageRating, url: url };
+        var parsedRating = Number.parseFloat(averageRating.replace(",", "."));
+
+        if (
+          name.toLowerCase() === productName.toLowerCase() &&
+          !Number.isNaN(parsedRating)
+        ) {
+          result = {
+            rating: parsedRating,
+            url: url,
+          };
           return false;
         }
       });

@@ -1,10 +1,8 @@
 import React from "react";
 import "./css/pagination.css";
-import PageButton from "./PageButton";
-import { sortOptions, theme } from "../utils/utils";
+import { sortOptions } from "../utils/utils";
 import Sorting from "./Sorting";
 import { Box, Pagination } from "@mui/material";
-import { ThemeProvider } from "@emotion/react";
 
 const PaginationSection = ({
   pageSize,
@@ -13,6 +11,7 @@ const PaginationSection = ({
   setPage,
   useScroll,
   cssAnchor,
+  sort,
   handleSortChange = null,
 }) => {
   const getPaginationText = () => {
@@ -64,6 +63,7 @@ const PaginationSection = ({
       >
         {handleSortChange != null && (
           <Sorting
+            sort={sort}
             handleSortChange={handleSortChange}
             sortOptions={sortOptions}
           />

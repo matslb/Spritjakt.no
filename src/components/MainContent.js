@@ -10,13 +10,9 @@ import {
   Card,
   CardContent,
   Fab,
-  FormControlLabel,
-  NativeSelect,
   SwipeableDrawer,
-  Switch,
   ToggleButton,
   ToggleButtonGroup,
-  grid2Classes,
 } from "@mui/material";
 import { FilterListOutlined } from "@mui/icons-material";
 import queryString from "query-string";
@@ -45,7 +41,6 @@ class MainContent extends React.Component {
     this.state = {
       stores: [],
       loading: true,
-      sort: "LastUpdated_desc",
       productTypes: [],
       isGoodFor: [],
       productCountries: [],
@@ -556,6 +551,7 @@ class MainContent extends React.Component {
       found,
       drawerState,
       viewAll,
+      sort,
       filter,
       currentFilterExists,
     } = this.state;
@@ -643,6 +639,7 @@ class MainContent extends React.Component {
               total={found}
               handleSortChange={this.handleSortChange}
               page={page}
+              sort={sort}
               setPage={this.setPage.bind(this)}
               pageSize={pageSize}
               useScroll={false}

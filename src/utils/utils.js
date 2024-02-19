@@ -132,9 +132,14 @@ export const sortOptions = [
   },
   //{ label: "Største prisøkning", value: "raised", typeSenseValue: "_text_match:desc, PriceChange:desc" },
   {
-    label: "Vurdering (aperitif.no)",
+    label: "Vurdering - aperitif.no",
     value: "rating",
     typeSenseValue: "_text_match:desc, Rating:desc",
+  },
+  {
+    label: "Vurdering - Vivino",
+    value: "vivinorating",
+    typeSenseValue: "_text_match:desc, VivinoRating:desc",
   },
   {
     label: "Gjerrigknark - Literpris ",

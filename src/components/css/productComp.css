@@ -46,7 +46,7 @@
 
 .ProductComp .product_details {
   display: grid;
-  grid-template-areas: "detailsline detailsline" "nam nam" "pri alc" "opr vol";
+  grid-template-areas: "type type rating" "nam nam rating" "pri pri alc" "opr opr vol";
 }
 
 span.change_time {
@@ -68,24 +68,12 @@ span.change_time {
 
 .ProductComp .type {
   grid-area: typ;
-  padding: 0.2rem;
-  font-size: 0.8rem;
   text-align: left;
-  width: 33%;
 }
 
-.ProductComp .stock {
-  grid-area: sto;
-  padding: 0.2rem;
-  font-size: 0.8rem;
-  text-align: right;
-  text-transform: capitalize;
-  width: 33%;
-}
-
-.ProductComp .stock svg {
-  opacity: 0.5;
-  margin-left: 5px;
+.ProductComp .type svg {
+  opacity: 0.8;
+  margin-right: 5px;
 }
 
 .ProductComp .soldOutSticker {
@@ -107,7 +95,7 @@ span.change_time {
 
 .ProductComp .price {
   grid-area: pri;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   text-align: left;
 }
 
@@ -137,7 +125,9 @@ span.change_time {
   grid-area: liPri;
   margin-top: 5px;
 }
-
+.ProductComp .type {
+  grid-area: type;
+}
 .ProductComp a {
   color: black;
   text-decoration: none;
@@ -154,25 +144,16 @@ span.change_time {
   left: 0;
 }
 
-.ProductComp .detailsLine {
-  grid-area: detailsline;
-  border-top: 0.5px solid #464646;
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-.ProductComp .rating {
-  height: 1.75rem;
-  margin: -1rem auto;
-  text-align: center;
-  line-height: 1.75rem;
-  background: white;
-  font-weight: 500;
-}
-
 .ProductComp .rating svg {
   color: #fdb542;
+}
+.ProductComp .rating-wrapper {
+  grid-area: rating;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  align-content: end;
+  font-size: 1rem;
 }
 
 @media (max-width: 768px) {

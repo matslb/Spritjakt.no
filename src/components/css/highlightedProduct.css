@@ -187,17 +187,6 @@
   margin-right: 0.5rem;
 }
 
-.HighlightedProduct .rating {
-  height: 1.75rem;
-  margin: -1rem auto;
-  text-align: center;
-  line-height: 1.75rem;
-  background: white;
-  font-weight: 500;
-  font-size: 1rem;
-  min-width: 3rem;
-}
-
 .HighlightedProduct .rating svg {
   color: #d0b55e;
 }
