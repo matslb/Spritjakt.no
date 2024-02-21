@@ -153,9 +153,9 @@ const Product = ({
           <span className="price">Kr {product.LatestPrice}</span>
         )}
         {product.PriceHistorySorted &&
-          product["PriceHistory." + [product.PriceHistorySorted[1]]] && (
+          product.PriceHistory[product.PriceHistorySorted[1]] && (
             <span className="old_price secondary">
-              Kr {product["PriceHistory." + [product.PriceHistorySorted[1]]]}
+              Kr {product.PriceHistory[product.PriceHistorySorted[1]]}
             </span>
           )}
         <span className="volume secondary">{product.Volume.toFixed(1)} cl</span>

@@ -206,10 +206,11 @@ class TypeSenseClient {
   }
 
   createFilterString(filter) {
-    let filterString = "IsVintage:!= true && Expired:!= true ";
+    let filterString =
+      "Types:!=Alkoholfritt && IsVintage:!= true && Expired:!= true ";
 
     if (!filter.view) {
-      filterString = "&& Buyable:=true";
+      filterString += "&& Buyable:=true";
     }
     if (filter.types && filter.types.length > 0) {
       filterString += " && Types: [" + filter.types.join() + "]";

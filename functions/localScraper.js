@@ -34,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 1;
+    var runhour = 2;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -142,11 +142,6 @@ async function UpdatePrices() {
           );
           if (found == false) {
             customLog(`Could not update Product ${product.Id}`);
-            /*
-            let response = await VmpClient.FetchProductPrice(product.Id);
-            if (response.product) {
-              await FirebaseClient.UpsertProduct(response.product);
-            }*/
           }
         } else if (detailsRes.error) {
           customLog(

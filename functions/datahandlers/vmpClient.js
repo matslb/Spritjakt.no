@@ -12,6 +12,9 @@ const parser = new XMLParser();
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const firebase = require("firebase-admin");
+const path = require("path");
+const fs = require("fs");
+
 require("firebase/firestore");
 
 axiosCookieJarSupport(axios);
@@ -26,6 +29,7 @@ const vmpOptions = () => {
     json: true, // Automatically parses the JSON string in the response
   };
 };
+
 class VmpClient {
   static async FetchFreshProducts(start = 0) {
     var date = new Date();
@@ -280,7 +284,9 @@ class VmpClient {
           ? card.querySelector(".average__number").textContent.trim()
           : null;
         const url = nameElement.href
-          ? `https://www.vivino.com${nameElement.getAttribute("href")}`
+          ? `https://www.vivino.com/wines${
+              nameElement.getAttribute("href").split("/wines")[1]
+            }`
           : null;
 
         var parsedRating = Number.parseFloat(averageRating.replace(",", "."));
@@ -309,8 +315,61 @@ class VmpClient {
       throw error;
     }
   }
-}
 
+  static async FetchAndStoreRatingsFromVivino(page = 1) {
+    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
+    var headers = headerGenerator.getHeaders();
+    delete headers["accept"];
+    let total = 0;
+    let foundInPage = 0;
+    var options = {
+      method: "get",
+      url: `https://www.vivino.com/webapi/explore/explore?country_code=FR&currency_code=EUR&grape_filter=varietal&min_rating=1&order_by=price&order=asc&price_range_max=500&price_range_min=0&wine_type_ids%5B%5D=1&wine_type_ids%5B%5D=2&wine_type_ids%5B%5D=3&wine_type_ids%5B%5D=24&wine_type_ids%5B%5D=7&wine_type_ids%5B%5D=4&language=en&page=${page}`,
+      jar: cookieJar,
+      headers: headers,
+      withCredentials: true,
+    };
+    try {
+      const response = await axios(options);
+      total = response.data.explore_vintage.records_matched;
+      const vintages = response.data.explore_vintage.matches.map((match) => {
+        return {
+          id: match.vintage.id,
+          name: match.vintage.name,
+          seoName: match.vintage.seo_name,
+          rating: match.vintage.statistics.ratings_average,
+        };
+      });
+      foundInPage = vintages.length;
+      process.stdout.write(
+        `\rPage: ${page} - ${foundInPage * page} of ${total} products fetched`
+      );
+      const filePath = path.resolve(__dirname, "vivino.js");
+
+      // Check if the file exists, if not, create an array structure
+      if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, JSON.stringify([]));
+      }
+
+      // Read existing data, append new data, and save
+      fs.readFile(filePath, (err, data) => {
+        if (err) throw err;
+        const existingData = JSON.parse(data);
+        const duplicate = existingData.find(
+          (r) => r.id === vintages.find((v) => v.Id == r.id)
+        );
+        if (duplicate) throw "Found existing product in response :(";
+        const updatedData = [...existingData, ...vintages];
+        fs.writeFile(filePath, JSON.stringify(updatedData, null, 2), (err) => {
+          if (err) throw err;
+        });
+      });
+    } catch (error) {
+      console.error("Failed to fetch or save data:", error);
+    }
+    return { productsLeft: total - foundInPage * page };
+  }
+}
 function CreateProduct(productData) {
   let types = [];
 

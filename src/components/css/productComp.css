@@ -157,15 +157,6 @@ span.change_time {
 }
 
 @media (max-width: 768px) {
-  .ProductComp .name {
-    font-size: 0.9rem;
-  }
-
-  .ProductComp .type,
-  .ProductComp .stock {
-    font-size: 0.8rem;
-  }
-
   .ProductComp .soldOutSticker {
     left: 10%;
     right: 10%;
