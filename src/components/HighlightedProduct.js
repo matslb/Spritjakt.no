@@ -396,7 +396,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
         />
       </section>
 
-      {product.Rating &&
+      {/*product.Rating &&
         renderTextSection(
           <p>
             <i>{'"' + product.RatingComment + '"'}</i>
@@ -409,7 +409,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
             <img width="14px" height="17px" src={aperitifLogo} />
             Apéritif -<strong>{product.Rating}</strong>
           </div>
-        )}
+        ) */}
 
       {product.VivinoRating &&
         renderTextSection(

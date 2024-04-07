@@ -9,7 +9,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "16"
+    "node": "18"
   },
   "dependencies": {
     "@types/tough-cookie": "^4.0.1",
@@ -17,7 +17,7 @@
     "axios-cookiejar-support": "^1.0.1",
     "fast-xml-parser": "^4.2.2",
     "firebase": "^9.6.2",
-    "firebase-admin": "^10.0.2",
+    "firebase-admin": "^12.0.0",
     "firebase-functions": "^3.18.1",
     "form-data": "^4.0.0",
     "header-generator": "^2.1.6",

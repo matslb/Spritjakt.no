@@ -123,19 +123,17 @@ export const sortOptions = [
     value: "new",
     typeSenseValue: "_text_match:desc, LastUpdated:desc, PriceChange:asc",
   },
-  // { label: "Nylig lagt til (nyheter)", value: "new", typeSenseValue: "_text_match:desc, PriceChanges:asc,  LastUpdated:desc" },
-  //{ label: "Siste prisøkninger", value: "new_raised", typeSenseValue: "_text_match:desc, LastUpdated:desc, PriceChange:desc" },
   {
     label: "Beste tilbud",
     value: "discounted",
     typeSenseValue: "_text_match:desc, PriceChange:asc",
   },
-  //{ label: "Største prisøkning", value: "raised", typeSenseValue: "_text_match:desc, PriceChange:desc" },
+  /*
   {
     label: "Vurdering - aperitif.no",
     value: "rating",
     typeSenseValue: "_text_match:desc, Rating:desc",
-  },
+  },*/
   {
     label: "Vurdering - Vivino",
     value: "vivinorating",

@@ -34,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 2;
+    var runhour = 11;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -46,14 +46,18 @@ async function orchistrator() {
     if (time.getHours() == runhour && lastRunDate != time.getDate()) {
       customLog(`Current time: ${new Date()}`, false);
       lastRunDate = time.getDate();
+      log_file = fs.createWriteStream(
+        __dirname + "/logs/" + time.toLocaleDateString() + ".log",
+        { flags: "w" }
+      );
       try {
-        await reConnectToVpn(getVpnCountry());
+        // await reConnectToVpn(getVpnCountry());
         await UpdatePrices();
         const log = `Finished run. It took ${new Date(new Date() - time)
           .toISOString()
           .slice(11, 19)} hours.`;
         customLog(log, true);
-        reConnectToVpn("Norway");
+        // reConnectToVpn("Norway");
       } catch (e) {
         customLog(e);
       }
@@ -95,7 +99,7 @@ async function UpdatePrices() {
         }
         await new Promise((r) => setTimeout(r, Math.random() * 1000 + 200));
       } catch (e) {
-        customLog(e);
+        customLog(e, true);
       }
     }
   }
@@ -132,7 +136,6 @@ async function UpdatePrices() {
       } products | Elapsed: ${elapsedString} | Remaining time: ${remainingString} `;
       process.stdout.write(statusMessage);
       try {
-        customLog(`Updating product ${product.Id}`);
         var detailsRes = await VmpClient.GetProductDetails(product.Id);
         if (detailsRes.product) {
           var found = await FirebaseClient.UpdateProduct(
@@ -162,12 +165,12 @@ async function UpdatePrices() {
               `\n${failcount} products failed in a row. Attempting to re-connect`
             );
             failcount = 0;
-            await reConnectToVpn(getVpnCountry());
+            //await reConnectToVpn(getVpnCountry());
           } else {
             await NotificationClient.SendFetchErrorEmail(
               "Henting av nye priser feilet"
             );
-            customLog("Pricefetch failed");
+            customLog("Pricefetch failed", true);
             return;
           }
         }

@@ -135,12 +135,12 @@ const Product = ({
           {product.Type ?? product.Types[product.Types.length - 1]}
         </div>
         <div className="rating-wrapper">
-          {product.Rating && !Number.isNaN(product.Rating) && (
+          {/*product.Rating && !Number.isNaN(product.Rating) && (
             <div title="Vurdering aperitif.no" className="rating">
               <span>{product.Rating}</span>
               <img width="14px" height="17px" src={aperitifLogo} />
             </div>
-          )}
+          )*/}
           {product.VivinoRating && (
             <div title="Vurdering vivino.com" className="rating vivino-rating">
               <span>{product.VivinoRating}</span>

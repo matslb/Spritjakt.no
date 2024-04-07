@@ -101,7 +101,6 @@ class VmpClient {
               const productDoc = await productRef.get();
               if (productDoc.exists) {
                 totalResults = 0;
-                new_products = [];
               }
               return new_products;
             }
@@ -365,7 +364,7 @@ class VmpClient {
         });
       });
     } catch (error) {
-      console.error("Failed to fetch or save data:", error);
+      console.error("Failed to fetch or save data:");
     }
     return { productsLeft: total - foundInPage * page };
   }

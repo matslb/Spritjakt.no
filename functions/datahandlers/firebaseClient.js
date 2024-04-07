@@ -202,6 +202,26 @@ module.exports = class FirebaseClient {
           });
         }
       });
+
+    await firebase
+      .firestore()
+      .collection("Products")
+      .orderBy("LastPriceFetchDate", "asc")
+      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
+      .where("Buyable", "==", false)
+      .where("Expired", "==", true)
+      .where("IsVintage", "==", false)
+      .limit(100)
+      .get()
+      .then(function (qs) {
+        if (!qs.empty) {
+          qs.forEach((p) => {
+            let data = p.data();
+            data.Id = p.id;
+            products.push(data);
+          });
+        }
+      });
     return products;
   }
 

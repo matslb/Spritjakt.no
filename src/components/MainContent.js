@@ -322,6 +322,7 @@ class MainContent extends React.Component {
   searchProducts(searchString = null) {
     this.setUrlParams("searchString", searchString);
     this.setUrlParams("view", true);
+    this.setUrlParams("sort", "new");
     if (this.state.forceSearchString) {
       this.fetchProducts();
       this.setState({ forceSearchString: false });
