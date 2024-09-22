@@ -11,6 +11,11 @@ module.exports = class ProductSearchParser {
       facets.find((x) => x.code === "year")?.values?.map((f) => f.code)[0] ||
       "0000";
 
+    const vintageComment =
+      facets
+        .find((x) => x.code === "Lagringsgrad")
+        ?.values?.map((f) => f.code)[0] || "";
+
     const productData = jsonData.productSearchResult.products.filter(
       (p) => p.code == productId
     )[0];
@@ -18,7 +23,12 @@ module.exports = class ProductSearchParser {
 
     if (productData === null || productData === undefined) return null;
 
-    let product = NewProductUpdateRecord(productData, stores, year);
+    let product = NewProductUpdateRecord(
+      productData,
+      stores,
+      year,
+      vintageComment
+    );
 
     product.Types = [
       ...new Set(
@@ -68,7 +78,7 @@ class FacetValue {
   }
 }
 
-NewProductUpdateRecord = (productData, stores, year) => {
+NewProductUpdateRecord = (productData, stores, year, vintageComment) => {
   let types = [];
 
   if (productData.main_category) types.push(productData.main_category.name);
@@ -85,23 +95,20 @@ NewProductUpdateRecord = (productData, stores, year) => {
       productData.availability?.deliveryAvailability?.available || false,
     Buyable: productData.buyable || false,
     Id: productData.code || "",
-    //    district:productData.district || {},
     Expired: productData.expired || false,
     Types: types,
-    //    main_category:productData.main_category || {},
-    //    main_country:productData.main_country || {},
-    //    main_sub_category:productData.main_sub_category || {},
     Name: productData.name || "",
     Price: productData.price.value || {},
-    //    product_selection:productData.product_selection || "",
     ReleaseMode: productData.releaseMode || false,
     Status: productData.status || "",
-    //    sub_District:productData.sub_District || {},
-    //    sustainable:productData.sustainable || false,
-    //    url:productData.url || "",
     Volume: productData.volume.value || {},
+    Country: productData.main_country?.name || "",
+    District: productData.district?.name || null,
+    SubDistrict: productData.sub_District?.name || null,
+
     Year: year || null,
     IsVintage: false,
+    VintageComment: vintageComment,
     Stores: (stores || []).concat(
       productData.availability?.deliveryAvailability?.available === true
         ? ["online"]

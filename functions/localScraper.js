@@ -34,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 11;
+    var runhour = 18;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -77,9 +77,8 @@ async function UpdatePrices() {
   customLog("Fetching new products:", true);
   let reconnectAttempted = false;
   // Creating new products in db
-  let newProducts = await VmpClient.GetNewProductList();
+  /*  let newProducts = await VmpClient.GetNewProductList();
   let newProductIds = newProducts.map((p) => p.Id);
-  //.concat((await VmpClient.FetchFreshProducts(40000)).products);
 
   if (newProductIds.length > 0) {
     customLog("Getting ids not in db:", true);
@@ -93,7 +92,7 @@ async function UpdatePrices() {
         `\r${idsNotFound.indexOf(id)} of ${idsNotFound.length} Created`
       );
       try {
-        let response = await VmpClient.FetchProductPrice(id);
+        let response = await VmpClient.GetProductDetailsWithStock(id, true);
         if (response.product) {
           await FirebaseClient.UpsertProduct(response.product);
         }
@@ -102,7 +101,7 @@ async function UpdatePrices() {
         customLog(e, true);
       }
     }
-  }
+  }*/
   customLog(`-----------------------------`), true;
   customLog("Starting Product price fetch", true);
   //Updating existing products
@@ -136,7 +135,11 @@ async function UpdatePrices() {
       } products | Elapsed: ${elapsedString} | Remaining time: ${remainingString} `;
       process.stdout.write(statusMessage);
       try {
-        var detailsRes = await VmpClient.GetProductDetails(product.Id);
+        var detailsRes = await VmpClient.GetProductDetailsWithStock(
+          product.Id,
+          product.Alcohol == undefined
+        );
+
         if (detailsRes.product) {
           var found = await FirebaseClient.UpdateProduct(
             db_batch,

@@ -32,7 +32,7 @@ ul.product-list.hall-of-fame.negative {
   text-transform: uppercase;
 }
 
-.famed-product.positive svg {
+.famed-product.positive > svg {
   color: #fdb542;
 }
 

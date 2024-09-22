@@ -3,15 +3,18 @@ import "./css/productComp.css";
 import {
   faGlobeEurope,
   faHeart,
-  faStar,
+  faDiceOne,
+  faDiceTwo,
+  faDiceThree,
+  faDiceFour,
+  faDiceFive,
+  faDiceSix,
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
-import { getImageUrl } from "../utils/utils.js";
+import { getDiceIcon, getImageUrl } from "../utils/utils.js";
 import SpritjaktClient from "../services/spritjaktClient";
-import vivinoLogo from "../assets/vivino.svg";
-import aperitifLogo from "../assets/aperitif.ico";
 
 const Product = ({
   product,
@@ -82,7 +85,7 @@ const Product = ({
       </button>
       <div
         onClick={() => highlightProduct(product.Id)}
-        className={"product_img " + (isSoldOut ? " soldOut" : "")}
+        className={"product_img " + (product.Buyable ? "" : " soldOut")}
       >
         <img
           alt={product.Name}
@@ -131,20 +134,19 @@ const Product = ({
           </span>
         )}
         <div className="type">
-          {product.Country},{" "}
-          {product.Type ?? product.Types[product.Types.length - 1]}
+          {product.Type ?? product.Types[product.Types.length - 1]},{" "}
+          {product.Country}
+          {product.District ? `, ${product.District}` : ""}
         </div>
         <div className="rating-wrapper">
-          {/*product.Rating && !Number.isNaN(product.Rating) && (
-            <div title="Vurdering aperitif.no" className="rating">
-              <span>{product.Rating}</span>
-              <img width="14px" height="17px" src={aperitifLogo} />
-            </div>
-          )*/}
           {product.VivinoRating && (
-            <div title="Vurdering vivino.com" className="rating vivino-rating">
+            <div className="rating">
               <span>{product.VivinoRating}</span>
-              <img width="14px" src={vivinoLogo} />
+              <FontAwesomeIcon
+                className="greenbtn"
+                icon={getDiceIcon(product.VivinoRating)}
+                size="lg"
+              />
             </div>
           )}
         </div>

@@ -5,6 +5,7 @@ const NotificationClient = require("./datahandlers/notificationService");
 const firebaseAdmin = require("firebase-admin");
 const serviceAccount = require("./configs/serviceAccountKey.json");
 const SortArray = require("sort-array");
+const Utils = require("./utils");
 // Initialize the app with a service account, granting admin privileges
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
@@ -17,7 +18,6 @@ const runtimeOpts = {
 };
 
 exports.updateStores = functions
-  .region("europe-west1")
   .runWith(runtimeOpts)
   .pubsub.schedule("1 1 * * *")
   .timeZone("Europe/Paris")
@@ -117,21 +117,32 @@ exports.checkProductRatings = functions
   .timeZone("Europe/Paris")
   .onRun(async (context) => {
     let products = await FirebaseClient.GetProductsWithOldRating();
-    for (const p of products) {
-      if (!p.Id.includes("x")) {
-        let ratingResult = await VmpClient.FetchProductRating(p.Id, p.Name);
-        await FirebaseClient.UpdateProductRating(ratingResult);
+    for (const product of products) {
+      if (!product.Id.includes("x")) {
+        let ratingResult = await VmpClient.FetchProductRating(
+          product.Id,
+          product.Name
+        );
+
         var productRef = firebaseAdmin
           .firestore()
           .collection("Products")
-          .doc(p.Id);
-        let { rating, url } = await VmpClient.GetProductRatingFromVivino(
+          .doc(Id);
+        var p = (await productRef.get()).data();
+        let { vivinoRating, url } = await VmpClient.GetProductRatingFromVivino(
           p.Name
         );
+
+        var rating = Utils.convertRating(ratingResult.rating, 54, 99);
+
+        if (vivinoRating != undefined) {
+          var vivinoconverted = Utils.convertRating(vivinoRating, 1, 5);
+          rating = Utils.mergeRatings(vivinoconverted, rating, 0.4, 1);
+        }
+
         if (rating != null) {
           productRef.update({
             VivinoRating: rating,
-            VivinoUrl: url,
             VivinoFetchDate: new Date(),
           });
         }
@@ -150,15 +161,27 @@ exports.fetchProductRatingOnCreate = functions
         product.Id,
         product.Name
       );
-      await FirebaseClient.UpdateProductRating(ratingResult);
 
       var productRef = firebaseAdmin.firestore().collection("Products").doc(Id);
       var p = (await productRef.get()).data();
-      let { rating, url } = await VmpClient.GetProductRatingFromVivino(p.Name);
+      let { vivinoRating, url } = await VmpClient.GetProductRatingFromVivino(
+        p.Name
+      );
+
+      var rating = Utils.convertRating(ratingResult.rating, 54, 99);
+
+      if (data.VivinoRating != undefined) {
+        var vivino = Utils.convertRating(data.VivinoRating, 1, 5);
+        if (data.Rating != undefined) {
+          rating = Utils.mergeRatings(vivino, rating, 0.4, 1);
+        } else {
+          rating = Utils.mergeRatings(vivino, vivino - 0.2, 0.4, 1);
+        }
+      }
+
       if (rating != null) {
         productRef.update({
           VivinoRating: rating,
-          VivinoUrl: url,
           VivinoFetchDate: new Date(),
         });
       }

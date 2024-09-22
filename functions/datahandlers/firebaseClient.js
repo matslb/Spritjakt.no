@@ -12,7 +12,7 @@ module.exports = class FirebaseClient {
     if (p.PriceHistory == undefined) {
       p = this.SetPriceHistory(p);
     }
-    p.LastPriceFetchDate = new Date(1, 1);
+    p.LastPriceFetchDate = new Date();
     p.LastUpdated = today;
     p = this.CalculatePrices(p);
     try {
@@ -37,14 +37,6 @@ module.exports = class FirebaseClient {
       .firestore()
       .collection("Products")
       .doc(new_p.Id);
-
-    if (sp == undefined) {
-      let response = await VmpClient.FetchProductPrice(new_p.Id);
-      if (response.product) {
-        await FirebaseClient.UpsertProduct(response.product);
-        sp = response.product;
-      }
-    }
 
     if (!sp) {
       return false;
@@ -74,7 +66,6 @@ module.exports = class FirebaseClient {
       new_p = this.SetPriceHistory(new_p);
     }
     if (new_p.Price !== null || new_p.Price !== undefined) {
-      new_p.Alcohol = sp.Alcohol;
       new_p = this.CalculatePrices(new_p);
 
       let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? new_p.Price;

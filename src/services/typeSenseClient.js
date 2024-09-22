@@ -49,11 +49,11 @@ class TypeSenseClient {
           },
           {
             filter_by: "Buyable:=true",
-            sort_by: "Rating:desc",
+            sort_by: "VivinoRating:desc",
           },
           {
-            filter_by: "Buyable:=true && Rating:>= 0",
-            sort_by: "Rating:asc",
+            filter_by: "Buyable:=true && VivinoRating:>= 0",
+            sort_by: "VivinoRating:asc",
           },
           {
             filter_by: "Buyable:=true",

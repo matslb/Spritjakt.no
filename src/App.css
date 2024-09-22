@@ -169,7 +169,7 @@ button {
 }
 
 .bigRedBtn {
-  background: #a00b35;
+  background: rgb(177, 75, 72);
   border: none;
   color: white;
   padding: 0.5rem;
@@ -267,7 +267,7 @@ button.link {
 }
 
 .price_raised .percentage_change {
-  background: rgb(184, 91, 87);
+  background: rgb(177, 75, 72);
   color: white;
 }
 
@@ -292,7 +292,7 @@ a.clickable {
 }
 
 .productWatchBtns .watched {
-  color: #90495d;
+  color: rgb(177, 75, 72);
 }
 .fixed {
   position: fixed !important;

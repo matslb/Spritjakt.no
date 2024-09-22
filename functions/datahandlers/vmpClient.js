@@ -31,43 +31,6 @@ const vmpOptions = () => {
 };
 
 class VmpClient {
-  static async FetchFreshProducts(start = 0) {
-    var date = new Date();
-    date.setDate(date.getDate() - 1);
-    let options = vmpOptions();
-    options.url += "products/v0/details-normal/";
-    options.resolveWithFullResponse = true;
-    options.params = {
-      changedSince: "2000-01-01",
-      start: start,
-      maxResults: 60000,
-    };
-    return await axios(options)
-      .then(function (res) {
-        var raw = res.data;
-        var items = [];
-        raw.map((p) => {
-          if (!items.includes(p.basic.productId)) {
-            items.push(p.basic.productId);
-          }
-        });
-        console.info("Fetched products " + items.length + " from Vinmonopolet");
-        return {
-          totalCount: parseInt(res.headers["x-total-count"]),
-          products: items,
-          error: false,
-        };
-      })
-      .catch(function (err) {
-        console.error("vmp fetch failed: " + err);
-        return {
-          totalCount: null,
-          products: null,
-          error: true,
-        };
-      });
-  }
-
   static async GetNewProductList() {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     let totalResults = 1;
@@ -115,7 +78,10 @@ class VmpClient {
     return products;
   }
 
-  static async GetProductDetails(productId) {
+  static async GetProductDetailsWithStock(
+    productId,
+    enrichWithContentDetails = false
+  ) {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     var headers = headerGenerator.getHeaders();
     delete headers["accept"];
@@ -128,11 +94,21 @@ class VmpClient {
     };
     return await axios(options)
       .then(async function (res) {
+        var product = ProductSearchParser.GetProductFromSearchResult(
+          productId,
+          res.data
+        );
+        if (enrichWithContentDetails) {
+          var productContentDetails = await VmpClient.GetProductContentDetails(
+            productId
+          );
+          product.Alcohol = parseInt(productContentDetails.Alkohol);
+          product.Acid = productContentDetails.Syre ?? null;
+          product.Sugar = productContentDetails.Sukker ?? null;
+        }
+
         return {
-          product: ProductSearchParser.GetProductFromSearchResult(
-            productId,
-            res.data
-          ),
+          product: product,
         };
       })
       .catch(function (err) {
@@ -159,35 +135,53 @@ class VmpClient {
         console.error("Store failed: " + err);
       });
   }
-
-  static async FetchProductPrice(productId) {
+  static async GetProductContentDetails(productId) {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     var headers = headerGenerator.getHeaders();
     delete headers["accept"];
-
+    const propertyNames = ["Alkohol", "Sukker", "Syre"];
     var options = {
       method: "get",
-      url:
-        "https://www.vinmonopolet.no/vmpws/v2/vmp/products/" +
-        productId +
-        "?fields=FULL",
+      url: `https://www.vinmonopolet.no/p/${productId}`,
       jar: cookieJar,
       headers: headers,
       withCredentials: true,
     };
     return await axios(options)
       .then(async function (res) {
-        if (
-          parser.parse(res?.data).product?.main_category?.code ===
-          "gaveartikler_og_tilbehør"
-        ) {
-          return { product: false };
+        const html = res.data;
+
+        // Use jsdom to parse the HTML
+        const dom = new JSDOM(html);
+        const document = dom.window.document;
+
+        // Object to store the properties
+        const properties = {};
+
+        // Select the <ul> using partial matching of the class name
+        const propertyList = document.querySelectorAll(".product__details ul");
+
+        if (!propertyList) {
+          console.error("Could not find the properties list");
+          return null;
         }
 
-        let p = CreateProduct(res.data);
-        if (p.LatestPrice === 0) return { product: false };
+        // Select all <li> elements inside the <ul> where the class starts with "content-item-"
+        for (const prop of propertyList) {
+          const propertyItems = prop.querySelectorAll("li");
 
-        return { product: p };
+          // Iterate through each <li> and extract the <strong> and <span> content
+          propertyItems.forEach((item) => {
+            const name = item.querySelector("strong")?.textContent.trim();
+            const value = item.querySelector("span")?.textContent.trim();
+
+            // Dynamically add properties based on the <strong> text
+            if (name && value && propertyNames.includes(name)) {
+              properties[name] = value.replace(/[#¤%]/g, "");
+            }
+          });
+        }
+        return properties;
       })
       .catch(function (err) {
         return { error: err };
@@ -369,51 +363,5 @@ class VmpClient {
     return { productsLeft: total - foundInPage * page };
   }
 }
-function CreateProduct(productData) {
-  let types = [];
 
-  let type = productData.main_category.name;
-  types.push(productData.main_category.name);
-
-  if (productData.tags) {
-    types = types.concat(productData.tags).map((t) => t.replaceAll(",", "."));
-  }
-
-  return {
-    Id: productData.code,
-    Name: productData.name,
-    Volume: productData.volume ? productData.volume.value : null,
-    Alcohol: productData.alcohol ? productData.alcohol.value : null,
-    Sugar: productData.sugar ? productData.sugar : "",
-    Acid: productData.acid ? productData.acid : "",
-    Country: productData.main_country ? productData.main_country.name : null,
-    Type: type,
-    Types: types,
-    RawMaterials: productData.raastoff || [],
-    Color: productData.color || null,
-    Smell: productData.smell || null,
-    Taste: productData.taste || null,
-    IsGoodFor: productData.isGoodFor || null,
-    IsGoodForList: productData.isGoodFor?.map((x) => x.name) || [],
-    Sweetness: productData.sweetness || null,
-    Fullness: productData.fullness || null,
-    Freshness: productData.freshness || null,
-    Sulfates: productData.sulfates || null,
-    Expired: productData.expired,
-    Buyable: productData.buyable,
-    Status: productData.status || null,
-    AvailableOnline:
-      productData.availability?.deliveryAvailability?.available || false,
-    LatestPrice: productData.price.value || null,
-    Price: productData.price.value || null,
-    ProductStatusSaleName: "",
-    Year: productData?.year || null,
-    IsVintage: false,
-    VintageComment: productData.matured || null,
-    Stores:
-      productData.availability?.deliveryAvailability?.available === true
-        ? ["online"]
-        : [],
-  };
-}
 module.exports = VmpClient;

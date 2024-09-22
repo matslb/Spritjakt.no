@@ -4,6 +4,14 @@ import appleImg from "../assets/apple.svg";
 import emailImg from "../assets/email.svg";
 import firebase from "firebase/compat/app";
 import { createTheme } from "@mui/material/styles";
+import {
+  faDiceOne,
+  faDiceTwo,
+  faDiceThree,
+  faDiceFour,
+  faDiceFive,
+  faDiceSix,
+} from "@fortawesome/free-solid-svg-icons";
 
 export const arraysAreEqual = (arr1, arr2) => {
   if (arr1?.length !== arr2?.length) {
@@ -128,15 +136,9 @@ export const sortOptions = [
     value: "discounted",
     typeSenseValue: "_text_match:desc, PriceChange:asc",
   },
-  /*
   {
-    label: "Vurdering - aperitif.no",
+    label: "Vurdering",
     value: "rating",
-    typeSenseValue: "_text_match:desc, Rating:desc",
-  },*/
-  {
-    label: "Vurdering - Vivino",
-    value: "vivinorating",
     typeSenseValue: "_text_match:desc, VivinoRating:desc",
   },
   {
@@ -208,3 +210,27 @@ export const theme = createTheme({
     },
   },
 });
+
+export const getDiceIcon = (rating) => {
+  // Ensure the rating is within the 1-6 scale
+  const minRating = 1;
+  const maxRating = 6;
+
+  // Clamp the rating between 1 and 6
+  rating = Math.min(Math.max(rating, minRating), maxRating);
+
+  // Round the rating to the nearest integer
+  const roundedRating = Math.round(rating);
+
+  // Map the rounded rating to the Font Awesome dice icon name
+  const iconNames = {
+    1: faDiceOne,
+    2: faDiceTwo,
+    3: faDiceThree,
+    4: faDiceFour,
+    5: faDiceFive,
+    6: faDiceSix,
+  };
+
+  return iconNames[roundedRating];
+};

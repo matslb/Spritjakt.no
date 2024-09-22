@@ -77,7 +77,7 @@ span.change_time {
 }
 
 .ProductComp .soldOutSticker {
-  color: #7a3b3b;
+  color: rgb(177, 75, 80);
   font-size: 1.2rem;
   position: absolute;
   top: 30%;
@@ -85,11 +85,10 @@ span.change_time {
   right: 25%;
   text-align: center;
   font-weight: bold;
-  transform: rotateZ(27deg);
   text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.6);
-  border: 3px solid;
-  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid;
+  border-radius: 6px;
   padding: 5px;
 }
 
@@ -145,7 +144,7 @@ span.change_time {
 }
 
 .ProductComp .rating svg {
-  color: #fdb542;
+  color: rgb(177, 75, 72);
 }
 .ProductComp .rating-wrapper {
   grid-area: rating;

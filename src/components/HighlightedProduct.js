@@ -12,7 +12,7 @@ import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
 import firebase from "firebase/compat/app";
-import { getImageUrl } from "../utils/utils.js";
+import { convertRating, getDiceIcon, getImageUrl } from "../utils/utils.js";
 import PriceGraph from "./PriceGraph";
 import copy from "copy-to-clipboard";
 import StoreCacher from "../services/storeCache";
@@ -335,12 +335,12 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
         )}
         {product.Sugar && (
           <span className="sugar">
-            <span>Sukker:</span> {product.Sugar} g/l
+            <span>Sukker:</span> {product.Sugar}
           </span>
         )}
         {product.Acid && (
           <span className="acid">
-            <span>Syre:</span> {product.Acid} g/l
+            <span>Syre:</span> {product.Acid}
           </span>
         )}
 
@@ -395,35 +395,16 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
           id="productLink_hidden"
         />
       </section>
-
-      {/*product.Rating &&
-        renderTextSection(
-          <p>
-            <i>{'"' + product.RatingComment + '"'}</i>
-            <br />
-            <a rel="noopener noreferrer" target="_blank" href={ratingUrl}>
-              Les mer på aperitif.no
-            </a>
-          </p>,
-          <div title="Vurdering aperitif.no" className="rating">
-            <img width="14px" height="17px" src={aperitifLogo} />
-            Apéritif -<strong>{product.Rating}</strong>
-          </div>
-        ) */}
-
-      {product.VivinoRating &&
-        renderTextSection(
-          <a rel="noopener noreferrer" target="_blank" href={product.VivinoUrl}>
-            Les mer på vivino.com
-          </a>,
-          <div title="Vurdering vivino.com" className="rating ">
-            <img width="14px" src={vivinoLogo} /> Vivino -
-            <strong>{product.VivinoRating}</strong>
-          </div>
-        )}
-
       {vintages.length > 1 && renderVintages()}
-      {renderTextSection(product.Types.join(", "), "Kategorier")}
+
+      {product.Types.length > 1 &&
+        renderTextSection(product.Types.join(", "), "Kategorier")}
+      {renderTextSection(
+        product.SubDistrict
+          ? `${product.District}, ${product.SubDistrict}`
+          : product.District,
+        "Område"
+      )}
       {renderTextSection(product.Smell, "Lukt")}
       {renderTextSection(product.Taste, "Smak")}
       {renderTextSection(product.Color, "Farge")}
