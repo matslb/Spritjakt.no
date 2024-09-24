@@ -98,13 +98,9 @@ class VmpClient {
           productId,
           res.data
         );
-        if (enrichWithContentDetails) {
-          var productContentDetails = await VmpClient.GetProductContentDetails(
-            productId
-          );
-          product.Alcohol = parseInt(productContentDetails.Alkohol);
-          product.Acid = productContentDetails.Syre ?? null;
-          product.Sugar = productContentDetails.Sukker ?? null;
+        if (product && enrichWithContentDetails) {
+          var productDetails = await VmpClient.GetProductDetails(productId);
+          product = { ...product, ...productDetails };
         }
 
         return {
@@ -135,7 +131,8 @@ class VmpClient {
         console.error("Store failed: " + err);
       });
   }
-  static async GetProductContentDetails(productId) {
+
+  static async GetProductDetails(productId) {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     var headers = headerGenerator.getHeaders();
     delete headers["accept"];
@@ -147,45 +144,88 @@ class VmpClient {
       headers: headers,
       withCredentials: true,
     };
-    return await axios(options)
-      .then(async function (res) {
-        const html = res.data;
+    return await axios(options).then(async function (res) {
+      const html = res.data;
 
-        // Use jsdom to parse the HTML
-        const dom = new JSDOM(html);
-        const document = dom.window.document;
+      // Use jsdom to parse the HTML
+      const dom = new JSDOM(html);
+      const document = dom.window.document;
 
-        // Object to store the properties
-        const properties = {};
+      var productProps = VmpClient.GetProductPropsFromTag(document);
 
-        // Select the <ul> using partial matching of the class name
-        const propertyList = document.querySelectorAll(".product__details ul");
+      // Object to store the properties
+      const properties = {
+        Id: productId,
+        Price: productProps.price?.value ?? null,
+        Color: productProps.color ?? null,
+        StoragePotential: productProps.content?.storagePotential ?? null,
+        Smell: productProps.smell ?? null,
+        Taste: productProps.taste ?? null,
+        Volume: productProps.volume.value ?? null,
+        Alcohol: parseInt(
+          VmpClient.GetTrait(productProps.content.traits, "Alkohol")?.replace(
+            "%",
+            ""
+          ) ?? "0"
+        ),
+        Acid: VmpClient.GetTrait(productProps.content.traits, "Syre"),
+        Sugar: VmpClient.GetTrait(productProps.content.traits, "Sukker"),
+        Ingredients: productProps.content.ingredients ?? null,
+        IsGoodFor: productProps.content.isGoodFor ?? null,
+        Freshness: VmpClient.GetCharacteristic(
+          productProps.content.characteristics,
+          "Friskhet"
+        ),
+        Fullness: VmpClient.GetCharacteristic(
+          productProps.content.characteristics,
+          "Fylde"
+        ),
+        Sweetness: VmpClient.GetCharacteristic(
+          productProps.content.characteristics,
+          "Sødme"
+        ),
+        Sulfates: VmpClient.GetCharacteristic(
+          productProps.content.characteristics,
+          "Garvestoffer"
+        ),
+      };
 
-        if (!propertyList) {
-          console.error("Could not find the properties list");
-          return null;
-        }
+      return properties;
+    });
+  }
+  static GetTrait(list, slug) {
+    var value = list.find((x) => x.name === slug) ?? null;
+    if (value) return value.formattedValue;
+    return null;
+  }
 
-        // Select all <li> elements inside the <ul> where the class starts with "content-item-"
-        for (const prop of propertyList) {
-          const propertyItems = prop.querySelectorAll("li");
+  static GetCharacteristic(list, slug) {
+    var value = list?.find((x) => x.name === slug) ?? null;
+    if (value) return parseInt(value.value);
+    return null;
+  }
 
-          // Iterate through each <li> and extract the <strong> and <span> content
-          propertyItems.forEach((item) => {
-            const name = item.querySelector("strong")?.textContent.trim();
-            const value = item.querySelector("span")?.textContent.trim();
+  static GetProductPropsFromTag(doc) {
+    const mainTag = doc.querySelector("main");
 
-            // Dynamically add properties based on the <strong> text
-            if (name && value && propertyNames.includes(name)) {
-              properties[name] = value.replace(/[#¤%]/g, "");
-            }
-          });
-        }
-        return properties;
-      })
-      .catch(function (err) {
-        return { error: err };
-      });
+    if (!mainTag) {
+      console.error("Main tag not found");
+      return null;
+    }
+
+    const dataReactProps = mainTag.getAttribute("data-react-props");
+
+    if (!dataReactProps) {
+      console.error("'data-react-props' attribute not found");
+      return null;
+    }
+
+    try {
+      return JSON.parse(dataReactProps).product;
+    } catch (error) {
+      console.error("Failed to parse 'data-react-props':", error);
+      return null;
+    }
   }
 
   static async FetchProductRating(productId, name) {
@@ -307,60 +347,6 @@ class VmpClient {
       console.error("Failed to get product rating from Vivino:", error);
       throw error;
     }
-  }
-
-  static async FetchAndStoreRatingsFromVivino(page = 1) {
-    const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
-    var headers = headerGenerator.getHeaders();
-    delete headers["accept"];
-    let total = 0;
-    let foundInPage = 0;
-    var options = {
-      method: "get",
-      url: `https://www.vivino.com/webapi/explore/explore?country_code=FR&currency_code=EUR&grape_filter=varietal&min_rating=1&order_by=price&order=asc&price_range_max=500&price_range_min=0&wine_type_ids%5B%5D=1&wine_type_ids%5B%5D=2&wine_type_ids%5B%5D=3&wine_type_ids%5B%5D=24&wine_type_ids%5B%5D=7&wine_type_ids%5B%5D=4&language=en&page=${page}`,
-      jar: cookieJar,
-      headers: headers,
-      withCredentials: true,
-    };
-    try {
-      const response = await axios(options);
-      total = response.data.explore_vintage.records_matched;
-      const vintages = response.data.explore_vintage.matches.map((match) => {
-        return {
-          id: match.vintage.id,
-          name: match.vintage.name,
-          seoName: match.vintage.seo_name,
-          rating: match.vintage.statistics.ratings_average,
-        };
-      });
-      foundInPage = vintages.length;
-      process.stdout.write(
-        `\rPage: ${page} - ${foundInPage * page} of ${total} products fetched`
-      );
-      const filePath = path.resolve(__dirname, "vivino.js");
-
-      // Check if the file exists, if not, create an array structure
-      if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, JSON.stringify([]));
-      }
-
-      // Read existing data, append new data, and save
-      fs.readFile(filePath, (err, data) => {
-        if (err) throw err;
-        const existingData = JSON.parse(data);
-        const duplicate = existingData.find(
-          (r) => r.id === vintages.find((v) => v.Id == r.id)
-        );
-        if (duplicate) throw "Found existing product in response :(";
-        const updatedData = [...existingData, ...vintages];
-        fs.writeFile(filePath, JSON.stringify(updatedData, null, 2), (err) => {
-          if (err) throw err;
-        });
-      });
-    } catch (error) {
-      console.error("Failed to fetch or save data:");
-    }
-    return { productsLeft: total - foundInPage * page };
   }
 }
 

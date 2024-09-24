@@ -12,7 +12,7 @@ import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpritjaktClient from "../services/spritjaktClient";
 import firebase from "firebase/compat/app";
-import { convertRating, getDiceIcon, getImageUrl } from "../utils/utils.js";
+import { getDiceIcon, getImageUrl } from "../utils/utils.js";
 import PriceGraph from "./PriceGraph";
 import copy from "copy-to-clipboard";
 import StoreCacher from "../services/storeCache";
@@ -21,8 +21,6 @@ import emptyGraph from "../assets/emptyGraph.png";
 import { isMobile } from "react-device-detect";
 import TypeSenseClient from "../services/typeSenseClient";
 import sortArray from "sort-array";
-import vivinoLogo from "../assets/vivino.svg";
-import aperitifLogo from "../assets/aperitif.ico";
 
 const HighlightedProduct = ({ product, notification, highlightProduct }) => {
   const [user, setUser] = useState(false);
@@ -36,7 +34,6 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
   const stores = StoreCacher.get();
   const [vintages, setVintages] = useState([]);
   const rootRef = useRef(null);
-  const [ratingUrl, setRatingUrl] = useState();
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -74,11 +71,6 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
         );
       }
     }
-    setRatingUrl(
-      product?.RatingUrl ||
-        "https://www.aperitif.no/pollisten?query=" +
-          encodeURIComponent(product.Name.replace(/(\d\d\d\d)/, ""))
-    );
 
     rootRef?.current?.focus();
 
@@ -205,15 +197,14 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
   };
   const renderRawMaterials = () => {
     let materials = [];
-    if (product.RawMaterials)
-      for (const material of product.RawMaterials) {
+    if (product.Ingredients)
+      for (const ingredient of product.Ingredients) {
         materials.push(
-          <li className="material" key={material.code}>
+          <li className="material" key={ingredient.code}>
             {materials.length === 0 && (
               <FontAwesomeIcon icon={faSeedling} size="lg" />
             )}
-            {material.name}
-            {material.percentage && ", " + material.percentage + "%"}
+            {ingredient.formattedValue}
           </li>
         );
       }
@@ -363,7 +354,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
           )}
           <ul className="rawMaterials">{renderRawMaterials()}</ul>
         </div>
-        {product.VivinoRating && (
+        {product.VivinoRating !== null && (
           <div className="rating">
             <span>{product.VivinoRating}</span>
             <FontAwesomeIcon

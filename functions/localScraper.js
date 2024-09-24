@@ -34,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 0;
+    var runhour = 1;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -81,7 +81,7 @@ async function UpdatePrices() {
   let newProductIds = newProducts.map((p) => p.Id);
 
   if (newProductIds.length > 0) {
-    customLog("Getting ids not in db:", true);
+    customLog(`Checking if ${newProductIds.length} products not in db`, true);
     let idsNotFound = await FirebaseClient.GetIdsNotInDb(newProductIds);
     customLog(
       `${idsNotFound.length} new products found. Creating them in database`,
@@ -96,7 +96,7 @@ async function UpdatePrices() {
         if (response.product) {
           await FirebaseClient.UpsertProduct(response.product);
         }
-        await new Promise((r) => setTimeout(r, Math.random() * 1000 + 200));
+        await new Promise((r) => setTimeout(r, Math.random() * 500));
       } catch (e) {
         customLog(e, true);
       }
@@ -137,7 +137,7 @@ async function UpdatePrices() {
       try {
         var detailsRes = await VmpClient.GetProductDetailsWithStock(
           product.Id,
-          product.Alcohol == undefined
+          true
         );
 
         if (detailsRes.product) {

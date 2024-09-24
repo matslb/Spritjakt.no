@@ -105,7 +105,6 @@ NewProductUpdateRecord = (productData, stores, year, vintageComment) => {
     Country: productData.main_country?.name || "",
     District: productData.district?.name || null,
     SubDistrict: productData.sub_District?.name || null,
-
     Year: year || null,
     IsVintage: false,
     VintageComment: vintageComment,
