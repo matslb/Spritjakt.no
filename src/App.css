@@ -167,6 +167,9 @@ input[type="password"]:focus {
 button {
   cursor: pointer;
 }
+.rating svg {
+  color: rgb(177, 75, 72);
+}
 
 .bigRedBtn {
   background: rgb(177, 75, 72);

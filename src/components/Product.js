@@ -143,7 +143,6 @@ const Product = ({
             <div className="rating">
               <span>{product.VivinoRating}</span>
               <FontAwesomeIcon
-                className="greenbtn"
                 icon={getDiceIcon(product.VivinoRating)}
                 size="lg"
               />

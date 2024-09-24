@@ -34,7 +34,7 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 18;
+    var runhour = 0;
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -77,7 +77,7 @@ async function UpdatePrices() {
   customLog("Fetching new products:", true);
   let reconnectAttempted = false;
   // Creating new products in db
-  /*  let newProducts = await VmpClient.GetNewProductList();
+  let newProducts = await VmpClient.GetNewProductList();
   let newProductIds = newProducts.map((p) => p.Id);
 
   if (newProductIds.length > 0) {
@@ -101,7 +101,7 @@ async function UpdatePrices() {
         customLog(e, true);
       }
     }
-  }*/
+  }
   customLog(`-----------------------------`), true;
   customLog("Starting Product price fetch", true);
   //Updating existing products

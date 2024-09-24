@@ -143,9 +143,6 @@ span.change_time {
   left: 0;
 }
 
-.ProductComp .rating svg {
-  color: rgb(177, 75, 72);
-}
 .ProductComp .rating-wrapper {
   grid-area: rating;
   display: flex;

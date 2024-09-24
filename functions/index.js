@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const FirebaseClient = require("./datahandlers/firebaseClient");
 const VmpClient = require("./datahandlers/vmpClient");
 const NotificationClient = require("./datahandlers/notificationService");
@@ -14,7 +14,7 @@ firebaseAdmin.initializeApp({
 
 const runtimeOpts = {
   timeoutSeconds: 540,
-  memory: "512MB",
+  memory: "256MB",
 };
 
 exports.updateStores = functions
@@ -85,8 +85,8 @@ exports.subscribeClientsToTopic = functions
   });
 
 exports.sendNotifications = functions
-  .region("europe-west1")
   .runWith(runtimeOpts)
+  .region("europe-west1")
   .pubsub.schedule("1 12 * * *")
   .timeZone("Europe/Paris")
   .onRun(async (context) => {
@@ -111,8 +111,8 @@ exports.sendNotifications = functions
   });
 
 exports.checkProductRatings = functions
-  .region("europe-west1")
   .runWith(runtimeOpts)
+  .region("europe-west1")
   .pubsub.schedule("1 8 * * *")
   .timeZone("Europe/Paris")
   .onRun(async (context) => {
@@ -123,36 +123,40 @@ exports.checkProductRatings = functions
           product.Id,
           product.Name
         );
-
         var productRef = firebaseAdmin
           .firestore()
           .collection("Products")
-          .doc(Id);
+          .doc(product.Id);
         var p = (await productRef.get()).data();
         let { vivinoRating, url } = await VmpClient.GetProductRatingFromVivino(
           p.Name
         );
 
-        var rating = Utils.convertRating(ratingResult.rating, 54, 99);
+        var rating = null;
+        if (ratingResult.rating != null) {
+          rating = Utils.convertRating(ratingResult.rating, 54, 99);
+        }
 
         if (vivinoRating != undefined) {
-          var vivinoconverted = Utils.convertRating(vivinoRating, 1, 5);
-          rating = Utils.mergeRatings(vivinoconverted, rating, 0.4, 1);
+          var vivino = Utils.convertRating(vivinoRating, 1, 5);
+          if (ratingResult.rating != null) {
+            rating = Utils.mergeRatings(vivino, rating, 0.4, 1);
+          } else {
+            rating = vivino - 0.2;
+          }
         }
 
-        if (rating != null) {
-          productRef.update({
-            VivinoRating: rating,
-            VivinoFetchDate: new Date(),
-          });
-        }
+        productRef.update({
+          VivinoRating: rating,
+          VivinoFetchDate: new Date(),
+        });
       }
     }
   });
 
 exports.fetchProductRatingOnCreate = functions
-  .region("europe-west1")
   .runWith(runtimeOpts)
+  .region("europe-west1")
   .firestore.document("Products/{producId}")
   .onCreate(async (snap, context) => {
     const product = snap.data();
@@ -162,28 +166,32 @@ exports.fetchProductRatingOnCreate = functions
         product.Name
       );
 
-      var productRef = firebaseAdmin.firestore().collection("Products").doc(Id);
+      var productRef = firebaseAdmin
+        .firestore()
+        .collection("Products")
+        .doc(product.Id);
       var p = (await productRef.get()).data();
       let { vivinoRating, url } = await VmpClient.GetProductRatingFromVivino(
         p.Name
       );
 
-      var rating = Utils.convertRating(ratingResult.rating, 54, 99);
+      var rating = null;
+      if (ratingResult.rating != null) {
+        rating = Utils.convertRating(ratingResult.rating, 54, 99);
+      }
 
-      if (data.VivinoRating != undefined) {
-        var vivino = Utils.convertRating(data.VivinoRating, 1, 5);
-        if (data.Rating != undefined) {
+      if (vivinoRating != undefined) {
+        var vivino = Utils.convertRating(vivinoRating, 1, 5);
+        if (ratingResult.rating != null) {
           rating = Utils.mergeRatings(vivino, rating, 0.4, 1);
         } else {
-          rating = Utils.mergeRatings(vivino, vivino - 0.2, 0.4, 1);
+          rating = vivino - 0.2;
         }
       }
 
-      if (rating != null) {
-        productRef.update({
-          VivinoRating: rating,
-          VivinoFetchDate: new Date(),
-        });
-      }
+      productRef.update({
+        VivinoRating: rating,
+        VivinoFetchDate: new Date(),
+      });
     }
   });

@@ -307,6 +307,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
         ) : (
           <span className="price">Utgått</span>
         )}
+
         {product.PriceHistorySorted && (
           <span className="old_price">
             {product.PriceHistorySorted?.length > 1 &&
@@ -362,6 +363,15 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
           )}
           <ul className="rawMaterials">{renderRawMaterials()}</ul>
         </div>
+        {product.VivinoRating && (
+          <div className="rating">
+            <span>{product.VivinoRating}</span>
+            <FontAwesomeIcon
+              icon={getDiceIcon(product.VivinoRating)}
+              size="lg"
+            />
+          </div>
+        )}
       </section>
 
       <section className="buttons">
@@ -395,6 +405,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
           id="productLink_hidden"
         />
       </section>
+
       {vintages.length > 1 && renderVintages()}
 
       {product.Types.length > 1 &&

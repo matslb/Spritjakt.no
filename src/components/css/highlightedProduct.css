@@ -82,7 +82,7 @@
   display: grid;
   width: 70%;
   font-size: 0.9rem;
-  grid-template-areas: "nam nam" "pri det" "opr det" "opr det" "lipri sugar" "prialc acid" "rating rating" "des des";
+  grid-template-areas: "nam nam" "pri rating" "opr det" "opr det" "lipri sugar" "prialc acid" "des des";
 }
 
 .HighlightedProduct .liter_price_alchohol {
@@ -185,10 +185,6 @@
   align-items: center;
   justify-content: space-between;
   margin-right: 0.5rem;
-}
-
-.HighlightedProduct .rating svg {
-  color: #d0b55e;
 }
 
 .HighlightedProduct .pieChart {
