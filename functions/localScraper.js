@@ -137,7 +137,7 @@ async function UpdatePrices() {
       try {
         var detailsRes = await VmpClient.GetProductDetailsWithStock(
           product.Id,
-          true
+          product.Ingredients == undefined || product.LiterPriceAlcohol == NaN
         );
 
         if (detailsRes.product) {

@@ -370,7 +370,7 @@ module.exports = class NotificationClient {
       );
       productItem = productItem.replace(
         /&ProductImageLink&/g,
-        "https://bilder.vinmonopolet.no/cache/100x100/" + product.Id + "-1.jpg"
+        `https://bilder.vinmonopolet.no/cache/300x300-0/${product.Id}-1.jpg`
       );
       productItem = productItem.replace(
         /&ProductLink&/g,

@@ -66,7 +66,7 @@ module.exports = class FirebaseClient {
       new_p = this.SetPriceHistory(new_p);
     }
     if (new_p.Price !== null || new_p.Price !== undefined) {
-      new_p = this.CalculatePrices(new_p);
+      new_p = this.CalculatePrices(new_p, sp.Alcohol);
 
       let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? new_p.Price;
       let PriceChange = (new_p.Price / ComparingPrice) * 100;
@@ -88,10 +88,10 @@ module.exports = class FirebaseClient {
     return true;
   }
 
-  static CalculatePrices(p) {
+  static CalculatePrices(p, alcohol) {
     p.LatestPrice = p.Price;
     p.Literprice = Math.ceil((p.Price / p.Volume) * 100);
-    p.LiterPriceAlcohol = Math.ceil((100 / p.Alcohol) * p.Literprice);
+    p.LiterPriceAlcohol = Math.ceil((100 / alcohol) * p.Literprice);
     return p;
   }
 
