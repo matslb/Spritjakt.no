@@ -31,7 +31,7 @@ const vmpOptions = () => {
 };
 
 class VmpClient {
-  static async GetNewProductList() {
+  static async GetProductsFromSearch(url, stopOnKnownProduct = false) {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     let totalResults = 1;
     let products = [];
@@ -42,7 +42,7 @@ class VmpClient {
       delete headers["accept"];
       const options = {
         method: "get",
-        url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&currentPage=${page}&q=%3Arelevance%3AnewProducts%3Atrue`,
+        url: `${url}&currentPage=${page}`,
         jar: cookieJar,
         headers: headers,
         withCredentials: true,
@@ -56,7 +56,7 @@ class VmpClient {
               res.data
             );
 
-            if (new_products.length > 0) {
+            if (new_products.length > 0 && stopOnKnownProduct == true) {
               const productRef = firebase
                 .firestore()
                 .collection("Products")
@@ -65,8 +65,8 @@ class VmpClient {
               if (productDoc.exists) {
                 totalResults = 0;
               }
-              return new_products;
             }
+            return new_products;
           })
           .catch(function (err) {
             errors++;
@@ -76,6 +76,20 @@ class VmpClient {
       page++;
     }
     return products;
+  }
+
+  static async GetNewProductList() {
+    return await this.GetProductsFromSearch(
+      "https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&q=%3Arelevance%3AnewProducts%3Atrue",
+      true
+    );
+  }
+
+  static async GetAllProducts() {
+    return await this.GetProductsFromSearch(
+      "https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=24&searchType=product&q=%3Arelevance",
+      false
+    );
   }
 
   static async GetProductDetailsWithStock(

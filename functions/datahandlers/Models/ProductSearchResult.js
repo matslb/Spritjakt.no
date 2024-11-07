@@ -50,7 +50,7 @@ module.exports = class ProductSearchParser {
 
   static GetProductsFromSearchResult = (jsonData) => {
     return (jsonData.productSearchResult.products || []).map((productData) =>
-      NewProductUpdateRecord(productData, [])
+      NewProductUpdateRecord(productData)
     );
   };
 };

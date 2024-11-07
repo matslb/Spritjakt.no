@@ -1,14 +1,13 @@
 const FirebaseClient = require("./datahandlers/firebaseClient");
 const VmpClient = require("./datahandlers/vmpClient");
-const firebaseAdmin = require("firebase-admin");
 const serviceAccount = require("./configs/serviceAccountKey.json");
 const NotificationClient = require("./datahandlers/notificationService");
 const firebase = require("firebase-admin");
 require("firebase/firestore");
 
 // Initialize the app with a service account, granting admin privileges
-firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.cert(serviceAccount),
+firebase.initializeApp({
+  credential: firebase.credential.cert(serviceAccount),
   databaseURL: "https://spritjakt.firebaseio.com/",
 });
 
@@ -18,10 +17,9 @@ const { exec } = require("child_process");
 const { Console } = require("console");
 var log_stdout = process.stdout;
 let date = new Date();
-var log_file = fs.createWriteStream(
-  __dirname + "/logs/" + date.toLocaleDateString() + ".log",
-  { flags: "w" }
-);
+var log_file;
+const log_File_name = () =>
+  __dirname + "/logs/" + date.toISOString().slice(0, 10) + ".log";
 
 customLog = function (message, useConsole = false) {
   log_file.write(util.format(message) + "\n");
@@ -34,7 +32,8 @@ async function orchistrator() {
   var lastRunDate = -1;
   while (true) {
     var time = new Date();
-    var runhour = 1;
+    var runhour =
+      process.argv.length > 2 ? process.argv.slice(2) : time.getHours();
     var nextRunTime = new Date();
 
     nextRunTime.setHours(runhour, 0, 0);
@@ -44,29 +43,23 @@ async function orchistrator() {
     var msLeft = Math.abs(nextRunTime.getTime() - time.getTime());
 
     if (time.getHours() == runhour && lastRunDate != time.getDate()) {
-      customLog(`Current time: ${new Date()}`, false);
       lastRunDate = time.getDate();
-      log_file = fs.createWriteStream(
-        __dirname + "/logs/" + time.toLocaleDateString() + ".log",
-        { flags: "w" }
-      );
-      try {
-        // await reConnectToVpn(getVpnCountry());
-        await UpdatePrices();
-        const log = `Finished run. It took ${new Date(new Date() - time)
-          .toISOString()
-          .slice(11, 19)} hours.`;
-        customLog(log, true);
-        // reConnectToVpn("Norway");
-      } catch (e) {
-        customLog(e);
-      }
-    } else {
+      log_file = fs.createWriteStream(log_File_name(), { flags: "w" });
+      customLog(`Current time: ${new Date()}`, false);
+      await reConnectToVpn(getVpnCountry());
+      await UpdatePrices();
       customLog(
+        `Finished run. It took ${new Date(new Date() - time)
+          .toISOString()
+          .slice(11, 19)} hours.`,
+        true
+      );
+      reConnectToVpn("Norway");
+    } else {
+      log_stdout.write(
         `Not yet.. Sleeping for ${new Date(nextRunTime - time)
           .toISOString()
-          .slice(11, 19)}`,
-        true
+          .slice(11, 19)}\n`
       );
       await new Promise((r) => setTimeout(r, msLeft));
     }
@@ -77,6 +70,7 @@ async function UpdatePrices() {
   customLog("Fetching new products:", true);
   let reconnectAttempted = false;
   // Creating new products in db
+  /*
   let newProducts = await VmpClient.GetNewProductList();
   let newProductIds = newProducts.map((p) => p.Id);
 
@@ -102,7 +96,7 @@ async function UpdatePrices() {
       }
     }
   }
-  customLog(`-----------------------------`), true;
+    */
   customLog("Starting Product price fetch", true);
   //Updating existing products
   const products = await FirebaseClient.GetProductsToBeUpdated();
@@ -151,7 +145,7 @@ async function UpdatePrices() {
           }
         } else if (detailsRes.error) {
           customLog(
-            `\nCould not fetch price of product ${product}. Error: ${detailsRes.error}`
+            `Could not fetch price of product ${product}. Error: ${detailsRes.error}`
           );
           failcount++;
         } else {
@@ -165,10 +159,10 @@ async function UpdatePrices() {
           if (reconnectAttempted != false) {
             reconnectAttempted = true;
             customLog(
-              `\n${failcount} products failed in a row. Attempting to re-connect`
+              `${failcount} products failed in a row. Attempting to re-connect`
             );
             failcount = 0;
-            //await reConnectToVpn(getVpnCountry());
+            await reConnectToVpn(getVpnCountry());
           } else {
             await NotificationClient.SendFetchErrorEmail(
               "Henting av nye priser feilet"

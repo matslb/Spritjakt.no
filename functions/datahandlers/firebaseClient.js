@@ -151,18 +151,20 @@ module.exports = class FirebaseClient {
 
   static async GetProductsToBeUpdated() {
     let products = [];
-    let d = new Date();
-    let today = d.getDate();
-    d.setDate(d.getDate() - 1);
+    let today = new Date().getDate();
+    let yesterDay = new Date();
+    yesterDay.setDate(yesterDay.getDate() - 1);
+
+    if (this.IsLastDayOfMonth()) return products;
 
     await firebase
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
+      .where("LastPriceFetchDate", "<", yesterDay)
       .where("Expired", "==", false)
       .where("IsVintage", "==", false)
-      .limit(today == 1 ? 30000 : 14000)
+      .limit(today == 1 ? 35000 : 18000)
       .get()
       .then(function (qs) {
         if (!qs.empty) {
@@ -178,7 +180,7 @@ module.exports = class FirebaseClient {
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
+      .where("LastPriceFetchDate", "<", yesterDay)
       .where("Buyable", "==", true)
       .where("Expired", "==", true)
       .where("IsVintage", "==", false)
@@ -198,7 +200,7 @@ module.exports = class FirebaseClient {
       .firestore()
       .collection("Products")
       .orderBy("LastPriceFetchDate", "asc")
-      .where("LastPriceFetchDate", "<", today !== 1 ? d : new Date())
+      .where("LastPriceFetchDate", "<", yesterDay)
       .where("Buyable", "==", false)
       .where("Expired", "==", true)
       .where("IsVintage", "==", false)
@@ -214,6 +216,15 @@ module.exports = class FirebaseClient {
         }
       });
     return products;
+  }
+
+  static IsLastDayOfMonth(date = new Date()) {
+    const nextDay = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() + 1
+    );
+    return nextDay.getDate() === 1;
   }
 
   static async GetProductsOnSale(lastUpdated) {
