@@ -6,22 +6,22 @@
 .pnp.js
 
 #configs
-*config.json
-*/config.js
-*/configs
-/.firebase
-/.firebaserc
-/firebase.json
-/public/firebase-messaging-sw.js
+config.json
+config.ts
+configs
+.firebase
+.firebaserc
+firebase.json
+public/firebase-messaging-sw.js
 
 # testing
-*/test.js
+*test.js
 /coverage
 database-debug.log
 
 # production
 /build
-
+/ts/build
 # misc
 .DS_Store
 .env.local

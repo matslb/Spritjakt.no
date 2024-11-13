@@ -46,7 +46,7 @@
 
 .ProductComp .product_details {
   display: grid;
-  grid-template-areas: "type type rating" "nam nam rating" "pri pri alc" "opr opr vol";
+  grid-template-areas: "type type rating" "nam nam rating" "pri pri alc" "opr opr vol" "sek sek sek";
 }
 
 span.change_time {
@@ -150,6 +150,10 @@ span.change_time {
   align-items: end;
   align-content: end;
   font-size: 1rem;
+}
+
+.ProductComp .sek {
+  grid-area: sek;
 }
 
 @media (max-width: 768px) {

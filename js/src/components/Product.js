@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./css/productComp.css";
-import {
-  faGlobeEurope,
-  faHeart,
-  faDiceOne,
-  faDiceTwo,
-  faDiceThree,
-  faDiceFour,
-  faDiceFive,
-  faDiceSix,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dateFormater from "../dateFormater";
@@ -161,6 +152,11 @@ const Product = ({
           )}
         <span className="volume secondary">{product.Volume.toFixed(1)} cl</span>
         <span className="alcohol secondary">Alk. {product.Alcohol}%</span>
+        {product.swedishPriceDif && (
+          <span className="sek">
+            {product.swedishPriceDiff} kr billigere i Sverige!
+          </span>
+        )}
       </div>
     </div>
   );
