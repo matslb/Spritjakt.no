@@ -1,0 +1,65 @@
+{
+  "short_name": "Spritjakt",
+  "name": "Spritjakt",
+  "icons": [
+    {
+      "src": "images/44x44.png",
+      "sizes": "44x44",
+      "type": "image/png"
+    },
+    {
+      "src": "images/splash.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    },
+    {
+      "src": "images/512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "images/150x150.png",
+      "sizes": "150x150",
+      "type": "image/png"
+    },
+    {
+      "src": "images/350x150.png",
+      "sizes": "350x150",
+      "type": "image/png"
+    },
+    {
+      "src": "images/310x310.png",
+      "sizes": "310x310",
+      "type": "image/png"
+    },
+    {
+      "src": "images/50x50.png",
+      "sizes": "50x50",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/screenshot1.jpg",
+      "type": "image/jpg",
+      "sizes": "1080x2400"
+    },
+    {
+      "src": "screenshots/screenshot2.jpg",
+      "type": "image/jpg",
+      "sizes": "1080x2400"
+    }, 
+    {
+      "src": "screenshots/screenshot3.jpg",
+      "type": "image/jpg",
+      "sizes": "1080x2400"
+    }
+  
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#1c323a",
+  "background_color": "#1c323a",
+  "content_security_policy": "script-src 'self' https://cdn.firebase.com https://*.firebaseio.com; object-src 'self'"
+}

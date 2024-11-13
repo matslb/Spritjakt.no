@@ -12,7 +12,6 @@ configs
 .firebase
 .firebaserc
 firebase.json
-public/firebase-messaging-sw.js
 
 # testing
 *test.js
@@ -21,7 +20,8 @@ database-debug.log
 
 # production
 /build
-/ts/build
+ts/build
+js/build/static
 # misc
 .DS_Store
 .env.local

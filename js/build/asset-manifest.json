@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.47b54ea2.css",
+    "main.js": "/static/js/main.6e2d42e1.js",
+    "static/media/facebook.png": "/static/media/facebook.79dccd7cbbeb6deaba69.png",
+    "static/media/logo.svg": "/static/media/logo.922e62e2f1ff4156718ddb321269d34b.svg",
+    "index.html": "/index.html",
+    "static/media/round-logo.svg": "/static/media/round-logo.3bfd732ccba5e1899cb55e21b468c1b5.svg",
+    "static/media/email.svg": "/static/media/email.80b23b18d1593391d450dd1f4c0155f9.svg",
+    "static/media/apple.svg": "/static/media/apple.3e208bda7fa6a756d88427e0eb2123f7.svg"
+  },
+  "entrypoints": [
+    "static/css/main.47b54ea2.css",
+    "static/js/main.6e2d42e1.js"
+  ]
+}
