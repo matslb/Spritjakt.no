@@ -143,9 +143,10 @@ async function UpdatePrices() {
           if (found == false) {
             customLog(`Could not update Product ${product.Id}`);
           }
+          reconnectAttempted = false;
         } else if (detailsRes.error) {
           customLog(
-            `Could not fetch price of product ${product}. Error: ${detailsRes.error}`
+            `Could not fetch price of product ${product.Id}. Error: ${detailsRes.error}`
           );
           failcount++;
         } else {
@@ -156,7 +157,7 @@ async function UpdatePrices() {
         }
 
         if (failcount > 3) {
-          if (reconnectAttempted != false) {
+          if (reconnectAttempted === false) {
             reconnectAttempted = true;
             customLog(
               `${failcount} products failed in a row. Attempting to re-connect`

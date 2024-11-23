@@ -46,6 +46,7 @@ module.exports = class FirebaseClient {
       db_batch.update(productRef, { LastPriceFetchDate: new Date() });
     else productRef.update({ LastPriceFetchDate: new Date() });
 
+    var newVintageCreated = false;
     if (
       new_p.Year &&
       sp.Year &&
@@ -60,6 +61,7 @@ module.exports = class FirebaseClient {
       new_p.LastUpdated = today;
       new_p.PriceChange = 100;
       new_p.PriceIsLowered = false;
+      newVintageCreated = true;
     } else if (sp.PriceHistory) {
       new_p.PriceHistory = sp.PriceHistory;
     } else {
@@ -71,7 +73,11 @@ module.exports = class FirebaseClient {
       let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? new_p.Price;
       let PriceChange = (new_p.Price / ComparingPrice) * 100;
 
-      if (PriceChange !== 100 && (PriceChange <= 98 || PriceChange >= 102)) {
+      if (
+        newVintageCreated === false &&
+        PriceChange !== 100 &&
+        (PriceChange <= 98 || PriceChange >= 102)
+      ) {
         new_p.PriceIsLowered = PriceChange < 100;
         new_p.PriceChange = Math.round(PriceChange * 100) / 100;
         new_p.PriceHistory[today] = new_p.Price;
@@ -246,7 +252,7 @@ module.exports = class FirebaseClient {
                 Stores: [],
               };
             }
-            if (!p.Id.includes("x")) {
+            if (!p.Id.includes("x") && p.PriceHistory?.length > 1) {
               products.push(p);
             }
           });

@@ -14,7 +14,7 @@ interface SweProduct{
   normalizedName: string
 }
 
-export async function lookupPriceInSystembolaget(products: Product[]): Promise<SweProduct[]> {
+export async function lookupPriceInSystembolaget(products: Product[]): Promise<[Product, SweProduct][]> {
   try {
     const data = await fs.readFile("assortment.json", "utf-8");
     const swedishproducts: SweProduct[] = JSON.parse(data)
@@ -35,7 +35,7 @@ export async function lookupPriceInSystembolaget(products: Product[]): Promise<S
       return result.length ? { product, match: result[0].item } : null;
     });
 
-    return fuzzyMatches.filter(match => match).map(match => match!.match);
+    return fuzzyMatches.filter(match => match).map(match => [match!.product as Product, match!.match! as SweProduct]);
 
   } catch (error) {
 
@@ -50,10 +50,16 @@ const normalizeString = (name: string, volume?:number, alcohol? :number ):string
 }
 const prepString = (string :string) => JSON.parse(`"${string?.replace(/[^\w\s]/g, "").replace(/\d{4}$/, '')}"`);
 
-searchCollection("Bread & Butter, Pinot Noir")
+searchCollection("Amarone")
 .then(async results => {
-  console.log(results?.length);
-  
   const matches = await lookupPriceInSystembolaget(results?.map(p => p.document) ?? []);
-  console.log("Matches: " + matches.length);  
+  if(matches.length > 0)
+    matches.map(m => {
+      console.log(`---------------------`);
+      console.log(`${m[0].Name}`);
+      console.log(`Vinmonopolet: ${m[0].LatestPrice} NOK`)
+      console.log(`Systembolaget: ${m[1].price} SEK`)
+    });
+  else
+    console.log("nothing");
 });
