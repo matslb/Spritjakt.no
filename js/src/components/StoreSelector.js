@@ -4,7 +4,7 @@ import Select from "react-select";
 import sortArray from "sort-array";
 import React, { useState, useEffect } from "react";
 import StoreCacher from "../services/storeCache";
-
+import "./css/storeSelector.css";
 const StoreSelector = ({
   stores,
   selectedStores,
@@ -109,8 +109,8 @@ const StoreSelector = ({
       <Select
         value={selectedOptions}
         onChange={handleStoreUpdate}
-        style={{ zIndex: 1 }}
         isMulti
+        styles={{ background: "black" }}
         options={storeOptions}
         noOptionsMessage={() => "Fant niks og nada"}
         placeholder={"Filtrer på Butikk"}

@@ -92,7 +92,8 @@ NewProductUpdateRecord = (productData, stores, year, vintageComment) => {
 
   return {
     AvailableOnline:
-      productData.availability?.deliveryAvailability?.available || false,
+      productData.productAvailability?.deliveryAvailability
+        ?.availableForPurchase || false,
     Buyable: productData.buyable || false,
     Id: productData.code || "",
     Expired: productData.expired || false,
@@ -109,7 +110,8 @@ NewProductUpdateRecord = (productData, stores, year, vintageComment) => {
     IsVintage: false,
     VintageComment: vintageComment,
     Stores: (stores || []).concat(
-      productData.availability?.deliveryAvailability?.available === true
+      productData.productAvailability?.deliveryAvailability
+        ?.availableForPurchase === true
         ? ["online"]
         : []
     ),

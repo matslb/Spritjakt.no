@@ -2,7 +2,7 @@ import { SearchClient as TypesenseSearchClient } from "typesense";
 import config from "../config.json";
 import { sortOptions } from "../utils/utils";
 
-const collection = "Products_v1.52";
+const collection = "Products_v1.53";
 
 class TypeSenseClient {
   constructor() {

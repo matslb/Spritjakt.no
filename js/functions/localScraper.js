@@ -70,7 +70,7 @@ async function UpdatePrices() {
   customLog("Fetching new products:", true);
   let reconnectAttempted = false;
   // Creating new products in db
-  /*
+
   let newProducts = await VmpClient.GetNewProductList();
   let newProductIds = newProducts.map((p) => p.Id);
 
@@ -96,7 +96,7 @@ async function UpdatePrices() {
       }
     }
   }
-    */
+
   customLog("Starting Product price fetch", true);
   //Updating existing products
   const products = await FirebaseClient.GetProductsToBeUpdated();
