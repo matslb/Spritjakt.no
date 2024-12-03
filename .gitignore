@@ -19,9 +19,8 @@ firebase.json
 database-debug.log
 
 # production
-/build
 ts/build
-js/build/static
+js/build
 # misc
 .DS_Store
 .env.local
