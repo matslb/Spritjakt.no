@@ -364,14 +364,10 @@ class MainContent extends React.Component {
     } else {
       this.setUrlParams("product", productId);
       let product = this.state.productResult.find((p) => p.Id === productId);
-      if (product === undefined) {
+      if (productId.includes("x")) {
+        product = await SpritjaktClient.FetchSingleProductVintage(productId);
+      } else if (product === undefined) {
         product = await SpritjaktClient.FetchProductById(productId);
-      }
-      if (
-        product.RawMaterials != undefined &&
-        !Array.isArray(product.RawMaterials)
-      ) {
-        product.RawMaterials = [product.RawMaterials];
       }
       this.setState({ highlightedProduct: product });
       firebase.analytics().logEvent("highlight_product");

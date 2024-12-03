@@ -37,6 +37,29 @@ class SpritjaktClient {
     return p;
   }
 
+  static async FetchSingleProductVintage(id) {
+    const baseId = id.split("x")[0];
+    const vintageRef = await firebase
+      .firestore()
+      .collection("Vintages")
+      .doc(baseId)
+      .collection("Vintages")
+      .doc(id)
+      .get();
+    return vintageRef.data();
+  }
+
+  static async FetchProductVintages(id) {
+    const baseId = id.split("x")[0];
+    const vintageRef = await firebase
+      .firestore()
+      .collection("Vintages")
+      .doc(baseId)
+      .collection("Vintages")
+      .get();
+    return vintageRef.docs.map((d) => d.data());
+  }
+
   static async FetchIdByBarcode(code) {
     let data = await axios(
       "https://app.vinmonopolet.no/vmpws/v2/vmp/products/barCodeSearch/" +

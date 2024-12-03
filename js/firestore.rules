@@ -6,6 +6,10 @@ service cloud.firestore {
       allow read: if true
       allow write: if false;
     }
+    match /Vintages/{document=**} {
+      allow read: if true
+      allow write: if false;
+    }
 		match /Stores/{document=**} {
       allow read: if true;
       allow write: if false;

@@ -2,7 +2,7 @@
 
 import Typesense from 'typesense';
 import { Product } from './typesense-schema';
-import config from '../config';
+import config from '../../../config';
 
 // Initialize Typesense client
 const typesense = new Typesense.Client({
@@ -26,7 +26,7 @@ export async function searchCollection(query: string) {
       per_page: 10
     };
 
-    const searchResults = await typesense.collections<Product>('Products_v1.52')
+    const searchResults = await typesense.collections<Product>('Products_v1.53')
       .documents()
       .search(searchParameters);
 
@@ -40,7 +40,7 @@ export async function searchCollection(query: string) {
 // Function to retrieve a document by ID
 export async function getDocumentById(id: string) {
   try {
-    const document = await typesense.collections<Product>('Products_v1.52')
+    const document = await typesense.collections<Product>('Products_v1.53')
       .documents(id)
       .retrieve();
 

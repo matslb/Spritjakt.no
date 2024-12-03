@@ -134,9 +134,11 @@ module.exports = class FirebaseClient {
     expiredProduct.IsVintage = true;
     delete expiredProduct.StoreStock;
 
-    firebase
+    await firebase
       .firestore()
-      .collection("Products")
+      .collection("Vintages")
+      .doc(sp.Id)
+      .collection("Vintages")
       .doc(expiredProduct.Id)
       .set(expiredProduct);
   }

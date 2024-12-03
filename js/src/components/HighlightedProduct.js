@@ -19,8 +19,6 @@ import StoreCacher from "../services/storeCache";
 import debounce from "lodash.debounce";
 import emptyGraph from "../assets/emptyGraph.png";
 import { isMobile } from "react-device-detect";
-import TypeSenseClient from "../services/typeSenseClient";
-import sortArray from "sort-array";
 
 const HighlightedProduct = ({ product, notification, highlightProduct }) => {
   const [user, setUser] = useState(false);
@@ -82,26 +80,12 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
   }, [product]);
 
   const fetchVintages = async () => {
-    const typesenseClient = new TypeSenseClient();
-    const productVintages = await typesenseClient.fetchProductVintages(
+    const base = await SpritjaktClient.FetchProductById(
       product.Id.split("x")[0]
     );
-    setVintages(
-      sortArray(
-        productVintages.hits
-          ?.filter(
-            (p) =>
-              p.document.Id.split("x")[0] == product.Id.split("x")[0] &&
-              p.document.Year != undefined
-          )
-          .map((p) => {
-            return { year: p.document.Year, id: p.document.Id };
-          }),
-        {
-          by: "year",
-        }
-      )
-    );
+    let vintages = await SpritjaktClient.FetchProductVintages(product.Id);
+    vintages.push(base);
+    setVintages(vintages);
   };
 
   const debouncedChangeHandler = useCallback(
@@ -239,15 +223,15 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
         <div className="vintageButtons">
           {vintages.map((v) => (
             <button
-              key={v.year}
+              key={v.Year}
               onClick={() =>
-                product.Year == v.year ? null : highlightProduct(v.id)
+                product.Year == v.Year ? null : highlightProduct(v.Id)
               }
               className={
-                "clickable" + (v.year == product.Year ? " bigGoldBtn" : "")
+                "clickable" + (v.Year == product.Year ? " bigGoldBtn" : "")
               }
             >
-              {v.year}
+              {v.Year}
             </button>
           ))}
         </div>

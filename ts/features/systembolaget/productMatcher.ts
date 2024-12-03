@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import { searchCollection } from "./services/typesenseService";
-const firebaseAdminCert = require("./firebase-admin-cert.json");
+const firebaseAdminCert = require("../../js/functions/configs/serviceAccountKey.json");
 import { Product } from "./services/typesense-schema";
 import Fuse from "fuse.js";
 const admin = require('firebase-admin');

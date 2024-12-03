@@ -152,7 +152,7 @@ const Product = ({
           )}
         <span className="volume secondary">{product.Volume.toFixed(1)} cl</span>
         <span className="alcohol secondary">Alk. {product.Alcohol}%</span>
-        {product.swedishPriceDif && (
+        {product.SwedishPriceDif && (
           <span className="sek">
             {product.swedishPriceDiff} kr billigere i Sverige!
           </span>
