@@ -16,11 +16,11 @@ var util = require("util");
 const { exec } = require("child_process");
 const { Console } = require("console");
 var log_stdout = process.stdout;
-let date = new Date();
 var log_file;
-const log_File_name = () =>
-  __dirname + "/logs/" + date.toISOString().slice(0, 10) + ".log";
-
+const log_File_name = () => {
+  let date = new Date();
+  return __dirname + "/logs/" + date.toISOString().slice(0, 10) + ".log";
+};
 customLog = function (message, useConsole = false) {
   log_file.write(util.format(message) + "\n");
   if (useConsole) log_stdout.write(util.format(message) + "\n");

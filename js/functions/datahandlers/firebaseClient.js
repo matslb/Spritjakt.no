@@ -171,7 +171,6 @@ module.exports = class FirebaseClient {
       .orderBy("LastPriceFetchDate", "asc")
       .where("LastPriceFetchDate", "<", yesterDay)
       .where("Expired", "==", false)
-      .where("IsVintage", "==", false)
       .limit(today == 1 ? 35000 : 18000)
       .get()
       .then(function (qs) {
@@ -191,7 +190,6 @@ module.exports = class FirebaseClient {
       .where("LastPriceFetchDate", "<", yesterDay)
       .where("Buyable", "==", true)
       .where("Expired", "==", true)
-      .where("IsVintage", "==", false)
       .limit(1000)
       .get()
       .then(function (qs) {
@@ -211,7 +209,6 @@ module.exports = class FirebaseClient {
       .where("LastPriceFetchDate", "<", yesterDay)
       .where("Buyable", "==", false)
       .where("Expired", "==", true)
-      .where("IsVintage", "==", false)
       .limit(100)
       .get()
       .then(function (qs) {
@@ -254,7 +251,7 @@ module.exports = class FirebaseClient {
                 Stores: [],
               };
             }
-            if (!p.Id.includes("x") && p.PriceHistory?.length > 1) {
+            if (p.PriceHistory?.length > 1) {
               products.push(p);
             }
           });
@@ -311,9 +308,7 @@ module.exports = class FirebaseClient {
         if (!qs.empty) {
           qs.forEach((p) => {
             let product = p.data();
-            if (!product.Id.includes("x")) {
-              products.push(product);
-            }
+            products.push(product);
           });
         }
       });
