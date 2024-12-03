@@ -23,7 +23,7 @@ export async function searchCollection(query: string) {
     const searchParameters = {
       q: query,
       query_by: 'Name',
-      per_page: 20
+      per_page: 10
     };
 
     const searchResults = await typesense.collections<Product>('Products_v1.52')
