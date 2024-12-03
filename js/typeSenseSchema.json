@@ -1,5 +1,5 @@
 {
-    "name": "Products_v1.52",
+    "name": "Products_v1.53",
     "fields": 
     [
       {
@@ -132,6 +132,13 @@
         "facet": false,
         "index": true,
         "name": "VivinoRating",
+        "optional": true,
+        "type": "float"
+    },
+    {
+        "facet": false,
+        "index": true,
+        "name": "SwedishPriceDiff",
         "optional": true,
         "type": "float"
     }

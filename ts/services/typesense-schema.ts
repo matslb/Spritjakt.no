@@ -19,7 +19,7 @@ export interface Product {
     IsVintage?: boolean;                   // Optional boolean
     Expired?: boolean;                     // Optional boolean
     VivinoRating?: number;                 // Optional float
-    SwedishPrice: number;
     Year: string;
     normalizedName: string
+    SwedishPriceDiff?: number;
   }

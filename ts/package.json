@@ -9,7 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "firebase": "^11.0.2",
+    "firebase-admin": "^13.0.0",
+    "firebase-tools": "^13.26.0",
     "fuse.js": "^7.0.0",
+    "tsc": "^2.0.4",
     "typesense": "^1.8.2"
   },
   "devDependencies": {
