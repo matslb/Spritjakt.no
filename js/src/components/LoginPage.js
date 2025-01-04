@@ -8,7 +8,6 @@ import queryString from "query-string";
 import ThirdPartyLogin from "./ThirdPartyLogin";
 import { formTypes, providers } from "../utils/utils";
 import googleImg from "../assets/google.png";
-import facebookImg from "../assets/facebook.png";
 import emailImg from "../assets/email.svg";
 import UserCacher from "../services/userCache";
 
@@ -26,9 +25,7 @@ function providerOption(provider, providerImg, setFormType) {
         style={{ imageRendering: "-webkit-optimize-contrast" }}
       />
       <p>
-        Logg inn med{" "}
-        <span style={{ textTransform: "capitalize" }}>{provider}</span>-kontoen
-        din
+        Logg inn med <span>{provider}</span>
       </p>
       <button
         className="clickable iconBtn dark"
@@ -89,7 +86,6 @@ const LoginPage = () => {
           {provider === null && (
             <div className="selectLoginProvider">
               {providerOption(providers.google, googleImg, setFormType)}
-              {providerOption(providers.facebook, facebookImg, setFormType)}
               {providerOption(providers.email, emailImg, setFormType)}
             </div>
           )}

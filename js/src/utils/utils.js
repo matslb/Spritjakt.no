@@ -1,5 +1,4 @@
 import googleImg from "../assets/google.png";
-import facebookImg from "../assets/facebook.png";
 import appleImg from "../assets/apple.svg";
 import emailImg from "../assets/email.svg";
 import firebase from "firebase/compat/app";
@@ -58,17 +57,14 @@ export const formTypes = {
 };
 
 export const providers = {
-  google: "google",
-  facebook: "facebook",
-  email: "epost",
+  google: "Google",
+  email: "e-post",
 };
 
 export const getProviderAuth = (provider) => {
   switch (provider.replace(".com", "")) {
     case providers.google:
       return new firebase.auth.GoogleAuthProvider();
-    case providers.facebook:
-      return new firebase.auth.FacebookAuthProvider();
     default:
       return null;
   }
@@ -77,10 +73,6 @@ export const getProviderImg = (provider) => {
   switch (provider) {
     case providers.google:
       return googleImg;
-    case providers.facebook:
-      return facebookImg;
-    case providers.apple:
-      return appleImg;
     default:
       return emailImg;
   }

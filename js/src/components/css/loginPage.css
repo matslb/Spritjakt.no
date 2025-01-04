@@ -48,29 +48,17 @@
 
 .selectLoginProvider {
   display: grid;
-  grid-template-areas: "google facebook" "epost epost";
+  grid-template-areas: "google epost";
   gap: 1rem;
   padding: 1rem;
-}
-
-.facebook {
-  grid-area: facebook;
 }
 
 .google {
   grid-area: google;
 }
 
-.loginProvider.epost {
-  grid-area: epost;
-  font-size: 0.8rem;
-  max-height: 5rem;
-  margin: 4vh auto 0;
-  padding: 0.5rem;
-}
-
-.loginProvider.epost img {
-  height: 40px;
+.loginProvider.e-post img {
+  opacity: 0.8;
 }
 
 .loginProvider {
@@ -89,6 +77,7 @@
   max-width: 14rem;
   width: 80%;
   margin: auto;
+  height: 100%;
 }
 
 .loginProvider button {

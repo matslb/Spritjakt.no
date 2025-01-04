@@ -30,8 +30,8 @@ class App extends React.Component {
             <br />
             Når du oppretter en bruker på spritjakt.no vil navn og e-post lagres
             og brukes til å sende personaliserte e-postvarsler. <br />
-            Ved innlogging gjennom en tredjepart som Facebook eller Google får
-            Spritjakt.no tilgang til navnet ditt og e-posten din. <br />
+            Ved innlogging gjennom Google får Spritjakt.no tilgang til navnet
+            ditt og e-posten din. <br />
             Når du sletter brukeren din vil dataene også slettes for godt.
           </p>
           <p>
