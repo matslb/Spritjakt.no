@@ -34,14 +34,12 @@ const options = {
 };
 const greetings = [
   "Tørst?",
-  "Halla Balla!",
-  "Hei Sveis!",
-  "Sjallabais sjef!",
-  "God dag mann, økseskaft!",
-  "Hallo i luken!",
-  "Heisann Sveisann!",
-  "G'day mate!",
+  "Halla balla!",
+  "Hei sveis!",
+  "Cheers, mate!",
+  "Åssen går det?",
   "Tittei, her er jeg!",
+  "Skål!",
 ];
 
 module.exports = class NotificationClient {
@@ -156,7 +154,7 @@ module.exports = class NotificationClient {
 
   static CreateNewsLetterEmail(products) {
     let greeting = greetings[Math.floor(Math.random() * greetings.length)];
-    let subheader = "Det er nye tilbud i dag, og det er jo artig!";
+    let subheader = "Spritjakt har oppdaget noen nye prisfall";
     let email = this.CreateEmail(greeting, subheader, products);
     email.subject = "Ny dag, nye priser";
     return email;
@@ -190,10 +188,10 @@ module.exports = class NotificationClient {
       ? "Hei " + userFilterMatch.user.name
       : greetings[Math.floor(Math.random() * greetings.length)];
     let subject =
-      "Ditt lagrede filter har fått " +
+      "Filteret ditt har fått " +
       userFilterMatch.products.length +
       (userFilterMatch.products.length > 1 ? " nye" : " nytt") +
-      " tilbud!";
+      " prisfall!";
     let subheader = subject;
     let email = this.CreateEmail(
       greeting,
@@ -211,7 +209,8 @@ module.exports = class NotificationClient {
       ? "Hei " + userFavoriteMatch.user.name
       : greetings[Math.floor(Math.random() * greetings.length)];
     let subheader =
-      userFavoriteMatch.products.length + " av favorittene dine er på tilbud!";
+      userFavoriteMatch.products.length +
+      " av favorittene dine er satt ned i pris!";
     let email = this.CreateEmail(
       greeting,
       subheader,
@@ -230,7 +229,7 @@ module.exports = class NotificationClient {
           "Det er " +
           count +
           (count > 1 ? " nye" : " nytt") +
-          " tilbud i dag, og det er jo artig!",
+          " prisfall i dag, og det er jo artig!",
         image: "https://spritjakt.no/logo.jpg",
       },
       webpush: {
@@ -259,7 +258,7 @@ module.exports = class NotificationClient {
           "Filteret ditt har fått " +
           userFilterMatch.products.length +
           (userFilterMatch.products.length > 1 ? " nye" : " nytt") +
-          " tilbud!",
+          " prisfall!",
         body: "Klikk her for å lese mer.",
         image: "https://spritjakt.no/logo.jpg",
       },
@@ -290,9 +289,9 @@ module.exports = class NotificationClient {
     await userFavoriteMatch.products.forEach(async (p) => {
       if (p.Name.length > 20) {
         message.notification.title =
-          p.Name.slice(0, 20) + "(...) er på tilbud!";
+          p.Name.slice(0, 20) + "(...) er på satt ned i pris!";
       } else {
-        message.notification.title = p.Name + " er på tilbud!";
+        message.notification.title = p.Name + " er satt ned i pris!";
       }
 
       message.notification.body =
@@ -310,8 +309,8 @@ module.exports = class NotificationClient {
     email.text = subheader;
 
     if (products.length > 10) {
-      subheader += "<br />Her er et utdrag av de beste tilbudene.";
-      email.text += "\nHer er et utdrag av de beste tilbudene:";
+      subheader += "<br />Her er et utdrag av de største prisfallene.";
+      email.text += "\nHer er et utdrag av de største prisfallene:";
       products = products.slice(0, 9);
     }
     email.html = email.html.replace(/&SubHeader&/g, subheader);

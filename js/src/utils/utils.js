@@ -114,7 +114,7 @@ export const iosCopyToClipboard = (href) => {
 
 export const sortOptions = [
   {
-    label: "Siste tilbud",
+    label: "Siste prisfall",
     value: "latest_discount",
     typeSenseValue: "PriceIsLowered:desc, LastUpdated:desc , PriceChange:asc",
   },
@@ -124,7 +124,7 @@ export const sortOptions = [
     typeSenseValue: "_text_match:desc, LastUpdated:desc, PriceChange:asc",
   },
   {
-    label: "Beste tilbud",
+    label: "Største prisfall",
     value: "discounted",
     typeSenseValue: "_text_match:desc, PriceChange:asc",
   },

@@ -7,13 +7,11 @@ var HTMLParser = require("node-html-parser");
 const { HeaderGenerator, PRESETS } = require("header-generator");
 const { XMLParser } = require("fast-xml-parser");
 const ProductSearchParser = require("./Models/ProductSearchResult");
-const { error } = require("firebase-functions/logger");
 const parser = new XMLParser();
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const firebase = require("firebase-admin");
 const path = require("path");
-const fs = require("fs");
 
 require("firebase/firestore");
 
@@ -242,20 +240,16 @@ class VmpClient {
     }
   }
 
-  static async FetchProductRating(productId, name) {
+  static async FetchProductRatingFromSource1(productId, name) {
     let rating = null;
-    let ratingComment = null;
 
     name = encodeURIComponent(name.replace(/(\d\d\d\d)/, ""));
     return await axios
-      .get("https://www.aperitif.no/pollisten?query=" + name)
+      .get(`${config.ratingSource1}?query=${name}`)
       .then(async function (res) {
         let pageRoot = HTMLParser.parse(res.data);
         let ratingHtml = pageRoot.querySelectorAll(
           ".product-list-element .group-2 .points .number"
-        );
-        let urlHtml = pageRoot.querySelectorAll(
-          ".product-list-element .group-1  a"
         );
         let results = pageRoot.querySelectorAll(
           ".product-list-element .group-1  .detail .index"
@@ -268,27 +262,13 @@ class VmpClient {
           return {
             productId: productId,
             rating: null,
-            comment: null,
-            ratingUrl: null,
           };
         }
-
-        let url =
-          urlHtml.length > 0 ? urlHtml[matchIndex].attributes.href : null;
         rating = parseInt(ratingHtml[matchIndex].innerText);
-        url = "https://www.aperitif.no/" + url;
-        await axios.get(url).then(async function (res) {
-          let pageRoot = HTMLParser.parse(res.data);
-          let commentHtml = pageRoot.querySelectorAll("h2.conclusion");
-          ratingComment =
-            commentHtml.length > 0 ? commentHtml[0].innerText : null;
-        });
         console.info("Successfully fetched product rating: " + productId);
         return {
           productId: productId,
           rating: rating,
-          comment: ratingComment,
-          ratingUrl: url,
         };
       })
       .catch((err) => {
@@ -296,20 +276,18 @@ class VmpClient {
         return {
           productId: productId,
           rating: rating,
-          comment: null,
-          ratingUrl: null,
         };
       });
   }
 
-  static async GetProductRatingFromVivino(productName) {
+  static async GetProductRatingFromSource2(productName) {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     var headers = headerGenerator.getHeaders();
     delete headers["accept"];
 
     var options = {
       method: "get",
-      url: `https://www.vivino.com/search/wines?q=${encodeURIComponent(
+      url: `${config.ratingSource2}search/wines?q=${encodeURIComponent(
         productName
       )}`,
       jar: cookieJar,
@@ -331,7 +309,7 @@ class VmpClient {
           ? card.querySelector(".average__number").textContent.trim()
           : null;
         const url = nameElement.href
-          ? `https://www.vivino.com/wines${
+          ? `${config.ratingSource2}wines${
               nameElement.getAttribute("href").split("/wines")[1]
             }`
           : null;
@@ -358,7 +336,10 @@ class VmpClient {
         return { error: "No exact match found" };
       }
     } catch (error) {
-      console.error("Failed to get product rating from Vivino:", error);
+      console.error(
+        `Failed to get product rating from ${ratingSource2}:`,
+        error
+      );
       throw error;
     }
   }

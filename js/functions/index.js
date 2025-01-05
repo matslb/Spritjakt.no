@@ -119,7 +119,7 @@ exports.checkProductRatings = functions
     let products = await FirebaseClient.GetProductsWithOldRating();
     for (const product of products) {
       if (!product.Id.includes("x")) {
-        let ratingResult = await VmpClient.FetchProductRating(
+        let rating1 = await VmpClient.FetchProductRatingFromSource1(
           product.Id,
           product.Name
         );
@@ -128,21 +128,21 @@ exports.checkProductRatings = functions
           .collection("Products")
           .doc(product.Id);
         var p = (await productRef.get()).data();
-        let { vivinoRating, url } = await VmpClient.GetProductRatingFromVivino(
+        let { rating2, url } = await VmpClient.GetProductRatingFromSource2(
           p.Name
         );
 
         var rating = null;
-        if (ratingResult.rating != null) {
-          rating = Utils.convertRating(ratingResult.rating, 54, 99);
+        if (rating1.rating != null) {
+          rating = Utils.convertRating(rating1.rating, 54, 99);
         }
 
-        if (vivinoRating != undefined) {
-          var vivino = Utils.convertRating(vivinoRating, 1, 5);
-          if (ratingResult.rating != null) {
-            rating = Utils.mergeRatings(vivino, rating, 0.4, 1);
+        if (rating2 != undefined) {
+          var convertedrating2 = Utils.convertRating(rating2, 1, 5);
+          if (rating1.rating != null) {
+            rating = Utils.mergeRatings(convertedrating2, rating, 0.4, 1);
           } else {
-            rating = vivino - 0.2;
+            rating = convertedrating2 - 0.2;
           }
         }
 
@@ -161,7 +161,7 @@ exports.fetchProductRatingOnCreate = functions
   .onCreate(async (snap, context) => {
     const product = snap.data();
     if (!product.Id.includes("x")) {
-      let ratingResult = await VmpClient.FetchProductRating(
+      let rating1 = await VmpClient.FetchProductRatingFromSource1(
         product.Id,
         product.Name
       );
@@ -171,21 +171,21 @@ exports.fetchProductRatingOnCreate = functions
         .collection("Products")
         .doc(product.Id);
       var p = (await productRef.get()).data();
-      let { vivinoRating, url } = await VmpClient.GetProductRatingFromVivino(
+      let { rating2, url } = await VmpClient.GetProductRatingFromSource2(
         p.Name
       );
 
       var rating = null;
-      if (ratingResult.rating != null) {
-        rating = Utils.convertRating(ratingResult.rating, 54, 99);
+      if (rating1.rating != null) {
+        rating = Utils.convertRating(rating1.rating, 54, 99);
       }
 
-      if (vivinoRating != undefined) {
-        var vivino = Utils.convertRating(vivinoRating, 1, 5);
-        if (ratingResult.rating != null) {
-          rating = Utils.mergeRatings(vivino, rating, 0.4, 1);
+      if (rating2 != undefined) {
+        var convertedrating2 = Utils.convertRating(rating2, 1, 5);
+        if (rating1.rating != null) {
+          rating = Utils.mergeRatings(convertedrating2, rating, 0.4, 1);
         } else {
-          rating = vivino - 0.2;
+          rating = convertedrating2 - 0.2;
         }
       }
 

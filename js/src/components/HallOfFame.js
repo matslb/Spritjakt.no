@@ -93,7 +93,7 @@ const HallOfFame = () => {
                 </p>
               }
               icon={faAward}
-              title="Beste tilbud"
+              title="Største prisfall"
               positive={true}
               highlightProduct={highlightProduct.bind(this)}
             />

@@ -1,6 +1,5 @@
 const firebase = require("firebase-admin");
 const sortArray = require("sort-array");
-const VmpClient = require("./vmpClient");
 require("firebase/firestore");
 require("firebase/auth");
 
@@ -251,7 +250,7 @@ module.exports = class FirebaseClient {
                 Stores: [],
               };
             }
-            if (p.PriceHistory?.length > 1) {
+            if (p.PriceHistorySorted?.length > 1) {
               products.push(p);
             }
           });
@@ -352,7 +351,11 @@ module.exports = class FirebaseClient {
               userData.filters = [];
             }
             userData.id = uid;
-            if (userData.name) {
+            if (
+              userData.name &&
+              (userData.byEmail || userData.byPush) &&
+              (userData.onAll || userData.onFavorites || userData.onFilters)
+            ) {
               users.push(userData);
             }
           });
