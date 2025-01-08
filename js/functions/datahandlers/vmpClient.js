@@ -148,7 +148,7 @@ class VmpClient {
     const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
     var headers = headerGenerator.getHeaders();
     delete headers["accept"];
-    const propertyNames = ["Alkohol", "Sukker", "Syre"];
+
     var options = {
       method: "get",
       url: `https://www.vinmonopolet.no/p/${productId}`,
@@ -156,88 +156,149 @@ class VmpClient {
       headers: headers,
       withCredentials: true,
     };
+
     return await axios(options).then(async function (res) {
       const html = res.data;
 
       // Use jsdom to parse the HTML
       const dom = new JSDOM(html);
-      const document = dom.window.document;
+      const document = Array.from(
+        dom.window.document.getElementsByClassName("product__details")
+      )[0];
 
-      var productProps = VmpClient.GetProductPropsFromTag(document);
+      let typesString = VmpClient.GetAboutProductSection(document, "Varetype");
+      let types =
+        typesString?.split("-").map((type) => type.split(",")[0].trim()) ?? [];
+      let type = types[0];
+      let tags = VmpClient.GetTagsFromButtons(document, [
+        "Vegansk",
+        "Oransjevin",
+        "Naturvin",
+      ]);
 
-      // Object to store the properties
+      types = [...types, ...tags];
+
+      const isGoodFor = VmpClient.GetIsGoodForFromHtml(document, "Passer til");
       const properties = {
         Id: productId,
-        Price: productProps.price?.value ?? null,
-        Color: productProps.color ?? null,
-        StoragePotential: productProps.content?.storagePotential ?? null,
-        Smell: productProps.smell ?? null,
-        Taste: productProps.taste ?? null,
-        Volume: productProps.volume.value ?? null,
-        Alcohol: parseInt(
-          VmpClient.GetTrait(productProps.content.traits, "Alkohol")?.replace(
-            "%",
-            ""
-          ) ?? "0"
+        Alcohol: parseFloat(
+          VmpClient.GetTraitFromHtml(document, "Alkohol")
+            .replace("%", "")
+            .replace(",", ".")
         ),
-        Acid: VmpClient.GetTrait(productProps.content.traits, "Syre"),
-        Sugar: VmpClient.GetTrait(productProps.content.traits, "Sukker"),
-        Ingredients: productProps.content.ingredients ?? null,
-        IsGoodFor: productProps.content.isGoodFor ?? null,
-        Freshness: VmpClient.GetCharacteristic(
-          productProps.content.characteristics,
-          "Friskhet"
-        ),
-        Fullness: VmpClient.GetCharacteristic(
-          productProps.content.characteristics,
-          "Fylde"
-        ),
-        Sweetness: VmpClient.GetCharacteristic(
-          productProps.content.characteristics,
-          "Sødme"
-        ),
-        Sulfates: VmpClient.GetCharacteristic(
-          productProps.content.characteristics,
-          "Garvestoffer"
-        ),
+        Sugar: VmpClient.GetTraitFromHtml(document, "Sukker"),
+        Acid: VmpClient.GetTraitFromHtml(document, "Syre"),
+        IsGoodFor: isGoodFor,
+        IsGoodForList: isGoodFor.map((g) => g.name),
+        Freshness: VmpClient.GetCharacteristicFromHtml(document, "Friskhet"),
+        Fullness: VmpClient.GetCharacteristicFromHtml(document, "Fylde"),
+        Sulfates: VmpClient.GetCharacteristicFromHtml(document, "Garvestoffer"),
+        Sweetness: VmpClient.GetCharacteristicFromHtml(document, "Sødme"),
+        Bitterness: VmpClient.GetCharacteristicFromHtml(document, "Bitterhet"),
+        Ingredients: VmpClient.GetIngredientsFromHtml(document),
+        Smell: VmpClient.GetAboutProductSection(document, "Lukt"),
+        Taste: VmpClient.GetAboutProductSection(document, "Smak"),
+        Color: VmpClient.GetAboutProductSection(document, "Farge"),
+        Type: type ?? null,
+        Types: types,
       };
 
       return properties;
     });
   }
-  static GetTrait(list, slug) {
-    var value = list.find((x) => x.name === slug) ?? null;
-    if (value) return value.formattedValue;
+
+  static GetTraitFromHtml(document, traitName) {
+    const traitElement = Array.from(document.querySelectorAll("strong")).find(
+      (el) => el.textContent.trim() === traitName
+    );
+
+    if (traitElement) {
+      const valueElement = traitElement.nextElementSibling;
+      if (valueElement && valueElement.tagName === "SPAN") {
+        return valueElement.textContent.trim();
+      }
+    }
     return null;
   }
 
-  static GetCharacteristic(list, slug) {
-    var value = list?.find((x) => x.name === slug) ?? null;
-    if (value) return parseInt(value.value);
+  static GetIsGoodForFromHtml(document, listName) {
+    const block = Array.from(document.querySelectorAll("h2")).find(
+      (el) => el.textContent.trim() === listName
+    );
+
+    if (block) {
+      const isGoodForCodes = Array.from(
+        block.parentElement.querySelectorAll(".icon.product-icon.isGoodfor")
+      ).map((e) => {
+        const classList = e.className.split(" ");
+        return classList[classList.length - 1];
+      });
+      let isGoodForFormatted = [];
+      for (const isGoodFor of isGoodForDictionary) {
+        if (isGoodForCodes.some((c) => c === isGoodFor.code))
+          isGoodForFormatted.push(isGoodFor);
+      }
+      return isGoodForFormatted;
+    }
+    return [];
+  }
+
+  static GetCharacteristicFromHtml(document, characteristic) {
+    const characteristicElement = Array.from(
+      document.querySelectorAll("h2")
+    ).find((el) => el.textContent.trim() === "Karakteristikk");
+
+    if (characteristicElement) {
+      const elements = Array.from(
+        document.querySelectorAll(`li[aria-label*="${characteristic}, "]`)
+      );
+      if (elements && elements.length > 0) {
+        const ariaLabel = elements[0].getAttribute("aria-label");
+        if (ariaLabel) {
+          const match = ariaLabel.match(/\d+/);
+          return match ? parseInt(match[0]) : null;
+        }
+      }
+    }
     return null;
   }
 
-  static GetProductPropsFromTag(doc) {
-    const mainTag = doc.querySelector("main");
+  static GetIngredientsFromHtml(document) {
+    const ingredientParentElement = Array.from(
+      document.querySelectorAll(".icon-raastoff")
+    )[0];
 
-    if (!mainTag) {
-      console.error("Main tag not found");
-      return null;
+    if (ingredientParentElement) {
+      let ingredientElements = Array.from(
+        ingredientParentElement.nextElementSibling.children
+      );
+      if (ingredientElements) {
+        return ingredientElements.map((e) => ({
+          formattedValue: e.textContent,
+        }));
+      }
     }
+    return null;
+  }
 
-    const dataReactProps = mainTag.getAttribute("data-react-props");
+  static GetAboutProductSection(document, section) {
+    const sectionSibling = Array.from(
+      document.querySelectorAll(".product__tab-list li span")
+    )?.find((e) => e.textContent === section);
 
-    if (!dataReactProps) {
-      console.error("'data-react-props' attribute not found");
-      return null;
+    if (sectionSibling) {
+      let sectionElement = sectionSibling.nextElementSibling;
+      if (sectionElement) return sectionElement.textContent;
     }
+    return null;
+  }
 
-    try {
-      return JSON.parse(dataReactProps).product;
-    } catch (error) {
-      console.error("Failed to parse 'data-react-props':", error);
-      return null;
-    }
+  static GetTagsFromButtons(document, buttonTags) {
+    const tagButtons = Array.from(
+      document.querySelectorAll(`ul[class*="tag-list"] button`)
+    )?.filter((e) => buttonTags.includes(e.textContent));
+
+    return tagButtons?.map((b) => b.textContent) ?? [];
   }
 
   static async FetchProductRatingFromSource1(productId, name) {
@@ -344,5 +405,20 @@ class VmpClient {
     }
   }
 }
+
+const isGoodForDictionary = [
+  { code: "A", name: "Aperitif" },
+  { code: "B", name: "Skalldyr" },
+  { code: "C", name: "Fisk" },
+  { code: "D", name: "Lyst kjøtt" },
+  { code: "E", name: "Storfe" },
+  { code: "F", name: "Lam" },
+  { code: "G", name: "Småvilt" },
+  { code: "H", name: "Storvilt" },
+  { code: "L", name: "Ost" },
+  { code: "N", name: "Dessert" },
+  { code: "Q", name: "Svin" },
+  { code: "R", name: "Grønnsaker" },
+];
 
 module.exports = VmpClient;

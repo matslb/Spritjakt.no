@@ -77,16 +77,17 @@ async function UpdatePrices() {
   if (newProductIds.length > 0) {
     customLog(`Checking if ${newProductIds.length} products not in db`, true);
     let idsNotFound = await FirebaseClient.GetIdsNotInDb(newProductIds);
-    customLog(
-      `${idsNotFound.length} new products found. Creating them in database`,
-      true
-    );
+    if (idsNotFound.length > 0)
+      customLog(
+        `${idsNotFound.length} new products found. Creating them in database`,
+        true
+      );
     for (const id of idsNotFound) {
       process.stdout.write(
         `\r${idsNotFound.indexOf(id)} of ${idsNotFound.length} Created`
       );
       try {
-        let response = await VmpClient.GetProductDetailsWithStock(id, true);
+        let response = await VmpClient.GetProductDetailsWithStock(id, false);
         if (response.product) {
           await FirebaseClient.UpsertProduct(response.product);
         }
@@ -102,9 +103,10 @@ async function UpdatePrices() {
   const products = await FirebaseClient.GetProductsToBeUpdated();
   const p_batches = chunk(products, 100);
   let failcount = 0;
+  let totalErrors = 0;
   const start = Date.now();
   let statusMessage = "";
-  const progressbarWidth = 35;
+  const progressbarWidth = 20;
 
   for (const batch of p_batches) {
     var db_batch = firebase.firestore().batch();
@@ -126,12 +128,12 @@ async function UpdatePrices() {
         percentage * 100
       ).toFixed(0)}% | Fetched ${processed} of ${
         products.length
-      } products | Elapsed: ${elapsedString} | Remaining time: ${remainingString} `;
+      } products | Expired: ${totalErrors} | Errors: ${totalErrors} | Elapsed: ${elapsedString} | Remaining: ${remainingString} `;
       process.stdout.write(statusMessage);
       try {
         var detailsRes = await VmpClient.GetProductDetailsWithStock(
           product.Id,
-          product.Ingredients == undefined || product.LiterPriceAlcohol == NaN
+          true
         );
 
         if (detailsRes.product) {
@@ -149,10 +151,12 @@ async function UpdatePrices() {
             `Could not fetch price of product ${product.Id}. Error: ${detailsRes.error}`
           );
           failcount++;
+          totalErrors++;
         } else {
           customLog(
             `Product ${product.Id} was not found. Marking as 'Expired'`
           );
+
           await FirebaseClient.ExpireProduct(db_batch, product.Id);
         }
 

@@ -327,6 +327,7 @@ const HighlightedProduct = ({ product, notification, highlightProduct }) => {
               {renderTasteProfile(product.Fullness, "Fylde")}
               {renderTasteProfile(product.Sulfates, "Garvestoffer")}
               {renderTasteProfile(product.Sweetness, "Sødme")}
+              {renderTasteProfile(product.Bitterness, "Bitterhet")}
             </ul>
             <ul className="isGoodFor">{renderIsGoodFor()}</ul>
           </div>

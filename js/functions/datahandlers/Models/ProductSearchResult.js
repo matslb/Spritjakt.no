@@ -29,22 +29,6 @@ module.exports = class ProductSearchParser {
       year,
       vintageComment
     );
-
-    product.Types = [
-      ...new Set(
-        product.Types.concat(
-          facets
-            .find((x) => x.code === "mainCategory")
-            ?.values.map((f) => f.name)
-        ).map((t) => t.replaceAll(",", "."))
-      ),
-    ];
-
-    const categoriesInFacets = ["Vegansk", "Oransjevin", "Naturvin"];
-    categoriesInFacets.forEach((cat) => {
-      const exists = facets.find((x) => x.name === cat);
-      if (exists) product.Types.push(cat);
-    });
     return product ?? null;
   };
 
@@ -79,17 +63,6 @@ class FacetValue {
 }
 
 NewProductUpdateRecord = (productData, stores, year, vintageComment) => {
-  let types = [];
-
-  if (productData.main_category) types.push(productData.main_category.name);
-
-  if (productData.main_sub_category?.name) {
-    if (productData.main_sub_category.name.includes(", ")) {
-      types.push(productData.main_sub_category.name.split(", ")[0]);
-    }
-    types.push(productData.main_sub_category.name);
-  }
-
   return {
     AvailableOnline:
       productData.productAvailability?.deliveryAvailability
@@ -97,7 +70,6 @@ NewProductUpdateRecord = (productData, stores, year, vintageComment) => {
     Buyable: productData.buyable || false,
     Id: productData.code || "",
     Expired: productData.expired || false,
-    Types: types,
     Name: productData.name || "",
     Price: productData.price.value || {},
     ReleaseMode: productData.releaseMode || false,

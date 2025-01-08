@@ -143,17 +143,14 @@ module.exports = class FirebaseClient {
   }
 
   static async GetIdsNotInDb(ids) {
-    let idsNotFound = [];
-    const idsToIgnore = await FirebaseClient.GetConstant("ProductsToIgnore");
-    const filteredIds = ids.filter((id) => !idsToIgnore.includes(id));
-    return await firebase
-      .firestore()
-      .collection("Products")
-      .get()
-      .then((qs) => {
-        var idsInDb = qs.docs.map((d) => d.id);
-        return filteredIds.filter((id) => !idsInDb.includes(id));
-      });
+    const results = [];
+    const checks = ids.map(async (id) => {
+      const docRef = firebase.firestore().collection("Products").doc(id);
+      const docSnap = await docRef.get();
+      if (!docSnap.exists) results.push(id);
+    });
+    await Promise.all(checks);
+    return results;
   }
 
   static async GetProductsToBeUpdated() {
