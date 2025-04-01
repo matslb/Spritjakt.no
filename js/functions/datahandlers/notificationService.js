@@ -124,7 +124,7 @@ module.exports = class NotificationClient {
     return (
       filter.productTypes === undefined ||
       filter.productTypes.length === 0 ||
-      product.Types.find((t) => filter.productTypes.includes(t))
+      product.Types?.find((t) => filter.productTypes.includes(t))
     );
   }
   static ProductHasCountry(product, filter) {
@@ -138,7 +138,7 @@ module.exports = class NotificationClient {
     return (
       filter.stores === undefined ||
       filter.stores.length === 0 ||
-      product.Stores.find((s) => filter.stores.includes(s))
+      product.Stores?.find((s) => filter.stores.includes(s))
     );
   }
   static ProductPriceIsInRange(product, filter) {
@@ -339,7 +339,7 @@ module.exports = class NotificationClient {
         "\n--------------------------\n" +
         product.Name +
         " - " +
-        product.Types.join() +
+        product.Types?.join() +
         "\n\nNy pris: kr " +
         product.LatestPrice +
         "\nGammel pris: kr " +
@@ -377,7 +377,7 @@ module.exports = class NotificationClient {
       );
       productItem = productItem.replace(
         /&ProductDescription&/g,
-        product.Types.join()
+        product.Types?.join() ?? ""
       );
       html += productItem;
     }

@@ -330,7 +330,7 @@ module.exports = class FirebaseClient {
 
   static async GetUsers() {
     var users = [];
-    var authUsers = [];
+    var authedUsers = [];
     await firebase
       .firestore()
       .collection("Users")
@@ -350,8 +350,11 @@ module.exports = class FirebaseClient {
             userData.id = uid;
             if (
               userData.name &&
-              (userData.byEmail || userData.byPush) &&
-              (userData.onAll || userData.onFavorites || userData.onFilters)
+              (userData.notifications.byEmail ||
+                userData.notifications.byPush) &&
+              (userData.notifications.onAll ||
+                userData.notifications.onFavorites ||
+                userData.notifications.onFilters)
             ) {
               users.push(userData);
             }
@@ -360,17 +363,33 @@ module.exports = class FirebaseClient {
       })
       .catch((e) => console.log(e));
 
-    for (const i in users) {
-      let user = users[i];
+    var userChunks = this.chunk(users, 99);
+
+    for (const chunk of userChunks) {
+      let chunkIds = chunk.map((u) => {
+        return {
+          uid: u.id,
+        };
+      });
+
       await firebase
         .auth()
-        .getUser(user.id)
-        .then(async (userRecord) => {
-          user.email = userRecord.email;
-          authUsers.push(user);
+        .getUsers(chunkIds)
+        .then(async (res) => {
+          const users = res.users;
+          const notfound = res.notFound;
+          for (const user of chunk) {
+            user.email = users.find((u) => u.uid === user.id)?.email;
+            authedUsers.push(user);
+          }
         })
-        .catch((e) => console.log(e + " " + user.id));
+        .catch((e) => console.log(e));
     }
-    return users;
+    return authedUsers;
   }
+
+  static chunk = (arr, size) =>
+    Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+      arr.slice(i * size, i * size + size)
+    );
 };

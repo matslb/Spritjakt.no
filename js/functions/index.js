@@ -100,12 +100,10 @@ exports.sendNotifications = functions
       return;
     }
 
-    SortArray(products, {
-      by: "PriceChange",
-      order: "asc",
-    });
+    product = sortByField(products, "PriceChange", true);
 
     let users = await FirebaseClient.GetUsers();
+
     await NotificationClient.sendNotifications(products, users);
     console.log("Notifications complete");
   });
@@ -195,3 +193,11 @@ exports.fetchProductRatingOnCreate = functions
       });
     }
   });
+
+function sortByField(arr, field, ascending = true) {
+  return arr.sort((a, b) => {
+    if (a[field] < b[field]) return ascending ? -1 : 1;
+    if (a[field] > b[field]) return ascending ? 1 : -1;
+    return 0;
+  });
+}

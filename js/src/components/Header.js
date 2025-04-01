@@ -18,10 +18,7 @@ const Header = () => {
             </span>
           </h1>
         </a>
-        <h2>
-          Følg prisene på øl, vin og brennevin og se når Vinmonopolet setter ned
-          prisene.
-        </h2>
+        <h2>Se når Vinmonopolet setter ned prisene sine</h2>
       </div>
     </header>
   );

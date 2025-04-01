@@ -160,6 +160,7 @@ export const volumeOptions = [
   { label: "20 - 33 cl", value: "20..33" },
   { label: "34 - 49 cl", value: "34..49" },
   { label: "50 - 69 cl", value: "50..69" },
+  { label: "70 - 74 cl", value: "70..74" },
   { label: "75 - 99 cl", value: "75..99" },
   { label: "1 - 2,9 liter", value: "100..290" },
   { label: "3 liter og over", value: ">=300" },

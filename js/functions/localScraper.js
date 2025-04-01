@@ -104,6 +104,7 @@ async function UpdatePrices() {
   const p_batches = chunk(products, 100);
   let failcount = 0;
   let totalErrors = 0;
+  let totalExpired = 0;
   const start = Date.now();
   let statusMessage = "";
   const progressbarWidth = 20;
@@ -128,12 +129,12 @@ async function UpdatePrices() {
         percentage * 100
       ).toFixed(0)}% | Fetched ${processed} of ${
         products.length
-      } products | Expired: ${totalErrors} | Errors: ${totalErrors} | Elapsed: ${elapsedString} | Remaining: ${remainingString} `;
+      } products | Expired: ${totalExpired} | Errors: ${totalErrors} | Elapsed: ${elapsedString} | Remaining: ${remainingString} `;
       process.stdout.write(statusMessage);
       try {
         var detailsRes = await VmpClient.GetProductDetailsWithStock(
           product.Id,
-          true
+          false
         );
 
         if (detailsRes.product) {
@@ -156,7 +157,7 @@ async function UpdatePrices() {
           customLog(
             `Product ${product.Id} was not found. Marking as 'Expired'`
           );
-
+          totalExpired++;
           await FirebaseClient.ExpireProduct(db_batch, product.Id);
         }
 
@@ -176,7 +177,7 @@ async function UpdatePrices() {
             return;
           }
         }
-        await new Promise((r) => setTimeout(r, Math.random() * 500));
+        await new Promise((r) => setTimeout(r, Math.random() * 2000));
       } catch (e) {
         customLog(`Pricefetch failed. Error: ${e}`, true);
       }
