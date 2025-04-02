@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /Products/{document=**} {
+      allow read: if true
+      allow write: if false;
+    }
+    match /Vintages/{document=**} {
+      allow read: if true
+      allow write: if false;
+      
+      match /Vintages/{id}{
+        allow read: if true
+        allow write: if false;
+    	}
+    }
+		match /Stores/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /Constants/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /Users/{userId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+  }
+}

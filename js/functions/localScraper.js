@@ -177,7 +177,7 @@ async function UpdatePrices() {
             return;
           }
         }
-        await new Promise((r) => setTimeout(r, Math.random() * 2000));
+        await new Promise((r) => setTimeout(r, Math.random() * 8000));
       } catch (e) {
         customLog(`Pricefetch failed. Error: ${e}`, true);
       }
