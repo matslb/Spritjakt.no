@@ -1,6 +1,6 @@
 module.exports = class ProductSearchParser {
   static GetProductFromSearchResult = (productId, jsonData) => {
-    const facets = (jsonData.productSearchResult.facets || []).map(
+    const facets = (jsonData.facets || []).map(
       (facetData) => new Facet(facetData)
     );
     const stores = facets
@@ -16,9 +16,7 @@ module.exports = class ProductSearchParser {
         .find((x) => x.code === "Lagringsgrad")
         ?.values?.map((f) => f.code)[0] || "";
 
-    const productData = jsonData.productSearchResult.products.filter(
-      (p) => p.code == productId
-    )[0];
+    const productData = jsonData.products.filter((p) => p.code == productId)[0];
     if (!productData) return null;
 
     if (productData === null || productData === undefined) return null;

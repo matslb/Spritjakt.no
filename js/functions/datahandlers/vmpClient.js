@@ -99,7 +99,7 @@ class VmpClient {
     delete headers["accept"];
     const options = {
       method: "get",
-      url: `https://www.vinmonopolet.no/vmpws/v2/vmp/search?fields=FULL&pageSize=100&searchType=product&currentPage=0&q=${productId}:relevance`,
+      url: `https://www.vinmonopolet.no/vmpws/v2/vmp/products/search?fields=FULL&pageSize=24&currentPage=0&q=${productId}:relevance`,
       jar: cookieJar,
       headers: headers,
       withCredentials: true,

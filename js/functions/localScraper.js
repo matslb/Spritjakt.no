@@ -177,7 +177,12 @@ async function UpdatePrices() {
             return;
           }
         }
-        await new Promise((r) => setTimeout(r, Math.random() * 8000));
+        await new Promise((r) =>
+          setTimeout(
+            r,
+            Math.random() * (FirebaseClient.IsLastDayOfMonth() ? 250 : 3000)
+          )
+        );
       } catch (e) {
         customLog(`Pricefetch failed. Error: ${e}`, true);
       }
@@ -193,8 +198,8 @@ async function reConnectToVpn(country) {
   customLog("Attempting to re-connect to VPN...");
   customLog("Country: " + country);
   exec("vpnConnector.cmd " + country, { encoding: "utf-8" });
-  customLog("Waiting 10 seconds for VPN to start up...", true);
-  await new Promise((r) => setTimeout(r, 10000));
+  customLog("Waiting 60 seconds...", true);
+  await new Promise((r) => setTimeout(r, 60000));
 }
 
 function getVpnCountry() {
