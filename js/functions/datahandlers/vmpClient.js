@@ -160,11 +160,10 @@ class VmpClient {
     return await axios(options).then(async function (res) {
       const html = res.data;
 
-      // Use jsdom to parse the HTML
+      // Parse the full document; the page is now mostly script-driven and no
+      // longer exposes the old .product__details markup consistently.
       const dom = new JSDOM(html);
-      const document = Array.from(
-        dom.window.document.getElementsByClassName("product__details")
-      )[0];
+      const document = dom.window.document;
 
       let typesString = VmpClient.GetAboutProductSection(document, "Varetype");
       let types =
@@ -179,20 +178,22 @@ class VmpClient {
       types = [...types, ...tags];
 
       const isGoodFor = VmpClient.GetIsGoodForFromHtml(document, "Passer til");
+      const alcoholText = VmpClient.GetTraitFromHtml(document, "Alkohol");
       const properties = {
         Id: productId,
-        Alcohol: parseFloat(
-          VmpClient.GetTraitFromHtml(document, "Alkohol")
-            .replace("%", "")
-            .replace(",", ".")
-        ),
+        Alcohol: alcoholText
+          ? parseFloat(alcoholText.replace("%", "").replace(",", "."))
+          : null,
         Sugar: VmpClient.GetTraitFromHtml(document, "Sukker"),
         Acid: VmpClient.GetTraitFromHtml(document, "Syre"),
         IsGoodFor: isGoodFor,
         IsGoodForList: isGoodFor.map((g) => g.name),
         Freshness: VmpClient.GetCharacteristicFromHtml(document, "Friskhet"),
         Fullness: VmpClient.GetCharacteristicFromHtml(document, "Fylde"),
-        Sulfates: VmpClient.GetCharacteristicFromHtml(document, "Garvestoffer"),
+        Sulfates: VmpClient.GetCharacteristicFromHtml(
+          document,
+          "Garvestoffer"
+        ),
         Sweetness: VmpClient.GetCharacteristicFromHtml(document, "Sødme"),
         Bitterness: VmpClient.GetCharacteristicFromHtml(document, "Bitterhet"),
         Ingredients: VmpClient.GetIngredientsFromHtml(document),
@@ -208,50 +209,98 @@ class VmpClient {
   }
 
   static GetTraitFromHtml(document, traitName) {
-    const traitElement = Array.from(document.querySelectorAll("strong")).find(
-      (el) => el.textContent.trim() === traitName
-    );
+    const root = document.body || document;
+
+    const normalized = (value) => (value || "").replace(/\s+/g, " ").trim();
+
+    const traitElement = Array.from(
+      root.querySelectorAll("strong, dt, label, span, div")
+    ).find((el) => normalized(el.textContent) === traitName);
 
     if (traitElement) {
-      const valueElement = traitElement.nextElementSibling;
-      if (valueElement && valueElement.tagName === "SPAN") {
-        return valueElement.textContent.trim();
+      const candidates = [
+        traitElement.nextElementSibling,
+        traitElement.parentElement?.querySelector("span:not(:first-child)"),
+        traitElement.closest("dl")?.querySelector("dd"),
+        traitElement.closest("li")?.querySelector("span:last-child"),
+      ].filter(Boolean);
+
+      for (const valueElement of candidates) {
+        const text = normalized(valueElement.textContent);
+        if (text) return text;
       }
     }
+
+    const textMatch = Array.from(root.querySelectorAll("*")).find((el) => {
+      const text = normalized(el.textContent);
+      return text.startsWith(`${traitName} `) || text.includes(`${traitName}:`);
+    });
+
+    if (textMatch) {
+      const text = normalized(textMatch.textContent);
+      const value = text
+        .replace(new RegExp(`^${traitName}\\s*:?\\s*`, "i"), "")
+        .trim();
+      return value || null;
+    }
+
     return null;
   }
 
   static GetIsGoodForFromHtml(document, listName) {
-    const block = Array.from(document.querySelectorAll("h2")).find(
-      (el) => el.textContent.trim() === listName
-    );
+    const root = document.body || document;
 
-    if (block) {
-      const isGoodForCodes = Array.from(
-        block.parentElement.querySelectorAll(".icon.product-icon.isGoodfor")
-      ).map((e) => {
-        const classList = e.className.split(" ");
-        return classList[classList.length - 1];
-      });
-      let isGoodForFormatted = [];
-      for (const isGoodFor of isGoodForDictionary) {
-        if (isGoodForCodes.some((c) => c === isGoodFor.code))
-          isGoodForFormatted.push(isGoodFor);
-      }
-      return isGoodForFormatted;
-    }
-    return [];
+    const normalized = (value) => (value || "").replace(/\s+/g, " ").trim();
+
+    const sectionHeader = Array.from(
+      root.querySelectorAll("h1, h2, h3, h4, span, strong, div, p")
+    ).find((el) => {
+      const el_normalized = normalized(el.textContent);
+      return el_normalized === listName && el.children.length === 0;
+    });
+
+    if (!sectionHeader) return [];
+
+    // Find the containing list: the header's parent div should contain a <ul>
+    const container =
+      sectionHeader.parentElement ||
+      sectionHeader.closest("section") ||
+      root;
+
+    const listItems = Array.from(container.querySelectorAll("li"));
+
+    // Extract display names from list items
+    const names = listItems
+      .map((li) => {
+        // Look for a text label div inside the li
+        const labelDiv = li.querySelector("div:not(.icon)");
+        return labelDiv ? normalized(labelDiv.textContent) : null;
+      })
+      .filter(Boolean);
+
+    return isGoodForDictionary.filter((isGoodFor) =>
+      names.includes(isGoodFor.name)
+    );
   }
 
   static GetCharacteristicFromHtml(document, characteristic) {
+    const root = document.body || document;
+
     const characteristicElement = Array.from(
-      document.querySelectorAll("h2")
+      root.querySelectorAll("h2, h3, span")
     ).find((el) => el.textContent.trim() === "Karakteristikk");
 
     if (characteristicElement) {
+      const scope =
+        characteristicElement.closest("section") ||
+        characteristicElement.parentElement ||
+        root.body ||
+        root;
+
       const elements = Array.from(
-        document.querySelectorAll(`li[aria-label*="${characteristic}, "]`)
+        scope.querySelectorAll(`[aria-label*="${characteristic}, "]`)
       );
+
       if (elements && elements.length > 0) {
         const ariaLabel = elements[0].getAttribute("aria-label");
         if (ariaLabel) {
@@ -259,46 +308,109 @@ class VmpClient {
           return match ? parseInt(match[0]) : null;
         }
       }
+
+      const textElement = Array.from(scope.querySelectorAll("*")).find((el) =>
+        el.textContent && el.textContent.includes(characteristic)
+      );
+      if (textElement) {
+        const match = textElement.textContent.match(/(\d+)/);
+        return match ? parseInt(match[1]) : null;
+      }
     }
+
     return null;
   }
 
   static GetIngredientsFromHtml(document) {
-    const ingredientParentElement = Array.from(
-      document.querySelectorAll(".icon-raastoff")
-    )[0];
+    const root = document.body || document;
 
-    if (ingredientParentElement) {
-      let ingredientElements = Array.from(
-        ingredientParentElement.nextElementSibling.children
+    const normalized = (value) => (value || "").replace(/\s+/g, " ").trim();
+
+    // New structure: ingredients are inside the "Stil, lagring og råstoff" section
+    // as <div aria-label="Riesling 100 prosent">Riesling 100%</div>
+    const raastoffHeader = Array.from(
+      root.querySelectorAll("h2, h3, span, strong")
+    ).find((el) => {
+      const text = normalized(el.textContent);
+      return text.toLowerCase().includes("råstoff");
+    });
+
+    if (raastoffHeader) {
+      const container =
+        raastoffHeader.parentElement ||
+        raastoffHeader.closest("section") ||
+        root;
+
+      // Look for elements with aria-label containing "prosent"
+      const ingredientElements = Array.from(
+        container.querySelectorAll("[aria-label*='prosent']")
       );
-      if (ingredientElements) {
+
+      if (ingredientElements.length > 0) {
         return ingredientElements.map((e) => ({
-          formattedValue: e.textContent,
+          formattedValue: e.textContent.trim(),
         }));
       }
     }
+
+    // Fallback: old structure with .icon-raastoff
+    const ingredientParentElement = Array.from(
+      root.querySelectorAll(".icon-raastoff, [class*='raastoff']")
+    )[0];
+
+    if (ingredientParentElement) {
+      const sibling = ingredientParentElement.nextElementSibling;
+      if (sibling && sibling.children) {
+        let ingredientElements = Array.from(sibling.children);
+        if (ingredientElements) {
+          return ingredientElements.map((e) => ({
+            formattedValue: e.textContent.trim(),
+          }));
+        }
+      }
+    }
+
     return null;
   }
 
   static GetAboutProductSection(document, section) {
+    const root = document.body || document;
+
+    const normalized = (value) => (value || "").replace(/\s+/g, " ").trim();
+
     const sectionSibling = Array.from(
-      document.querySelectorAll(".product__tab-list li span")
-    )?.find((e) => e.textContent === section);
+      root.querySelectorAll(
+        ".product__tab-list li span, h2, h3, dt, button, a, span"
+      )
+    )?.find((e) => normalized(e.textContent) === section);
 
     if (sectionSibling) {
-      let sectionElement = sectionSibling.nextElementSibling;
-      if (sectionElement) return sectionElement.textContent;
+      const candidates = [
+        sectionSibling.nextElementSibling,
+        sectionSibling.parentElement?.nextElementSibling,
+        sectionSibling.closest("li")?.querySelector("p, div, span:last-child"),
+        sectionSibling.closest("section")?.querySelector(
+          ".content, .description, p, div"
+        ),
+      ].filter(Boolean);
+
+      for (const sectionElement of candidates) {
+        const text = normalized(sectionElement.textContent);
+        if (text) return text;
+      }
     }
+
     return null;
   }
 
   static GetTagsFromButtons(document, buttonTags) {
-    const tagButtons = Array.from(
-      document.querySelectorAll(`ul[class*="tag-list"] button`)
-    )?.filter((e) => buttonTags.includes(e.textContent));
+    const root = document.body || document;
 
-    return tagButtons?.map((b) => b.textContent) ?? [];
+    const tagButtons = Array.from(
+      root.querySelectorAll(`ul[class*="tag-list"] button, button, a, span`)
+    )?.filter((e) => buttonTags.includes(e.textContent.trim()));
+
+    return tagButtons?.map((b) => b.textContent.trim()) ?? [];
   }
 
   static async FetchProductRatingFromSource1(productId, name) {

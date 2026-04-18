@@ -21,7 +21,8 @@ const log_File_name = () => {
   let date = new Date();
   return __dirname + "/logs/" + date.toISOString().slice(0, 10) + ".log";
 };
-customLog = function (message, useConsole = false) {
+
+const customLog = function (message, useConsole = false) {
   log_file.write(util.format(message) + "\n");
   if (useConsole) log_stdout.write(util.format(message) + "\n");
 };
@@ -52,14 +53,14 @@ async function orchistrator() {
         `Finished run. It took ${new Date(new Date() - time)
           .toISOString()
           .slice(11, 19)} hours.`,
-        true
+        true,
       );
       reConnectToVpn("Norway");
     } else {
       log_stdout.write(
         `Not yet.. Sleeping for ${new Date(nextRunTime - time)
           .toISOString()
-          .slice(11, 19)}\n`
+          .slice(11, 19)}\n`,
       );
       await new Promise((r) => setTimeout(r, msLeft));
     }
@@ -80,18 +81,18 @@ async function UpdatePrices() {
     if (idsNotFound.length > 0)
       customLog(
         `${idsNotFound.length} new products found. Creating them in database`,
-        true
+        true,
       );
     for (const id of idsNotFound) {
       process.stdout.write(
-        `\r${idsNotFound.indexOf(id)} of ${idsNotFound.length} Created`
+        `\r${idsNotFound.indexOf(id)} of ${idsNotFound.length} Created`,
       );
       try {
         let response = await VmpClient.GetProductDetailsWithStock(id, false);
         if (response.product) {
           await FirebaseClient.UpsertProduct(response.product);
         }
-        await new Promise((r) => setTimeout(r, Math.random() * 500));
+        await new Promise((r) => setTimeout(r, Math.random() * 1500));
       } catch (e) {
         customLog(e, true);
       }
@@ -134,28 +135,29 @@ async function UpdatePrices() {
       try {
         var detailsRes = await VmpClient.GetProductDetailsWithStock(
           product.Id,
-          false
+          false,
         );
 
         if (detailsRes.product) {
           var found = await FirebaseClient.UpdateProduct(
             db_batch,
             product,
-            detailsRes.product
+            detailsRes.product,
           );
           if (found == false) {
             customLog(`Could not update Product ${product.Id}`);
+          } else {
+            customLog(`${product.Id} updaed successfully`);
           }
-          reconnectAttempted = false;
         } else if (detailsRes.error) {
           customLog(
-            `Could not fetch price of product ${product.Id}. Error: ${detailsRes.error}`
+            `Could not fetch price of product ${product.Id}. Error: ${detailsRes.error}`,
           );
           failcount++;
           totalErrors++;
         } else {
           customLog(
-            `Product ${product.Id} was not found. Marking as 'Expired'`
+            `Product ${product.Id} was not found. Marking as 'Expired'`,
           );
           totalExpired++;
           await FirebaseClient.ExpireProduct(db_batch, product.Id);
@@ -165,13 +167,13 @@ async function UpdatePrices() {
           if (reconnectAttempted === false) {
             reconnectAttempted = true;
             customLog(
-              `${failcount} products failed in a row. Attempting to re-connect`
+              `${failcount} products failed in a row. Attempting to re-connect`,
             );
             failcount = 0;
             await reConnectToVpn(getVpnCountry());
           } else {
             await NotificationClient.SendFetchErrorEmail(
-              "Henting av nye priser feilet"
+              "Henting av nye priser feilet",
             );
             customLog("Pricefetch failed", true);
             return;
@@ -180,8 +182,8 @@ async function UpdatePrices() {
         await new Promise((r) =>
           setTimeout(
             r,
-            Math.random() * (FirebaseClient.IsLastDayOfMonth() ? 250 : 3000)
-          )
+            Math.random() * (FirebaseClient.IsLastDayOfMonth() ? 250 : 3000),
+          ),
         );
       } catch (e) {
         customLog(`Pricefetch failed. Error: ${e}`, true);
@@ -218,5 +220,5 @@ function getVpnCountry() {
 }
 const chunk = (arr, size) =>
   Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
-    arr.slice(i * size, i * size + size)
+    arr.slice(i * size, i * size + size),
   );
