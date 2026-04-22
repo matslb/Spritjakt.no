@@ -120,7 +120,7 @@ class VmpClient {
         };
       })
       .catch(function (err) {
-        return { error: err };
+        return { error: err, statusCode: err.response?.status ?? null };
       });
   }
 

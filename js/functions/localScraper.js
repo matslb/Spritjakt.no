@@ -149,35 +149,39 @@ async function UpdatePrices() {
           } else {
             customLog(`${product.Id} updaed successfully`);
           }
+          failcount = 0;
         } else if (detailsRes.error) {
           customLog(
             `Could not fetch price of product ${product.Id}. Error: ${detailsRes.error}`,
           );
           failcount++;
           totalErrors++;
+
+          if (detailsRes.statusCode === 429) {
+            customLog(
+              `Rate limited (429). Attempting to re-connect VPN`,
+            );
+            failcount = 0;
+            await reConnectToVpn(getVpnCountry());
+          }
         } else {
           customLog(
             `Product ${product.Id} was not found. Marking as 'Expired'`,
           );
           totalExpired++;
           await FirebaseClient.ExpireProduct(db_batch, product.Id);
+          failcount = 0;
         }
 
-        if (failcount > 3) {
-          if (reconnectAttempted === false) {
-            reconnectAttempted = true;
-            customLog(
-              `${failcount} products failed in a row. Attempting to re-connect`,
-            );
-            failcount = 0;
-            await reConnectToVpn(getVpnCountry());
-          } else {
-            await NotificationClient.SendFetchErrorEmail(
-              "Henting av nye priser feilet",
-            );
-            customLog("Pricefetch failed", true);
-            return;
-          }
+        if (failcount > 5) {
+          await NotificationClient.SendFetchErrorEmail(
+            "Henting av nye priser feilet",
+          );
+          customLog(
+            `${failcount} products failed in a row. Aborting.`,
+            true,
+          );
+          return;
         }
         await new Promise((r) =>
           setTimeout(
