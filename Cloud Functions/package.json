@@ -4,17 +4,18 @@
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
-    "start": "npm run shell",
+    "start": "yarn shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
+  "type": "module",
   "engines": {
-    "node": "18"
+    "node": "22"
   },
   "dependencies": {
     "@types/tough-cookie": "^4.0.1",
     "axios": "^0.21.4",
-    "axios-cookiejar-support": "^1.0.1",
+    "axios-cookiejar-support": "^6.0.5",
     "fast-xml-parser": "^4.2.2",
     "firebase": "^9.6.2",
     "firebase-admin": "^12.0.0",
@@ -27,7 +28,7 @@
     "node-html-parser": "^3.3.6",
     "nodemailer": "^6.7.2",
     "sort-array": "^4.1.4",
-    "tough-cookie": "^4.0.0",
+    "tough-cookie": "^6.0.1",
     "typesense": "^1.0.2"
   },
   "devDependencies": {
