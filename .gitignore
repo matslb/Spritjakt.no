@@ -19,8 +19,8 @@ firebase.json
 database-debug.log
 
 # production
-ts/build
-js/build
+/App/build/
+/Cloud Functions/build/
 # misc
 .DS_Store
 .env.local
@@ -33,3 +33,5 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 *.bat
+/.idea
+*logs/
