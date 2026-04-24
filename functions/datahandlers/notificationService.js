@@ -53,9 +53,9 @@ const greetings = [
 
 export default class NotificationClient {
     static async sendNotifications(products, users) {
-        var userFilterMatches = [];
-        var userFavoriteMatches = [];
-        var onAllUsers = users.filter((u) => u.notifications.onAll);
+        let userFilterMatches = [];
+        let userFavoriteMatches = [];
+        const onAllUsers = users.filter((u) => u.notifications.onAll);
 
         users.forEach((user) => {
             if (
@@ -117,7 +117,7 @@ export default class NotificationClient {
             }
         }
 
-        for await (const user of onAllUsers) {
+        for (const user of onAllUsers) {
             if (user.notifications.byEmail) {
                 let email = this.CreateNewsLetterEmail(products);
                 email.to = user.email;
@@ -298,7 +298,7 @@ export default class NotificationClient {
             },
             topic: userFavoriteMatch.user.id,
         };
-        await userFavoriteMatch.products.forEach(async (p) => {
+        for (const p of userFavoriteMatch.products) {
             if (p.Name.length > 20) {
                 message.notification.title =
                     p.Name.slice(0, 20) + "(...) er på satt ned i pris!";
@@ -310,7 +310,7 @@ export default class NotificationClient {
                 "En endring på " + (p.PriceChange - 100).toFixed(1) + "%";
 
             await this.SendPush(message);
-        });
+        }
     }
 
     static CreateEmail(greeting, subheader, products, urlParams = "") {
@@ -398,12 +398,13 @@ export default class NotificationClient {
     }
 
     static async SendEmail(email) {
-        mg.messages
-            .create(emailConfig.mailgun.domain, email)
-            .then((msg) => console.log(msg))
-            .catch((err) => console.log(err));
-
-        await sleep(500);
+        try {
+            const msg = await mg.messages.create(emailConfig.mailgun.domain, email);
+            console.log(msg);
+        } catch (err) {
+            console.error(err);
+        }
+        await sleep(100);
     }
 
     static async SendPush(message) {

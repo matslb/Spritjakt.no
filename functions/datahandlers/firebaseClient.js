@@ -166,12 +166,10 @@ export default class FirebaseClient {
         await firebase
             .firestore()
             .collection("Products")
-            // TODO: Remove literprice patching.
-            //   .orderBy("LastPriceFetchDate", "asc")
-            //  .where("LastPriceFetchDate", "<", yesterDay)
-            .where("LiterPriceAlcohol", "==", NaN)
-            // .where("Expired", "==", false)
-            .limit(today == 1 ? 35000 : 10000)
+            .orderBy("LastPriceFetchDate", "asc")
+            .where("LastPriceFetchDate", "<", yesterDay)
+            .where("Expired", "==", false)
+            .limit(today === 1 ? 35000 : 10000)
             .get()
             .then(function (qs) {
                 if (!qs.empty) {

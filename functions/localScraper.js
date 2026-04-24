@@ -90,7 +90,7 @@ async function UpdatePrices() {
 
     const newProducts = await VmpClient.GetNewProductList();
     const newProductIds = newProducts.map((p) => p.Id);
-
+    // TODO: Fix vintages failing. Possibly because of missing data?
     if (newProductIds.length > 0) {
         customLog(`Checking if ${newProductIds.length} products not in db`, true);
 
@@ -121,6 +121,7 @@ async function UpdatePrices() {
                 );
             } catch (e) {
                 customLog(e, true);
+                return;
             }
         }
     }
@@ -170,7 +171,7 @@ async function UpdatePrices() {
                 const detailsRes =
                     await VmpClient.GetProductDetailsWithStock(
                         product.Id,
-                        true
+                        false
                     );
 
                 if (detailsRes.product) {

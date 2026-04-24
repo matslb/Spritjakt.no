@@ -1,0 +1,261 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "LastUpdated",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "Name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Buyable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "Expired",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "IsVintage",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastPriceFetchDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Buyable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "Expired",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastPriceFetchDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Buyable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "Expired",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastUpdated",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Buyable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "IsVintage",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Buyable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "PriceIsLowered",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastUpdated",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Buyable",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "Rating",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Buyable",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "Rating",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Expired",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "IsVintage",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastPriceFetchDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Expired",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastPriceFetchDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Expired",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastUpdated",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "IsVintage",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastPriceFetchDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "PriceIsLowered",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastUpdated",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "PriceIsLowered",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastUpdated",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "PriceChanges",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "PriceIsLowered",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastUpdated",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "PriceIsLowered",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "LastUpdated",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "PriceChanges",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

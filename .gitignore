@@ -11,7 +11,7 @@ config.ts
 configs
 .firebase
 .firebaserc
-firebase.json
+functions/firebase.json
 
 # testing
 *test.js
@@ -20,7 +20,7 @@ database-debug.log
 
 # production
 /App/build/
-/Cloud Functions/build/
+/functions/build/
 # misc
 .DS_Store
 .env.local
@@ -35,3 +35,5 @@ yarn-error.log*
 *.bat
 /.idea
 *logs/
+/functions/yarn.lock
+/App/yarn.lock

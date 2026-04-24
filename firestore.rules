@@ -1,7 +1,6 @@
-ules_version = '2';
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
     match /Products/{document=**} {
       allow read: if true
       allow write: if false;
@@ -9,6 +8,11 @@ service cloud.firestore {
     match /Vintages/{document=**} {
       allow read: if true
       allow write: if false;
+      
+      match /Vintages/{id}{
+        allow read: if true
+        allow write: if false;
+    	}
     }
 		match /Stores/{document=**} {
       allow read: if true;
