@@ -1,7 +1,7 @@
 import axios from "axios";
 import {wrapper} from "axios-cookiejar-support";
 import {CookieJar} from "tough-cookie";
-import * as HTMLParser from "node-html-parser";
+import {parse} from 'node-html-parser';
 import {HeaderGenerator, PRESETS} from "header-generator";
 import ProductSearchParser from "./Models/ProductSearchResult.js";
 import jsdom from "jsdom";
@@ -413,100 +413,125 @@ class VmpClient {
         return await axios
             .get(`${config.ratingSource1}?query=${name}`)
             .then(async function (res) {
-                let pageRoot = HTMLParser.parse(res.data);
+                let pageRoot = parse(res.data);
                 let ratingHtml = pageRoot.querySelectorAll(
                     ".product-list-element .group-2 .points .number"
                 );
                 let results = pageRoot.querySelectorAll(
                     ".product-list-element .group-1  .detail .index"
                 );
-                let matchIndex = results.findIndex((e) =>
+                const matchIndex = results.findIndex((e) =>
                     e.innerText.includes(productId)
                 );
-                if (matchIndex == -1) {
+                const ratingMatch = ratingHtml[matchIndex];
+                if (matchIndex === -1 || ratingMatch === undefined) {
                     console.log("skipping");
-                    return {
-                        productId: productId,
-                        rating: null,
-                    };
+                    return null;
                 }
                 rating = parseInt(ratingHtml[matchIndex].innerText);
                 console.info("Successfully fetched product rating: " + productId);
-                return {
-                    productId: productId,
-                    rating: rating,
-                };
+                return rating;
             })
             .catch((err) => {
                 console.error("Could not fetch product rating: " + productId);
-                return {
-                    productId: productId,
-                    rating: rating,
-                };
+                return rating;
             });
     }
 
     static async GetProductRatingFromSource2(productName) {
         const headerGenerator = new HeaderGenerator(PRESETS.MODERN_WINDOWS_CHROME);
-        var headers = headerGenerator.getHeaders();
-        delete headers["accept"];
+        const headers = headerGenerator.getHeaders();
+        delete headers.accept;
 
-        var options = {
-            method: "get",
-            url: `${config.ratingSource2}search/wines?q=${encodeURIComponent(
-                productName
-            )}`,
-            jar: cookieJar,
-            headers: headers,
-            withCredentials: true,
-        };
         try {
-            const response = await axios(options);
-            const html = await response.data;
-            const dom = new JSDOM(html);
-            const document = dom.window.document;
-            let result = null;
-
-            const cards = document.querySelectorAll(".search-results-list .card");
-            cards.forEach((card) => {
-                const nameElement = card.querySelector(".wine-card__name a");
-                const name = nameElement.textContent.trim();
-                const averageRating = card.querySelector(".average__number")
-                    ? card.querySelector(".average__number").textContent.trim()
-                    : null;
-                const url = nameElement.href
-                    ? `${config.ratingSource2}wines${
-                        nameElement.getAttribute("href").split("/wines")[1]
-                    }`
-                    : null;
-
-                var parsedRating = Number.parseFloat(averageRating.replace(",", "."));
-
-                if (
-                    name.toLowerCase() === productName.toLowerCase() &&
-                    !Number.isNaN(parsedRating)
-                ) {
-                    result = {
-                        rating: parsedRating,
-                        url: url,
-                    };
-                    return false;
-                }
+            const {data: html} = await axios({
+                method: "get",
+                url: `${config.ratingSource2}search/wines?q=${encodeURIComponent(productName)}`,
+                jar: cookieJar,
+                headers,
+                withCredentials: true,
             });
 
-            if (result) {
+            const document = parse(html);
+            const cards = document.querySelectorAll(".search-results-list .card");
+
+            const normalizedTarget = productName.toLowerCase();
+
+            for (const card of cards) {
+                const nameEl = card.querySelector(".wine-card__name a");
+                if (!nameEl) continue;
+
+                const name = nameEl.textContent?.trim().toLowerCase();
+                if (name !== normalizedTarget) continue;
+
+                const ratingText = card.querySelector(".average__number")?.textContent?.trim();
+                if (!ratingText) continue;
+
+                const rating = Number.parseFloat(ratingText.replace(",", "."));
+                if (Number.isNaN(rating)) continue;
+
+                const href = nameEl.getAttribute("href");
+                const url = href
+                    ? `${config.ratingSource2}wines${href.split("/wines")[1]}`
+                    : null;
+
+                const result = {rating, url};
+
                 console.log(`Found match for ${productName}:`, result);
                 return result;
-            } else {
-                console.log(`No exact match found for ${productName}`);
-                return {error: "No exact match found"};
             }
+
+            console.log(`No exact match found for ${productName}`);
+            return null;
+
         } catch (error) {
             console.error(
-                `Failed to get product rating from ${ratingSource2}:`,
+                `Failed to get product rating from ${config.ratingSource2}:`,
                 error
             );
-            throw error;
+            return null; // enforce contract
+        }
+    }
+
+    static async GetProductRatingFromSource2V2(productName) {
+        try {
+            const url = "https://9takgwjuxl-dsn.algolia.net/1/indexes/WINES_prod/query";
+
+            const response = await axios.post(
+                url,
+                {
+                    params: `query=${encodeURIComponent(productName)}&hitsPerPage=10`,
+                },
+                {
+                    headers: {
+                        "x-algolia-application-id": "9TAKGWJUXL",
+                        "x-algolia-api-key": "YOUR_API_KEY_HERE", // see note below
+                        "content-type": "application/json",
+                    },
+                }
+            );
+
+            const hits = response.data?.hits || [];
+            if (!hits.length) return null;
+
+            const normalizedTarget = productName.toLowerCase();
+
+            for (const hit of hits) {
+                const name = hit.name?.toLowerCase();
+                if (!name) continue;
+
+                if (name === normalizedTarget) {
+                    return {
+                        rating: hit.statistics?.ratings_average ?? null,
+                        url: `https://www.vivino.com/wines/${hit.seo_name}`,
+                    };
+                }
+            }
+
+            return null;
+        } catch (err) {
+            console.error("Vivino search failed:", err);
+            return null;
         }
     }
 }

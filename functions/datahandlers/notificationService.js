@@ -172,12 +172,30 @@ export default class NotificationClient {
         return email;
     }
 
-    static async SendFetchErrorEmail(text) {
+    static async SendFetchErrorEmail(text, stats) {
         let email = options;
         email.to = "mats@spritjakt.no";
         email.subject = "Daglig jobb feilet";
-        email.text = text;
+        email.text = text + this.formatStats(stats);
         await this.SendEmail(email);
+    }
+
+    static async SendCompletionEmail(stats) {
+        let email = options;
+        email.to = "mats@spritjakt.no";
+        email.subject = "Daglig jobb fullført";
+        email.text = "Oppdatering av priser er fullført." + this.formatStats(stats);
+        await this.SendEmail(email);
+    }
+
+    static formatStats(stats) {
+        if (!stats) return "";
+        return (
+            "\n\n--- Stats ---" +
+            `\nCreated: ${stats.totalCreated}` +
+            `\nExpired: ${stats.totalExpired}` +
+            `\nErrors: ${stats.totalErrors}`
+        );
     }
 
     static CreateFilterEmail(userFilterMatch) {

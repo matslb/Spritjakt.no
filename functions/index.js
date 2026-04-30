@@ -100,41 +100,40 @@ export const fetchProductRatingOnCreateV2 = onDocumentCreated(
     "Products/{producId}",
     async (event) => {
         const snapshot = event.data;
+        const productRef = snapshot.ref;
         const product = snapshot.data();
-        if (!product.Id.includes("x")) {
-            let rating1 = await VmpClient.FetchProductRatingFromSource1(
-                product.Id,
-                product.Name
-            );
 
-            var productRef = firebaseAdmin
-                .firestore()
-                .collection("Products")
-                .doc(product.Id);
-            var p = (await productRef.get()).data();
-            let {rating2, url} = await VmpClient.GetProductRatingFromSource2(
-                p.Name
-            );
+        if (!product?.Id || product.Id.includes("x")) return;
 
-            var rating = null;
-            if (rating1.rating != null) {
-                rating = Utils.convertRating(rating1.rating, 54, 99);
-            }
+        const {Id, Name} = product;
 
-            if (rating2 != undefined) {
-                var convertedrating2 = Utils.convertRating(rating2, 1, 5);
-                if (rating1.rating != null) {
-                    rating = Utils.mergeRatings(convertedrating2, rating, 0.4, 1);
-                } else {
-                    rating = convertedrating2 - 0.2;
-                }
-            }
+        const [source1, source2] = await Promise.all([
+            VmpClient.FetchProductRatingFromSource1(Id, Name),
+            null // VmpClient.GetProductRatingFromSource2(Name), TODO: Fix vivino
+        ]);
 
-            productRef.update({
-                VivinoRating: rating,
-                VivinoFetchDate: new Date(),
-            });
+        let rating = null;
+
+        if (source1 !== null) {
+            rating = Utils.convertRating(source1, 54, 99);
         }
+
+        if (source2 !== null) {
+            const converted = Utils.convertRating(source2, 1, 5);
+
+            rating =
+                rating != null
+                    ? Utils.mergeRatings(converted, rating, 0.4, 1)
+                    : converted;
+        }
+
+        // Nothing to update
+        if (rating == null) return;
+
+        await productRef.update({
+            VivinoRating: rating,
+            VivinoFetchDate: new Date(),
+        });
     }
 );
 

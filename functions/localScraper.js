@@ -8,256 +8,287 @@ import {exec} from "node:child_process";
 import * as util from "node:util";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
-import dns from 'dns';
+import dns from "dns";
 
-dns.setServers(['1.1.1.1', '8.8.8.8']);
+// ── Configuration ──────────────────────────────────────────────────────────────
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const MAX_CONSECUTIVE_FAILURES = 5;
+const BATCH_SIZE = 30;
+const PROGRESS_BAR_WIDTH = 20;
+
+const VPN_COUNTRIES = ["Norway", "Germany", "Sweden", "Denmark", "Finland"];
 
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
     databaseURL: "https://spritjakt.firebaseio.com/",
 });
 
-const log_stdout = process.stdout;
-let log_file;
+// ── Logging ────────────────────────────────────────────────────────────────────
 
-const log_File_name = () => {
+let logFile;
+
+function getLogFilePath() {
     const date = new Date();
     return path.join(__dirname, "logs", `${date.toISOString().slice(0, 10)}.log`);
-};
+}
 
-const customLog = (message, useConsole = false) => {
-    log_file.write(util.format(`${(new Date()).toLocaleString()} - ${message}`) + "\n");
-    if (useConsole) log_stdout.write(util.format(message) + "\n");
-};
-
-orchistrator();
-
-async function orchistrator() {
-    let lastRunDate = -1;
-
-    while (true) {
-        const time = new Date();
-
-        const runhour =
-            process.argv.length > 2
-                ? Number(process.argv[2])
-                : time.getHours();
-
-        const nextRunTime = new Date();
-        nextRunTime.setHours(runhour, 0, 0, 0);
-
-        if (
-            time.getHours() > runhour ||
-            lastRunDate === nextRunTime.getDate()
-        ) {
-            nextRunTime.setDate(nextRunTime.getDate() + 1);
-        }
-
-        const msLeft = Math.abs(nextRunTime.getTime() - time.getTime());
-
-        if (time.getHours() === runhour && lastRunDate !== time.getDate()) {
-            lastRunDate = time.getDate();
-
-            log_file = fs.createWriteStream(log_File_name(), {flags: "w"});
-
-            customLog(`Current time: ${(new Date()).toLocaleString()}`);
-            await UpdatePrices();
-
-            customLog(
-                `Finished run. It took ${new Date(Date.now() - time)
-                    .toISOString()
-                    .slice(11, 19)} hours.`,
-                true
-            );
-
-            reConnectToVpn("Norway", 0);
-        } else {
-            log_stdout.write(
-                `Not yet.. Sleeping for ${new Date(nextRunTime - time)
-                    .toISOString()
-                    .slice(11, 19)}\n`
-            );
-
-            await new Promise((r) => setTimeout(r, msLeft));
-        }
+function customLog(message, useConsole = false) {
+    logFile.write(util.format(`${new Date().toLocaleString()} - ${message}`) + "\n");
+    if (useConsole) {
+        process.stdout.write(util.format(message) + "\n");
     }
 }
 
-async function UpdatePrices() {
+// ── Utility helpers ────────────────────────────────────────────────────────────
 
-    const newProducts = await VmpClient.GetNewProductList();
-    const newProductIds = newProducts.map((p) => p.Id);
-    // TODO: Fix vintages failing. Possibly because of missing data?
-    if (newProductIds.length > 0) {
-        customLog(`Checking if ${newProductIds.length} products not in db`, true);
+function chunk(arr, size) {
+    return Array.from(
+        {length: Math.ceil(arr.length / size)},
+        (_, i) => arr.slice(i * size, i * size + size)
+    );
+}
 
-        const idsNotFound = await FirebaseClient.GetIdsNotInDb(newProductIds);
+function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+}
 
-        if (idsNotFound.length > 0) {
-            customLog(
-                `${idsNotFound.length} new products found. Creating them in database`,
-                true
-            );
-        }
+function randomSleep(min, max) {
+    return sleep(Math.random() * (max - min) + min);
+}
 
-        for (const [index, id] of idsNotFound.entries()) {
-            process.stdout.write(
-                `\r${index} of ${idsNotFound.length} Created`
-            );
+function formatDuration(ms) {
+    return new Date(ms).toISOString().slice(11, 19);
+}
 
-            try {
-                const response =
-                    await VmpClient.GetProductDetailsWithStock(id, true);
+function getRandomVpnCountry() {
+    return VPN_COUNTRIES[Math.floor(Math.random() * VPN_COUNTRIES.length)];
+}
 
-                if (response.product) {
-                    await FirebaseClient.UpsertProduct(response.product);
-                }
+async function reconnectToVpn(country, sleepTime) {
+    customLog("", true);
+    exec(`vpnConnector.cmd ${country}`, {encoding: "utf-8"});
+    customLog(`Connecting to ${country}. Waiting ${(sleepTime / 1000).toFixed(0)} seconds...`, true);
+    await sleep(sleepTime);
+}
 
-                await new Promise((r) =>
-                    setTimeout(r, Math.random() * 1500)
-                );
-            } catch (e) {
-                customLog(e, true);
-                return;
-            }
-        }
+// ── Progress display ───────────────────────────────────────────────────────────
+
+function buildProgressMessage({processed, total, totalExpired, totalErrors, totalCreated, startTime}) {
+    const percentage = processed / total;
+    const filled = Math.floor(PROGRESS_BAR_WIDTH * percentage);
+    const empty = PROGRESS_BAR_WIDTH - filled;
+    const elapsed = Date.now() - startTime;
+    const remaining = (elapsed / (processed + 1)) * (total - processed);
+
+    let msg =
+        `[${"=".repeat(filled)}${".".repeat(empty)}] ` +
+        `${(percentage * 100).toFixed(0)}% | ` +
+        `Fetched ${processed} of ${total} products | `;
+
+    if (totalCreated != null) {
+        msg += `Created: ${totalCreated} | `;
+    }
+    if (totalExpired != null) {
+        msg += `Expired: ${totalExpired} | `;
     }
 
+    msg +=
+        `Errors: ${totalErrors} | ` +
+        `Elapsed: ${formatDuration(elapsed)} | Remaining: ${formatDuration(remaining)} `;
+
+    return msg;
+}
+
+// ── Rate-limit / error handling ────────────────────────────────────────────────
+
+async function handleFetchError(response, productId, stats) {
+    customLog(`Could not fetch price of product ${productId}. Error: ${response.error}`);
+    stats.failCount++;
+    stats.totalErrors++;
+
+    if (response.statusCode === 429) {
+        customLog("Rate limited (429). Attempting to re-connect VPN");
+        await reconnectToVpn(getRandomVpnCountry(), 20000);
+    }
+}
+
+// ── Phase 1: Discover & create new products ────────────────────────────────────
+
+async function createNewProducts(stats) {
+    const newProducts = await VmpClient.GetNewProductList();
+    const newProductIds = newProducts.map((p) => p.Id);
+
+    if (newProductIds.length === 0) return true;
+
+    customLog(`Checking if ${newProductIds.length} products not in db`, true);
+    const idsNotFound = await FirebaseClient.GetIdsNotInDb(newProductIds);
+
+    if (idsNotFound.length === 0) return true;
+
+    customLog(`${idsNotFound.length} new products found. Creating them in database`, true);
+
+    stats.failCount = 0;
+    const startTime = Date.now();
+
+    for (const [index, id] of idsNotFound.entries()) {
+        const statusMessage = buildProgressMessage({
+            processed: index + 1,
+            total: idsNotFound.length,
+            totalCreated: stats.totalCreated,
+            totalErrors: stats.totalErrors,
+            startTime,
+        });
+        process.stdout.write(`\r${statusMessage}`);
+
+        try {
+            const response = await VmpClient.GetProductDetailsWithStock(id, true);
+
+            if (response.product) {
+                await FirebaseClient.UpsertProduct(response.product);
+                stats.totalCreated++;
+                stats.failCount = 0;
+            } else if (response.error) {
+                await handleFetchError(response, id, stats);
+            }
+
+            if (stats.failCount > MAX_CONSECUTIVE_FAILURES) {
+                customLog(`${stats.failCount} products failed in a row. Aborting.`, true);
+                return false;
+            }
+
+            await randomSleep(0, 1500);
+        } catch (e) {
+            customLog(e, true);
+            return false;
+        }
+    }
+    return true;
+}
+
+// ── Phase 2: Update existing product prices ────────────────────────────────────
+
+async function updateExistingProducts(stats) {
     customLog("Starting Product price fetch", true);
+
     const products = await FirebaseClient.GetProductsToBeUpdated();
-    const p_batches = chunk(products, 30);
+    const batches = chunk(products, BATCH_SIZE);
 
-    let failcount = 0;
-    let totalErrors = 0;
-    let totalExpired = 0;
-
-    const start = Date.now();
+    stats.failCount = 0;
+    const startTime = Date.now();
     let statusMessage = "";
 
-    const progressbarWidth = 20;
+    for (const batch of batches) {
+        await reconnectToVpn(getRandomVpnCountry(), Math.random() * 15000 + 5000);
 
-    for (const batch of p_batches) {
-        await reConnectToVpn(getVpnCountry(), (Math.random() * 15000) + 5000);
+        const dbBatch = firebase.firestore().batch();
 
-        const db_batch = firebase.firestore().batch();
-
-        for (const product of batch) {
+        for (const [batchIndex, product] of batch.entries()) {
             console.clear();
 
             const processed = products.indexOf(product) + 1;
-            const percentage = processed / products.length;
-
-            const filled = Math.floor(progressbarWidth * percentage);
-            const empty = progressbarWidth - filled;
-
-            const left = products.length - processed;
-
-            const elapsed = Date.now() - start;
-
-            const elapsedString = new Date(elapsed)
-                .toISOString()
-                .slice(11, 19);
-
-            const remainingString = new Date((elapsed / (processed + 1)) * left).toISOString().slice(11, 19);
-
-            statusMessage = `[${"=".repeat(filled)}${".".repeat(empty)}] ${(percentage * 100).toFixed(0)}% | Fetched ${processed} of ${products.length} products | Expired: ${totalExpired} | Errors: ${totalErrors} | Elapsed: ${elapsedString} | Remaining: ${remainingString} `;
-
+            statusMessage = buildProgressMessage({
+                processed,
+                total: products.length,
+                totalExpired: stats.totalExpired,
+                totalErrors: stats.totalErrors,
+                startTime,
+            });
             process.stdout.write(`\r${statusMessage}`);
 
             try {
-                const detailsRes =
-                    await VmpClient.GetProductDetailsWithStock(
-                        product.Id,
-                        false
-                    );
+                const detailsRes = await VmpClient.GetProductDetailsWithStock(product.Id, false);
 
                 if (detailsRes.product) {
-                    const found = await FirebaseClient.UpdateProduct(
-                        db_batch,
-                        product,
-                        detailsRes.product
-                    );
-
+                    const found = await FirebaseClient.UpdateProduct(dbBatch, product, detailsRes.product);
                     if (!found) {
                         customLog(`Could not update Product ${product.Id}`);
                     }
-
-                    failcount = 0;
+                    stats.failCount = 0;
                 } else if (detailsRes.error) {
-                    customLog(
-                        `Could not fetch price of product ${product.Id}. Error: ${detailsRes.error}`
-                    );
-
-                    failcount++;
-                    totalErrors++;
-
-                    if (detailsRes.statusCode === 429) {
-                        customLog(
-                            `Rate limited (429). Attempting to re-connect VPN`
-                        );
-                        await reConnectToVpn(getVpnCountry(), 60000);
-                    }
+                    await handleFetchError(detailsRes, product.Id, stats);
                 } else {
-                    customLog(
-                        `Product ${product.Id} was not found. Marking as 'Expired'`
-                    );
-
-                    totalExpired++;
-                    await FirebaseClient.ExpireProduct(
-                        db_batch,
-                        product.Id
-                    );
-
-                    failcount = 0;
+                    customLog(`Product ${product.Id} was not found. Marking as 'Expired'`);
+                    stats.totalExpired++;
+                    await FirebaseClient.ExpireProduct(dbBatch, product.Id);
+                    stats.failCount = 0;
                 }
 
-                if (failcount > 5) {
-                    await NotificationClient.SendFetchErrorEmail(statusMessage);
-                    customLog(`${failcount} products failed in a row. Aborting.`, true);
+                if (stats.failCount > MAX_CONSECUTIVE_FAILURES) {
+                    await NotificationClient.SendFetchErrorEmail(statusMessage, stats);
+                    customLog(`${stats.failCount} products failed in a row. Aborting.`, true);
                     return;
                 }
 
-                await new Promise((r) => setTimeout(r, (Math.random() * 800) + 400));
+                await randomSleep(400, 1200);
             } catch (e) {
                 customLog(`Pricefetch failed. Error: ${e}`, true);
             }
         }
 
-        await db_batch.commit();
+        await dbBatch.commit();
         customLog(statusMessage, true);
     }
 
     customLog(statusMessage);
 }
 
-async function reConnectToVpn(country, sleepTime) {
+// ── Main update pipeline ───────────────────────────────────────────────────────
 
-    customLog("", true);
+async function updatePrices() {
+    const stats = {failCount: 0, totalErrors: 0, totalExpired: 0, totalCreated: 0};
 
-    exec(`vpnConnector.cmd ${country}`, {encoding: "utf-8"});
+    const success = await createNewProducts(stats);
+    if (success === false) return;
 
-    customLog(`Connecting to ${country}. Waiting ${(sleepTime / 1000).toFixed(0)} seconds...`, true);
+    await updateExistingProducts(stats);
 
-    await new Promise((r) => setTimeout(r, sleepTime));
+    await NotificationClient.SendCompletionEmail(stats);
 }
 
-function getVpnCountry() {
-    const countries = [
-        "Norway",
-        "Germany",
-        "Sweden",
-        "Denmark",
-        "Finland",
-    ];
+// ── Scheduler / orchestrator ───────────────────────────────────────────────────
 
-    return countries[Math.floor(Math.random() * countries.length)];
+async function orchestrator() {
+    let lastRunDate = -1;
+
+    while (true) {
+        const now = new Date();
+        const runHour = process.argv.length > 2 ? Number(process.argv[2]) : now.getHours();
+
+        const nextRunTime = new Date();
+        nextRunTime.setHours(runHour, 0, 0, 0);
+
+        if (now.getHours() > runHour || lastRunDate === nextRunTime.getDate()) {
+            nextRunTime.setDate(nextRunTime.getDate() + 1);
+        }
+
+        const msLeft = Math.abs(nextRunTime.getTime() - now.getTime());
+
+        if (now.getHours() === runHour && lastRunDate !== now.getDate()) {
+            lastRunDate = now.getDate();
+            logFile = fs.createWriteStream(getLogFilePath(), {flags: "w"});
+
+            customLog(`Current time: ${new Date().toLocaleString()}`);
+            await reconnectToVpn(getRandomVpnCountry(), 60000);
+            await updatePrices();
+
+            customLog(
+                `Finished run. It took ${formatDuration(Date.now() - now)} hours.`,
+                true
+            );
+
+            reconnectToVpn("Norway", 0);
+        } else {
+            process.stdout.write(
+                `Not yet.. Sleeping for ${formatDuration(nextRunTime - now)}\n`
+            );
+            await sleep(msLeft);
+        }
+    }
 }
 
-const chunk = (arr, size) =>
-    Array.from(
-        {length: Math.ceil(arr.length / size)},
-        (_, i) => arr.slice(i * size, i * size + size)
-    );
+orchestrator();

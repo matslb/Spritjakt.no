@@ -68,10 +68,7 @@ export default class FirebaseClient {
         if (new_p.Price !== null) {
             new_p = this.CalculatePrices(new_p, new_p?.Alcohol ?? sp?.Alcohol);
 
-            if (new_p.Alcohol === undefined)
-                console.log("Alcohol undefined for " + new_p.Id);
-
-            let ComparingPrice = sp.PriceHistory[sp.LastUpdated] ?? new_p.Price;
+            let ComparingPrice = sp.PriceHistory[sp.PriceHistorySorted[0]] ?? new_p.Price;
             let PriceChange = (new_p.Price / ComparingPrice) * 100;
 
             if (
@@ -149,7 +146,9 @@ export default class FirebaseClient {
         const checks = ids.map(async (id) => {
             const docRef = firebase.firestore().collection("Products").doc(id);
             const docSnap = await docRef.get();
-            if (!docSnap.exists || !docSnap.data().buyable) results.push(id);
+            if (!docSnap.exists || !docSnap.data().Buyable) {
+                results.push(id);
+            }
         });
         await Promise.all(checks);
         return results;
@@ -158,8 +157,11 @@ export default class FirebaseClient {
     static async GetProductsToBeUpdated() {
         let products = [];
         let today = new Date().getDate();
-        let yesterDay = new Date();
-        yesterDay.setDate(yesterDay.getDate() - 1);
+        let threeDaysAgo = new Date();
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+        let sixMonthsAgo = new Date();
+        sixMonthsAgo.setDate(sixMonthsAgo.getMonth() - 6);
 
         if (this.IsLastDayOfMonth()) return products;
 
@@ -167,7 +169,7 @@ export default class FirebaseClient {
             .firestore()
             .collection("Products")
             .orderBy("LastPriceFetchDate", "asc")
-            .where("LastPriceFetchDate", "<", yesterDay)
+            .where("LastPriceFetchDate", "<", threeDaysAgo)
             .where("Expired", "==", false)
             .limit(today === 1 ? 35000 : 10000)
             .get()
@@ -185,7 +187,7 @@ export default class FirebaseClient {
             .firestore()
             .collection("Products")
             .orderBy("LastPriceFetchDate", "asc")
-            .where("LastPriceFetchDate", "<", yesterDay)
+            .where("LastPriceFetchDate", "<", threeDaysAgo)
             .where("Buyable", "==", true)
             .where("Expired", "==", true)
             .limit(1000)
@@ -204,10 +206,10 @@ export default class FirebaseClient {
             .firestore()
             .collection("Products")
             .orderBy("LastPriceFetchDate", "asc")
-            .where("LastPriceFetchDate", "<", yesterDay)
+            .where("LastPriceFetchDate", "<", sixMonthsAgo)
             .where("Buyable", "==", false)
             .where("Expired", "==", true)
-            .limit(100)
+            .limit(1000)
             .get()
             .then(function (qs) {
                 if (!qs.empty) {

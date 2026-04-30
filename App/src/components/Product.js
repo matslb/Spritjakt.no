@@ -46,7 +46,6 @@ const Product = ({
         }
         setIsFavorite(!isFavorite);
     };
-    //TODO: Problemer relatert til types i vintages??
     let showDiff =
         (product.PriceChange && product.PriceChange > 100.1) ||
         product.PriceChange < 99.9;
@@ -54,7 +53,6 @@ const Product = ({
     let lastChangedDate = dateFormater.format(
         dateFormater.parse(product.LastUpdated)
     );
-    let isSoldOut = product.Stores.length == 0;
 
     return (
         <div
